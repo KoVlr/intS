@@ -17,8 +17,22 @@ function App(props) {
         <TokenContext.Provider value={{token: token, setToken: setToken}}>
             <BrowserRouter>
                 <Routes>
+                    <Route path="/" element={<RootElem/>}>
+                        <Route path="/collection" element={<></>} />
+                        <Route path="/history" element={<></>} />
+                        <Route path="/allcourses" element={<></>} />
+                    </Route>
+                    <Route path="/courses/:courseId" element={<></>} />
+                    <Route path="/article/:articleID" element={<></>} />
+
+                    <Route path="/become_author" element={<></>} />
+                    <Route path="/authors/:authorId" element={<></>} />
+                    <Route path="/author_menu" element={<></>} />
+                    <Route path="/edit/courses/:courseId" element={<></>} />
+                    <Route path="/edit/article/:articleId" element={<></>} />
+
                     <Route path="/login" element={<LoginForm/>} />
-                    <Route path="/" element={<RootElem/>} />
+                    <Route path="/signup" element={<></>} />
                 </Routes>
             </BrowserRouter>
         </TokenContext.Provider>
