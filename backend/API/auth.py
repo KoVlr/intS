@@ -1,14 +1,13 @@
 from datetime import datetime, timedelta
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, SecurityScopes
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from backend.database.db_client import DB_Client
-from backend.database.db_models import Users
+from .schemes import UserModel, Token, TokenData
+from .crud import get_user, get_scopes, create_user
 
 auth_router = APIRouter(
     prefix="/auth",
@@ -27,39 +26,6 @@ oauth2_scheme = OAuth2PasswordBearer(
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 db_session = DB_Client().connect()
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    email: str | None = None
-    scopes: List[str] = []
-
-class UserModel(BaseModel):
-    email: str
-    hashed_password: str
-
-def get_user(email: str):
-    user_in_db = db_session.query(Users).filter(Users.email == email).first()
-    if not user_in_db:
-        return False
-    user = UserModel(
-        email = user_in_db.email,
-        hashed_password = user_in_db.hashed_password
-    )
-    return user
-
-def get_scopes(email: str):
-    return []
-
-def add_user(user: UserModel):
-    new_user = Users(
-        email = user.email,
-        hashed_password = user.hashed_password
-    )
-    db_session.add(new_user)
-    db_session.commit()
 
 def get_hash(password):
     return pwd_context.hash(password)
@@ -138,5 +104,5 @@ async def sign_up(email: str = Body(embed=True), password: str = Body(embed=True
     if user:
         raise HTTPException(status_code=400, detail="User already registered")
     new_user = UserModel(email = email, hashed_password = get_hash(password))
-    add_user(new_user)
+    create_user(new_user)
     return {"message": "OK"}
