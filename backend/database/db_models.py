@@ -60,9 +60,10 @@ class Articles(Base):
     __tablename__ = 'articles'
 
     id = Column(Integer, primary_key=True)
+    course_id = Column(Integer, ForeignKey('courses.id'))
     name = Column(String, nullable=False)
     file = Column(String, nullable=False)
-    course_id = Column(Integer, ForeignKey('courses.id'))
+    position_in_course = Column(Integer, nullable=False)
     creation_date = Column(Date, nullable=False)
     update_date = Column(Date, nullable=False)
     published = Column(Boolean, nullable=False)
@@ -71,6 +72,7 @@ class Articles(Base):
 
     __table_args__ = (
         UniqueConstraint('name', 'course_id'),
+        UniqueConstraint('position_in_course', 'course_id'),
     )
 
 class Сomments(Base):
