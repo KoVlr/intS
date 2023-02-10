@@ -4,3 +4,4 @@ node_modules
 package-lock.json
 vkr_env
 db_config.json
+design
