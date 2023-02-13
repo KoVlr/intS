@@ -5,7 +5,7 @@ export default function UserMenu() {
     return (
         <>
             username<br/>
-            <Link to="become_author">Стать автором</Link><br/>
+            <Link to="/become_author">Стать автором</Link><br/>
             <button>Выход</button>
         </>
     );

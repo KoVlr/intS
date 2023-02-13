@@ -1,10 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {TokenContext} from "./app.jsx";
+import { TokenContext } from "./app.jsx";
 
-function LoginForm(props) {
+export default function LoginForm(props) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    
     const navigate = useNavigate();
 
     const context = useContext(TokenContext);
@@ -44,5 +45,3 @@ function LoginForm(props) {
         </form>
     );
 }
-
-export default LoginForm;

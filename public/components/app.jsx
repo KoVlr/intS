@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import Root from "./root.jsx";
+import Home from "./home.jsx";
 import LoginForm from "./login.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
@@ -19,8 +20,9 @@ export default function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<Root/>}>
-                        <Route path="/home" element={<></>}>
-                            <Route index element={<Navigate to="/collection"/>} />
+                        <Route index element={<Navigate to="/home"/>} />
+                        <Route path="/home" element={<Home/>}>
+                            <Route index element={<Navigate to="/home/collection"/>} />
                             <Route path="/home/collection" element={<>Collection</>} />
                             <Route path="/home/history" element={<>History</>} />
                             <Route path="/home/allcourses" element={<>Allcourses</>} />
