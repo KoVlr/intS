@@ -9,6 +9,14 @@ class TokenData(BaseModel):
     email: str | None = None
     scopes: List[str] = []
 
-class UserModel(BaseModel):
+class UserBase(BaseModel):
+    username: str
     email: str
-    hashed_password: str
+
+class UserCreate(UserBase):
+    password: str
+
+class User(BaseModel):
+    id: int
+    class Config:
+        orm_mode = True

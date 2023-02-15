@@ -1,37 +1,40 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TokenContext } from "./app.jsx";
 
-export default function LoginForm() {
+export default function SignupForm() {
+    const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     
     const navigate = useNavigate();
 
-    const context = useContext(TokenContext);
-
     const handleSubmit = async function(event) {
         event.preventDefault();
 
-        let formdata = new FormData();
-        formdata.set('username', email);
-        formdata.set('password', password);
-
-        let response = await fetch('http://127.0.0.1:8000/auth/token', {
+        let response = await fetch('http://127.0.0.1:8000/auth/signup', {
             method: 'POST',
-            body: formdata
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password
+            })
         });
         if (response.ok){
-            let token = await response.json();
-            context.setToken(token);
-            navigate("/");
+            navigate("/login");
         }
     };
 
     return (
         <form onSubmit={handleSubmit}>
             <fieldset>
-                <legend>Вход</legend>
+                <legend>Регистрация</legend>
+                <label>
+                    username:
+                    <input name="username" type="text" value={username} onChange={(event)=>setUsername(event.target.value)}/>
+                </label>
                 <label>
                     email:
                     <input name="email" type="text" value={email} onChange={(event)=>setEmail(event.target.value)}/>
@@ -40,7 +43,7 @@ export default function LoginForm() {
                     password:
                     <input name="password" type="text" value={password} onChange={(event)=>setPassword(event.target.value)}/>
                 </label>
-                <input type="submit" value="Войти"/>
+                <input type="submit" value="Зарегистрироваться"/>
             </fieldset>
         </form>
     );

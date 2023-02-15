@@ -9,6 +9,7 @@ import {
 import Root from "./root.jsx";
 import Home from "./home.jsx";
 import LoginForm from "./login.jsx";
+import SignupForm from "./signup.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
@@ -43,7 +44,7 @@ export default function App() {
                         <Route path="/become_author" element={<></>} />
                     </Route>
                     <Route path="/login" element={<LoginForm/>} />
-                    <Route path="/signup" element={<></>} />
+                    <Route path="/signup" element={<SignupForm/>} />
                 </Routes>
             </BrowserRouter>
         </TokenContext.Provider>

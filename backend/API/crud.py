@@ -3,22 +3,18 @@ from . import schemes
 import backend.database.db_models as db_models
 
 def get_user(db: Session, email: str):
-    user_in_db = db.query(db_models.Users).filter(db_models.Users.email == email).first()
-    if not user_in_db:
-        return False
-    user = schemes.UserModel(
-        email = user_in_db.email,
-        hashed_password = user_in_db.hashed_password
-    )
-    return user
+    return db.query(db_models.Users).filter(db_models.Users.email == email).first()
 
 def get_scopes(db: Session, email: str):
     return []
 
-def create_user(db: Session, user: schemes.UserModel):
-    new_user = db_models.Users(
-        email = user.email,
-        hashed_password = user.hashed_password
+def create_user(db: Session, user: schemes.UserCreate):
+    db_user = db_models.Users(
+        username=user.username,
+        email=user.email,
+        hashed_password=user.password
     )
-    db.add(new_user)
+    db.add(db_user)
     db.commit()
+    db.refresh(db_user)
+    return db_user

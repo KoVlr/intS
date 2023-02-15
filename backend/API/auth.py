@@ -6,8 +6,8 @@ from passlib.context import CryptContext
 from pydantic import ValidationError
 
 from backend.database.db_client import DB_Client
-from .schemes import UserModel, Token, TokenData
-from .crud import get_user, get_scopes, create_user
+from . import schemes
+from . import crud
 
 auth_router = APIRouter(
     prefix="/auth",
@@ -34,7 +34,7 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 def authenticate_user(email: str, password: str):
-    user = get_user(db_session, email)
+    user = crud.get_user(db_session, email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -69,10 +69,10 @@ async def get_current_user(
         if email is None:
             raise credentials_exception
         token_scopes = payload.get("scopes", [])
-        token_data = TokenData(scopes=token_scopes, email=email)
+        token_data = schemes.TokenData(scopes=token_scopes, email=email)
     except (JWTError, ValidationError):
         raise credentials_exception
-    user = get_user(db_session, email)
+    user = crud.get_user(db_session, email)
     if user is None:
         raise credentials_exception
     for scope in security_scopes.scopes:
@@ -84,13 +84,16 @@ async def get_current_user(
             )
     return user
 
-@auth_router.post("/token", response_model=Token)
+@auth_router.post("/token", response_model=schemes.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(form_data.username, form_data.password)
+    email = form_data.username #user is identified by email
+
+    user = authenticate_user(email, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
+    
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    scopes = get_scopes(db_session, form_data.username)
+    scopes = crud.get_scopes(db_session, user.email)
     access_token = create_access_token(
         data={"sub": user.email, "scopes": scopes},
         expires_delta=access_token_expires,
@@ -98,11 +101,12 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "Bearer"}
 
 
-@auth_router.post("/sign-up")
-async def sign_up(email: str = Body(embed=True), password: str = Body(embed=True)):
-    user = get_user(db_session, email)
-    if user:
+@auth_router.post("/signup", response_model=schemes.User)
+async def sign_up(user: schemes.UserCreate):
+    existing_user = crud.get_user(db_session, user.email)
+    if existing_user:
         raise HTTPException(status_code=400, detail="User already registered")
-    new_user = UserModel(email = email, hashed_password = get_hash(password))
-    create_user(db_session, new_user)
-    return {"message": "OK"}
+    
+    user.password = get_hash(user.password)
+
+    return crud.create_user(db_session, user)

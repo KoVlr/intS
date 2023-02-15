@@ -17,7 +17,7 @@ class Users(Base):
 
     id = Column(Integer, primary_key=True)
     username = Column(String, unique=True, nullable=False)
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
     hashed_password = Column(String, nullable=False)
 
 class Authors(Base):
@@ -26,7 +26,7 @@ class Authors(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
 
-    user = relationship('users', backref='author', uselist=False)
+    user = relationship('Users', backref='author', uselist=False)
 
 class Courses(Base):
     __tablename__ = 'courses'
@@ -40,7 +40,7 @@ class Courses(Base):
     rating = Column(Float)
     creation_date = Column(Date, nullable=False)
 
-    author = relationship('authors', backref='courses')
+    author = relationship('Authors', backref='courses')
 
     __table_args__ = (
         UniqueConstraint('name', 'author_id'),
@@ -68,7 +68,7 @@ class Articles(Base):
     update_date = Column(Date, nullable=False)
     published = Column(Boolean, nullable=False)
     
-    course = relationship('courses', backref='article')
+    course = relationship('Courses', backref='article')
 
     __table_args__ = (
         UniqueConstraint('name', 'course_id'),
@@ -87,8 +87,8 @@ class Сomments(Base):
     content = Column(String)
     writing_date = Column(Date, nullable=False)
 
-    user = relationship('users', backref='comment')
-    article = relationship('articles', backref='comment')
+    user = relationship('Users', backref='comment')
+    article = relationship('Articles', backref='comment')
 
 class History(Base):
     __tablename__ = 'history'
@@ -97,8 +97,8 @@ class History(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     reading_date = Column(Date, nullable=False)
 
-    user = relationship('users', backref='comment')
-    article = relationship('articles', backref='comment')
+    user = relationship('Users', backref='history_record')
+    article = relationship('Articles', backref='history_record')
 
     __table_args__ = (
         PrimaryKeyConstraint('article_id', 'user_id'),
