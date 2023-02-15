@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TokenContext } from './app.jsx';
+import { useGetToken } from './login.jsx';
 
 export default function SignupForm() {
     const [username, setUsername] = useState("");
@@ -7,6 +9,7 @@ export default function SignupForm() {
     const [password, setPassword] = useState("");
     
     const navigate = useNavigate();
+    const getToken = useGetToken(email, password, TokenContext);
 
     const handleSubmit = async function(event) {
         event.preventDefault();
@@ -23,7 +26,7 @@ export default function SignupForm() {
             })
         });
         if (response.ok){
-            navigate("/login");
+            if (getToken()) navigate("/");
         }
     };
 

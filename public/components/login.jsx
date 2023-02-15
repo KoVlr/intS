@@ -2,30 +2,38 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TokenContext } from "./app.jsx";
 
-export default function LoginForm() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    
-    const navigate = useNavigate();
-
+export function useGetToken(username, password, TokenContext) {
     const context = useContext(TokenContext);
 
-    const handleSubmit = async function(event) {
-        event.preventDefault();
-
+    return async function () {
         let formdata = new FormData();
-        formdata.set('username', email);
+        formdata.set('username', username);
         formdata.set('password', password);
 
         let response = await fetch('http://127.0.0.1:8000/auth/token', {
             method: 'POST',
             body: formdata
         });
-        if (response.ok){
+        if (response.ok) {
             let token = await response.json();
             context.setToken(token);
-            navigate("/");
+            return True;
         }
+        else return False;
+    };
+}
+
+export default function LoginForm() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    
+    const navigate = useNavigate();
+
+    const getToken = useGetToken(email, password, TokenContext);
+
+    const handleSubmit = async function(event) {
+        event.preventDefault();
+        if (getToken()) navigate("/");
     };
 
     return (

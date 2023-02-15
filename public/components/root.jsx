@@ -9,8 +9,7 @@ export default function Root() {
     let user_menu;
     if (context.token === null) {
         user_menu = <>
-            <Link to="/login">Войти</Link>
-            <Link to="/signup">Зарегистрироваться</Link>
+            <Link to="/login">Войти</Link> <Link to="/signup">Зарегистрироваться</Link>
         </>;
     } else {
         user_menu = <UserMenu/>;
