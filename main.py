@@ -3,6 +3,10 @@ from fastapi import FastAPI
 from backend.API.auth import auth_router
 from backend.API.test import test_router
 from backend.API.FilesProviding import FilesProviding_router
+from backend.database.db_models import Base
+from backend.database.database import engine
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
