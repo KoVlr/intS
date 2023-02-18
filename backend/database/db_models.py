@@ -1,6 +1,6 @@
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy import Column, Integer, String, Date, Boolean, TIMESTAMP, Float, ARRAY, ForeignKey, UniqueConstraint, Text, PrimaryKeyConstraint
+from sqlalchemy import Column, Integer, String, UUID, Boolean, TIMESTAMP, Float, ForeignKey, UniqueConstraint, Text, PrimaryKeyConstraint
 from sqlalchemy.ext.declarative import declarative_base
 
 def base_repr(self):
@@ -38,7 +38,7 @@ class Courses(Base):
     is_public = Column(Boolean, nullable=False)
     views_count = Column(Integer)
     rating = Column(Float)
-    creation_date = Column(Date, nullable=False)
+    creation_date = Column(TIMESTAMP, nullable=False)
 
     author = relationship('Authors', backref='courses')
 
@@ -50,7 +50,7 @@ class Access(Base):
     __tablename__ = 'access'
     course_id = Column(Integer, ForeignKey('courses.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
-    receiving_date = Column(Date, nullable=False)
+    receiving_date = Column(TIMESTAMP, nullable=False)
 
     __table_args__ = (
         PrimaryKeyConstraint('course_id', 'user_id'),
@@ -64,8 +64,8 @@ class Articles(Base):
     name = Column(String, nullable=False)
     file = Column(String, nullable=False)
     position_in_course = Column(Integer, nullable=False)
-    creation_date = Column(Date, nullable=False)
-    update_date = Column(Date, nullable=False)
+    creation_date = Column(TIMESTAMP, nullable=False)
+    update_date = Column(TIMESTAMP, nullable=False)
     published = Column(Boolean, nullable=False)
     
     course = relationship('Courses', backref='article')
@@ -85,7 +85,7 @@ class Сomments(Base):
     reply_to = Column(Integer, ForeignKey('comments.id'))
     viewed = Column(Boolean)
     content = Column(String)
-    writing_date = Column(Date, nullable=False)
+    writing_date = Column(TIMESTAMP, nullable=False)
 
     user = relationship('Users', backref='comment')
     article = relationship('Articles', backref='comment')
@@ -95,7 +95,7 @@ class History(Base):
 
     article_id = Column(Integer, ForeignKey('articles.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
-    reading_date = Column(Date, nullable=False)
+    reading_date = Column(TIMESTAMP, nullable=False)
 
     user = relationship('Users', backref='history_record')
     article = relationship('Articles', backref='history_record')
@@ -103,3 +103,13 @@ class History(Base):
     __table_args__ = (
         PrimaryKeyConstraint('article_id', 'user_id'),
     )
+
+class RefreshTokens(Base):
+    __tablename__ = 'refresh_tokens'
+
+    uuid = Column(UUID, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    created_at = Column(TIMESTAMP)
+    expires_in = Column(Integer)
+
+    user = relationship('Users', backref='refresh_token')
