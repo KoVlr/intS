@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     BrowserRouter,
     Routes,
@@ -15,6 +15,19 @@ export const TokenContext = React.createContext({token: null, setToken: () => {}
 
 export default function App() {
     const [token, setToken] = useState(null);
+
+    useEffect(()=>{
+        async function fetchTokens() {
+            let response = await fetch('/auth/refresh_tokens', {
+                method: 'POST'
+            });
+            if (response.ok){
+                let token = await response.json();
+                setToken(token);
+            }
+        }
+        fetchTokens();
+    }, [])
 
     return (
         <TokenContext.Provider value={{token: token, setToken: setToken}}>

@@ -46,11 +46,13 @@ def create_access_token(email: str, db: Session):
     scopes = crud.get_scopes(db, email)
 
     expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    expire = datetime.utcnow() + expires_delta
+    expires = datetime.utcnow() + expires_delta
 
-    data={"sub": email, "scopes": scopes, "exp": expire}
+    data={"sub": email, "scopes": scopes, "exp": expires}
     encoded_jwt = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+
+    access_token = schemes.Token(access_token=encoded_jwt, token_type="Bearer", expires=expires)
+    return access_token
 
 def update_refresh_token(user_id: int, refresh_token: uuid.UUID | None, db: Session):
     if refresh_token is not None:
@@ -84,7 +86,7 @@ def login_for_access_token(
     access_token = create_access_token(user.email, db)
     
     response.set_cookie(key="refresh_token", value=new_refresh_token.uuid, max_age=new_refresh_token.expires_in, httponly=True)
-    return {"access_token": access_token, "token_type": "Bearer"}
+    return access_token
 
 @auth_router.post("/refresh_tokens", response_model=schemes.Token)
 def refresh_tokens(response: Response, refresh_token: uuid.UUID | None = Cookie(None), db: Session = Depends(get_db)):
@@ -100,7 +102,7 @@ def refresh_tokens(response: Response, refresh_token: uuid.UUID | None = Cookie(
     access_token = create_access_token(new_refresh_token.user.email, db)
 
     response.set_cookie(key="refresh_token", value=new_refresh_token.uuid, max_age=new_refresh_token.expires_in, httponly=True)
-    return {"access_token": access_token, "token_type": "Bearer"}
+    return access_token
 
 @auth_router.post("/signup", response_model=schemes.User)
 def sign_up(user: schemes.UserCreate, db: Session = Depends(get_db)):
