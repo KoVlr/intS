@@ -1,15 +1,15 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
-FilesProviding_router = APIRouter(
+files_providing_router = APIRouter(
     prefix="",
-    tags=["FilesProviding"]
+    tags=["files_providing"]
 )
 
-@FilesProviding_router.get("/")
+@files_providing_router.get("/")
 def root():
     return FileResponse("public/index.html")
 
-@FilesProviding_router.get("/{path:path}")
+@files_providing_router.get("/{path:path}")
 def to_root(path: str):
     return FileResponse("public/index.html")
