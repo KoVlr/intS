@@ -112,7 +112,14 @@ def refresh_tokens(response: Response, refresh_token: uuid.UUID | None = Cookie(
     new_refresh_token = update_refresh_token(db_refresh_token.user_id, refresh_token, db)
     access_token = create_access_token(new_refresh_token.user.email, db)
 
-    response.set_cookie(key="refresh_token", value=new_refresh_token.uuid, max_age=new_refresh_token.expires_in, httponly=True)
+    response.set_cookie(
+            key="refresh_token",
+            value=new_refresh_token.uuid,
+            max_age=new_refresh_token.expires_in,
+            httponly=True,
+            path='/auth',
+            samesite='strict'
+        )
     return access_token
 
 
