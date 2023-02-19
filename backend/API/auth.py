@@ -88,7 +88,14 @@ def login_for_access_token(
     new_refresh_token = update_refresh_token(user.id, refresh_token, db)
     access_token = create_access_token(user.email, db)
     
-    response.set_cookie(key="refresh_token", value=new_refresh_token.uuid, max_age=new_refresh_token.expires_in, httponly=True)
+    response.set_cookie(
+            key="refresh_token",
+            value=new_refresh_token.uuid,
+            max_age=new_refresh_token.expires_in,
+            httponly=True,
+            path='/auth',
+            samesite='strict'
+        )
     return access_token
 
 
@@ -124,7 +131,7 @@ def sign_up(user: schemes.UserCreate, db: Session = Depends(get_db)):
 def logout(response: Response, refresh_token: uuid.UUID | None = Cookie(None), db: Session = Depends(get_db)):
     if refresh_token is not None:
         crud.delete_refresh_token(db, refresh_token)
-        
+
     response.delete_cookie(key="refresh_token")
     return {'status': 'success'}
 
