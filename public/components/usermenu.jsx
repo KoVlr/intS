@@ -5,6 +5,7 @@ import { TokenContext } from "./app.jsx";
 export default function UserMenu() {
     const context = useContext(TokenContext);
     const [username, setUsername] = useState("loading...");
+
     useEffect(()=>{
         async function fetchUser() {
             let response = await fetch('/user', {
@@ -13,7 +14,7 @@ export default function UserMenu() {
                     Authorization: `${context.token.token_type} ${context.token.access_token}`
                 }
             });
-            if (response.ok){
+            if (response.ok) {
                 let user = await response.json();
                 setUsername(user.username);
             }
@@ -21,11 +22,20 @@ export default function UserMenu() {
         fetchUser();
     }, []);
 
+    async function logout_click_handle() {
+        let response = await fetch('/auth/logout', {
+            method: 'POST'
+        });
+        if (response.ok) {
+            context.setToken(null);
+        }
+    }
+
     return (
         <>
             {username}<br/>
             <Link to="/become_author">Стать автором</Link><br/>
-            <button>Выход</button>
+            <button onClick={logout_click_handle}>Выход</button>
         </>
     );
 }

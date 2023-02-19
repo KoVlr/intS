@@ -42,6 +42,7 @@ def authenticate_user(email: str, password: str, db: Session):
         return False
     return user
 
+
 def create_access_token(email: str, db: Session):
     scopes = crud.get_scopes(db, email)
 
@@ -53,6 +54,7 @@ def create_access_token(email: str, db: Session):
 
     access_token = schemes.Token(access_token=encoded_jwt, token_type="Bearer", expires=expires)
     return access_token
+
 
 def update_refresh_token(user_id: int, refresh_token: uuid.UUID | None, db: Session):
     if refresh_token is not None:
@@ -67,6 +69,7 @@ def update_refresh_token(user_id: int, refresh_token: uuid.UUID | None, db: Sess
 
     db_refresh_token = crud.create_refresh_token(db, new_refresh_token)
     return db_refresh_token
+
 
 @auth_router.post("/login", response_model=schemes.Token)
 def login_for_access_token(
@@ -88,6 +91,7 @@ def login_for_access_token(
     response.set_cookie(key="refresh_token", value=new_refresh_token.uuid, max_age=new_refresh_token.expires_in, httponly=True)
     return access_token
 
+
 @auth_router.post("/refresh_tokens", response_model=schemes.Token)
 def refresh_tokens(response: Response, refresh_token: uuid.UUID | None = Cookie(None), db: Session = Depends(get_db)):
     db_refresh_token = crud.get_refresh_token(db, refresh_token)
@@ -104,6 +108,7 @@ def refresh_tokens(response: Response, refresh_token: uuid.UUID | None = Cookie(
     response.set_cookie(key="refresh_token", value=new_refresh_token.uuid, max_age=new_refresh_token.expires_in, httponly=True)
     return access_token
 
+
 @auth_router.post("/signup", response_model=schemes.User)
 def sign_up(user: schemes.UserCreate, db: Session = Depends(get_db)):
     existing_user = crud.get_user(db, user.email)
@@ -113,6 +118,16 @@ def sign_up(user: schemes.UserCreate, db: Session = Depends(get_db)):
     user.password = get_hash(user.password)
 
     return crud.create_user(db, user)
+
+
+@auth_router.post("/logout")
+def logout(response: Response, refresh_token: uuid.UUID | None = Cookie(None), db: Session = Depends(get_db)):
+    if refresh_token is not None:
+        crud.delete_refresh_token(db, refresh_token)
+        
+    response.delete_cookie(key="refresh_token")
+    return {'status': 'success'}
+
 
 def get_current_user(
     security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
