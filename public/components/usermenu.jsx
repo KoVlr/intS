@@ -7,7 +7,7 @@ export default function UserMenu() {
     const [username, setUsername] = useState("loading...");
     useEffect(()=>{
         async function fetchUser() {
-            let response = await fetch('/test/', {
+            let response = await fetch('/user', {
                 method: 'GET',
                 headers: {
                     Authorization: `${context.token.token_type} ${context.token.access_token}`
