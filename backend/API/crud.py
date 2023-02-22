@@ -7,7 +7,12 @@ def get_user(db: Session, email: str):
     return db.query(db_models.Users).filter(db_models.Users.email == email).first()
 
 def get_scopes(db: Session, email: str):
-    return []
+    user = db.query(db_models.Users).filter(db_models.Users.email == email).first()
+    scopes = []
+    print(user.author)
+    if user.author != []:
+        scopes += ['author']
+    return scopes
 
 def create_user(db: Session, user: schemes.UserCreate):
     db_user = db_models.Users(

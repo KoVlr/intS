@@ -7,6 +7,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     expires: float
+    rights: List[str] = []
 
 class TokenData(BaseModel):
     email: str | None = None

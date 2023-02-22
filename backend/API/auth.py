@@ -23,7 +23,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = 30
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="auth/login",
-    scopes={"admin": "Administrator rights.", "super_admin": "Right to add and remove administrators."},
+    scopes={"author": "The right to create and edit courses"},
 )
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -52,7 +52,7 @@ def create_access_token(email: str, db: Session):
     data={"sub": email, "scopes": scopes, "exp": expires}
     encoded_jwt = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
 
-    access_token = schemes.Token(access_token=encoded_jwt, token_type="Bearer", expires=expires.timestamp())
+    access_token = schemes.Token(access_token=encoded_jwt, token_type="Bearer", expires=expires.timestamp(), rights=scopes)
     return access_token
 
 
@@ -164,7 +164,7 @@ def get_current_user(
         token_data = schemes.TokenData(scopes=token_scopes, email=email)
     except (JWTError, ValidationError):
         raise credentials_exception
-    user = crud.get_user(db, email)
+    user = crud.get_user(db, token_data.email)
     if user is None:
         raise credentials_exception
     for scope in security_scopes.scopes:
