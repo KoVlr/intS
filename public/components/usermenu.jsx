@@ -5,6 +5,15 @@ import { fetch_user } from "../data_loaders.jsx";
 
 export default function UserMenu() {
     const context = useContext(TokenContext);
+    
+    if (context.token === null) {
+        return (
+            <>
+                <Link to="/login">Войти</Link> <Link to="/signup">Зарегистрироваться</Link>
+            </>
+        );
+    }
+
     const [username, setUsername] = useState("loading...");
 
     useEffect(() => {
