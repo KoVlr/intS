@@ -52,7 +52,7 @@ def create_access_token(email: str, db: Session):
     data={"sub": email, "scopes": scopes, "exp": expires}
     encoded_jwt = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
 
-    access_token = schemes.Token(access_token=encoded_jwt, token_type="Bearer", expires=expires)
+    access_token = schemes.Token(access_token=encoded_jwt, token_type="Bearer", expires=expires.timestamp())
     return access_token
 
 

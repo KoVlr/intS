@@ -6,7 +6,7 @@ import uuid
 class Token(BaseModel):
     access_token: str
     token_type: str
-    expires: datetime
+    expires: float
 
 class TokenData(BaseModel):
     email: str | None = None

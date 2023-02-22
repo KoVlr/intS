@@ -6,6 +6,8 @@ import {
     Navigate
 } from "react-router-dom";
 
+import { fetch_refresh_tokens } from "../data_loaders.jsx";
+
 import Root from "./root.jsx";
 import Home from "./home.jsx";
 import LoginForm from "./login.jsx";
@@ -16,17 +18,12 @@ export const TokenContext = React.createContext({token: null, setToken: () => {}
 export default function App() {
     const [token, setToken] = useState(null);
 
-    useEffect(()=>{
-        async function fetchTokens() {
-            let response = await fetch('/auth/refresh_tokens', {
-                method: 'POST'
-            });
-            if (response.ok){
-                let token = await response.json();
-                setToken(token);
-            }
+    useEffect(() => {
+        async function refresh_tokens() {
+            let new_token = await fetch_refresh_tokens();
+            setToken(new_token);
         }
-        fetchTokens();
+        refresh_tokens();
     }, [])
 
     return (
