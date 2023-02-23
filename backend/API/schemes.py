@@ -30,3 +30,11 @@ class User(UserBase):
     id: int
     class Config:
         orm_mode = True
+
+class AuthorCreate(BaseModel):
+    user_id: int
+
+class Author(AuthorCreate):
+    id: int
+    class Config:
+        orm_mode = True

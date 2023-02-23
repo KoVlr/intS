@@ -17,7 +17,7 @@ export default function UserMenu() {
     }, []);
 
     async function logout_click_handle() {
-        let response = await fetch('/auth/logout', {
+        let response = await fetch('/api/auth/logout', {
             method: 'POST'
         });
         if (response.ok) {

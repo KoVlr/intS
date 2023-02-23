@@ -12,6 +12,7 @@ import Root from "./root.jsx";
 import Home from "./home.jsx";
 import LoginForm from "./login.jsx";
 import SignupForm from "./signup.jsx";
+import BecomeAuthor from "./become_author.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
@@ -51,7 +52,7 @@ export default function App() {
                         <Route path="/courses/:courseId/articles/new" element={<></>} />
                         <Route path="/courses/:courseId/articles/:articleId/edit" element={<></>} />
                         <Route path="/authors/:authorId" element={<></>} />
-                        <Route path="/become_author" element={<></>} />
+                        <Route path="/become_author" element={<BecomeAuthor/>} />
                     </Route>
                     <Route path="/login" element={<LoginForm/>} />
                     <Route path="/signup" element={<SignupForm/>} />

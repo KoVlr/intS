@@ -10,7 +10,7 @@ export function useGetToken(username, password, TokenContext) {
         formdata.set('username', username);
         formdata.set('password', password);
 
-        let response = await fetch('http://127.0.0.1:8000/auth/login', {
+        let response = await fetch('http://127.0.0.1:8000/api/auth/login', {
             method: 'POST',
             body: formdata
         });

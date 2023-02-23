@@ -14,7 +14,7 @@ export default function SignupForm() {
     const handleSubmit = async function(event) {
         event.preventDefault();
 
-        let response = await fetch('http://127.0.0.1:8000/auth/signup', {
+        let response = await fetch('http://127.0.0.1:8000/api/auth/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'

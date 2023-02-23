@@ -12,7 +12,7 @@ from . import schemes
 from . import crud
 
 auth_router = APIRouter(
-    prefix="/auth",
+    prefix="/api/auth",
     tags=["Auth"]
 )
 
@@ -22,7 +22,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 30
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="auth/login",
+    tokenUrl="api/auth/login",
     scopes={"author": "The right to create and edit courses"},
 )
 
@@ -66,7 +66,6 @@ def update_refresh_token(user_id: int, refresh_token: uuid.UUID | None, db: Sess
         created_at = datetime.utcnow(),
         expires_in = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS).total_seconds()
     )
-
     db_refresh_token = crud.create_refresh_token(db, new_refresh_token)
     return db_refresh_token
 
@@ -93,7 +92,7 @@ def login_for_access_token(
             value=new_refresh_token.uuid,
             max_age=new_refresh_token.expires_in,
             httponly=True,
-            path='/auth',
+            path='/api/auth',
             samesite='strict'
         )
     return access_token
@@ -117,7 +116,7 @@ def refresh_tokens(response: Response, refresh_token: uuid.UUID | None = Cookie(
             value=new_refresh_token.uuid,
             max_age=new_refresh_token.expires_in,
             httponly=True,
-            path='/auth',
+            path='/api/auth',
             samesite='strict'
         )
     return access_token

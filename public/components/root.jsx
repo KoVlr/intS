@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { TokenContext } from "./app.jsx";
+import Notifications from "./notifications.jsx";
 import UserMenu from "./usermenu.jsx";
 
 export default function Root() {
@@ -11,9 +12,13 @@ export default function Root() {
             <header>
                 <h1>intSpread</h1>
             </header>
+            
             {context.token === null
                 ? <><Link to="/login">Войти</Link> <Link to="/signup">Зарегистрироваться</Link></>
-                : <UserMenu/>
+                : <>
+                    <Notifications/>
+                    <UserMenu/>
+                </>
             }
 
             <Outlet/>
