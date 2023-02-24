@@ -48,3 +48,15 @@ def create_author(db: Session, author: schemes.AuthorCreate):
     db.commit()
     db.refresh(db_author)
     return db_author
+
+
+def get_course_by_name(db: Session, name: str, author_id: int):
+    return db.query(db_models.Courses).\
+        filter(db_models.Courses.name == name, db_models.Courses.author_id == author_id).first()
+
+def create_course(db: Session, course: schemes.CourseCreate):
+    db_course = db_models.Courses(**course.dict())
+    db.add(db_course)
+    db.commit()
+    db.refresh(db_course)
+    return db_course
