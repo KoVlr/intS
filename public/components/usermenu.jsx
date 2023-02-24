@@ -28,7 +28,10 @@ export default function UserMenu() {
     return (
         <>
             {username}<br/>
-            <Link to="/become_author">Стать автором</Link><br/>
+            {
+                !context.token.rights.includes("author") &&
+                <><Link to="/become_author">Стать автором</Link><br/></>
+            }
             <button onClick={logout_click_handle}>Выход</button>
         </>
     );
