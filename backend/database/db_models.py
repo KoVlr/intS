@@ -38,7 +38,7 @@ class Courses(Base):
     is_public = Column(Boolean, nullable=False)
     views_count = Column(Integer)
     rating = Column(Float)
-    creation_date = Column(TIMESTAMP, nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False)
 
     author = relationship('Authors', backref='courses')
 
@@ -50,7 +50,7 @@ class Access(Base):
     __tablename__ = 'access'
     course_id = Column(Integer, ForeignKey('courses.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
-    receiving_date = Column(TIMESTAMP, nullable=False)
+    received_at = Column(TIMESTAMP, nullable=False)
 
     __table_args__ = (
         PrimaryKeyConstraint('course_id', 'user_id'),
@@ -64,8 +64,8 @@ class Articles(Base):
     name = Column(String, nullable=False)
     file = Column(String, nullable=False)
     position_in_course = Column(Integer, nullable=False)
-    creation_date = Column(TIMESTAMP, nullable=False)
-    update_date = Column(TIMESTAMP, nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False)
+    updated_at = Column(TIMESTAMP, nullable=False)
     published = Column(Boolean, nullable=False)
     
     course = relationship('Courses', backref='article')
@@ -85,7 +85,7 @@ class Сomments(Base):
     reply_to = Column(Integer, ForeignKey('comments.id'))
     viewed = Column(Boolean)
     content = Column(String)
-    writing_date = Column(TIMESTAMP, nullable=False)
+    written_at = Column(TIMESTAMP, nullable=False)
 
     user = relationship('Users', backref='comment')
     article = relationship('Articles', backref='comment')
@@ -95,7 +95,7 @@ class History(Base):
 
     article_id = Column(Integer, ForeignKey('articles.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
-    reading_date = Column(TIMESTAMP, nullable=False)
+    read_at = Column(TIMESTAMP, nullable=False)
 
     user = relationship('Users', backref='history_record')
     article = relationship('Articles', backref='history_record')
