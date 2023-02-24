@@ -46,6 +46,16 @@ class Courses(Base):
         UniqueConstraint('name', 'author_id'),
     )
 
+class Collections(Base):
+    __tablename__ = 'collections'
+    user_id = Column(Integer, ForeignKey('users.id'))
+    course_id = Column(Integer, ForeignKey('courses.id'))
+    added_at = Column(TIMESTAMP, nullable=False)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('user_id', 'course_id'),
+    )
+
 class Access(Base):
     __tablename__ = 'access'
     course_id = Column(Integer, ForeignKey('courses.id'))
