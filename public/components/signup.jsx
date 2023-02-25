@@ -1,32 +1,24 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetch_create_user, fetch_tokens } from '../api_requests.jsx';
 import { TokenContext } from './app.jsx';
-import { useGetToken } from './login.jsx';
 
 export default function SignupForm() {
+    const context = useContext(TokenContext);
+
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     
     const navigate = useNavigate();
-    const getToken = useGetToken(email, password, TokenContext);
 
     const handleSubmit = async function(event) {
         event.preventDefault();
 
-        let response = await fetch('http://127.0.0.1:8000/api/auth/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify({
-                username: username,
-                email: email,
-                password: password
-            })
-        });
-        if (response.ok){
-            if (getToken()) navigate("/");
+        let success = await fetch_create_user(username, email, password)
+        if (success) {
+            success = await fetch_tokens(context, email, password);
+            if (success) navigate("/");
         }
     };
 

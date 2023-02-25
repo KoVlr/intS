@@ -1,3 +1,38 @@
+export async function fetch_tokens(context, username, password) {
+    let formdata = new FormData();
+    formdata.set('username', username);
+    formdata.set('password', password);
+
+    let response = await fetch('http://127.0.0.1:8000/api/auth/login', {
+        method: 'POST',
+        body: formdata
+    });
+    if (response.ok) {
+        let token = await response.json();
+        context.setToken(token);
+        return true;
+    }
+    else return false;
+} 
+
+export async function fetch_create_user(username, email, password) {
+    let response = await fetch('http://127.0.0.1:8000/api/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password
+            })
+        });
+        if (response.ok){
+            return true;
+        }
+        else return false;
+}
+
 export async function fetch_refresh_tokens() {
     let response = await fetch('/api/auth/refresh_tokens', {
         method: 'POST'

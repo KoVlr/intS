@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { TokenContext } from "./app.jsx";
-import { fetch_user } from "../data_loaders.jsx";
+import { fetch_user } from "../api_requests.jsx";
 
 export default function UserMenu() {
     const context = useContext(TokenContext);

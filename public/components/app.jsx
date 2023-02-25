@@ -6,7 +6,7 @@ import {
     Navigate
 } from "react-router-dom";
 
-import { fetch_refresh_tokens } from "../data_loaders.jsx";
+import { fetch_refresh_tokens } from "../api_requests.jsx";
 
 import Root from "./root.jsx";
 import Home from "./home.jsx";
