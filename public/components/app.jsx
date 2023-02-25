@@ -21,8 +21,7 @@ export default function App() {
 
     useEffect(() => {
         async function refresh_tokens() {
-            let new_token = await fetch_refresh_tokens();
-            setToken(new_token);
+            await fetch_refresh_tokens({token: token, setToken: setToken});
         }
         refresh_tokens();
     }, [])

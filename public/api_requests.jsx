@@ -33,17 +33,17 @@ export async function fetch_create_user(username, email, password) {
         else return false;
 }
 
-export async function fetch_refresh_tokens() {
+export async function fetch_refresh_tokens(context) {
     let response = await fetch('/api/auth/refresh_tokens', {
         method: 'POST'
     });
     if (response.ok) {
         let token = await response.json();
-        return token;
+        context.token = token;
+        context.setToken(token);
     }
     else return null;
 }
-
 
 function isExpired(token) {
     let token_exp_ms = token.expires * 1000;
@@ -55,8 +55,7 @@ function isExpired(token) {
 
 async function refresh_if_exp(context) {
     if (isExpired(context.token)) {
-        let new_token = await fetch_refresh_tokens();
-        context.setToken(new_token);
+        await fetch_refresh_tokens(context);
     }
 }
 
@@ -76,6 +75,7 @@ export async function fetch_user(context) {
     }
 }
 
+
 export async function fetch_become_author(context) {
     await refresh_if_exp(context);
 
@@ -87,8 +87,7 @@ export async function fetch_become_author(context) {
     });
     if (response.ok) {
         let author = await response.json();
-        let new_token = await fetch_refresh_tokens();
-        context.setToken(new_token);
+        await fetch_refresh_tokens(context);
         return author;
     }
 }
