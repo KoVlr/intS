@@ -6,12 +6,12 @@ import { Navigate } from 'react-router-dom';
 export default function BecomeAuthor() {
     const context = useContext(TokenContext);
 
-    if (context.token.rights.includes("author")) {
-        return (<Navigate to="/home/mycourses"/>);
-    }
-
     async function click_handle() {
         await fetch_become_author(context);
+    }
+
+    if (context.token.rights.includes("author")) {
+        return (<Navigate to="/home/mycourses"/>);
     }
 
     return (

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { fetch_create_user, fetch_tokens } from '../api_requests.jsx';
 import { TokenContext } from './app.jsx';
 
@@ -9,18 +9,19 @@ export default function SignupForm() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    
-    const navigate = useNavigate();
 
     const handleSubmit = async function(event) {
         event.preventDefault();
 
-        let success = await fetch_create_user(username, email, password)
-        if (success) {
-            success = await fetch_tokens(context, email, password);
-            if (success) navigate("/");
+        let user = await fetch_create_user(username, email, password);
+        if (user) {
+            await fetch_tokens(context, email, password);
         }
     };
+
+    if (context.token !== null) {
+        return <Navigate to="/"/>
+    }
 
     return (
         <form onSubmit={handleSubmit}>
