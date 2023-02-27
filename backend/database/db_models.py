@@ -73,16 +73,31 @@ class Articles(Base):
     course_id = Column(Integer, ForeignKey('courses.id'))
     name = Column(String, nullable=False)
     file = Column(String, nullable=False)
-    position_in_course = Column(Integer, nullable=False)
     created_at = Column(TIMESTAMP, nullable=False)
     updated_at = Column(TIMESTAMP, nullable=False)
-    published = Column(Boolean, nullable=False)
+    is_published = Column(Boolean, nullable=False)
+    published_at = Column(TIMESTAMP)
+    position_in_course = Column(Integer)
     
     course = relationship('Courses', backref='article')
 
     __table_args__ = (
         UniqueConstraint('name', 'course_id'),
         UniqueConstraint('position_in_course', 'course_id'),
+    )
+
+class Images(Base):
+    __tablename__ = 'images'
+
+    id = Column(Integer, primary_key=True)
+    article_id = Column(Integer, ForeignKey('articles.id'))
+    file = Column(String, nullable=False, unique=True)
+    original_name = Column(String, nullable=False)
+
+    article = relationship('Articles', backref='image')
+
+    __table_args__ = (
+        UniqueConstraint('original_name', 'article_id'),
     )
 
 class Сomments(Base):
