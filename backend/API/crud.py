@@ -50,6 +50,9 @@ def create_author(db: Session, author: schemes.AuthorCreate):
     return db_author
 
 
+def get_course(db: Session, id: int):
+    return db.query(db_models.Courses).filter(db_models.Courses.id == id).first()
+
 def get_course_by_name(db: Session, name: str, author_id: int):
     return db.query(db_models.Courses).\
         filter(db_models.Courses.name == name, db_models.Courses.author_id == author_id).first()
@@ -60,3 +63,15 @@ def create_course(db: Session, course: schemes.CourseCreate):
     db.commit()
     db.refresh(db_course)
     return db_course
+
+
+def get_article_by_name(db: Session, name: str, course_id: int):
+    return db.query(db_models.Articles).\
+        filter(db_models.Articles.name == name, db_models.Articles.course_id == course_id).first()
+
+def create_article(db: Session, article: schemes.ArticleCreate):
+    db_article = db_models.Articles(**article.dict())
+    db.add(db_article)
+    db.commit()
+    db.refresh(db_article)
+    return db_article

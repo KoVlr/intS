@@ -56,3 +56,21 @@ class Course(CourseCreate):
     id: int
     class Config:
         orm_mode = True
+
+
+class ArticleNew(BaseModel):
+    name: str
+    course_id: int
+
+class ArticleCreate(ArticleNew):
+    file: str
+    created_at: datetime
+    updated_at: datetime
+    is_published: bool = False
+    published_at: datetime | None = None
+    position_in_course: int | None = None
+
+class Article(ArticleCreate):
+    id: int
+    class Config:
+        orm_mode = True
