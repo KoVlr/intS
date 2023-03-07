@@ -14,6 +14,10 @@ import LoginForm from "./login.jsx";
 import SignupForm from "./signup.jsx";
 import BecomeAuthor from "./become_author.jsx";
 import CourseNew from "./course_new.jsx";
+import ArticleEditor from "./article_editor.jsx";
+import EditContent from "./edit_content.jsx";
+import EditImages from "./edit_images.jsx";
+import NavigateToContent from "./navigate_to_content.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
@@ -21,9 +25,9 @@ export default function App() {
     const [token, setToken] = useState(null);
 
     useEffect(() => {
-        async function refresh_tokens() {
+        const refresh_tokens = async function() {
             await fetch_refresh_tokens({token: token, setToken: setToken});
-        }
+        };
         refresh_tokens();
     }, [])
 
@@ -40,18 +44,21 @@ export default function App() {
                             <Route path="/home/allcourses" element={<>Allcourses</>} />
                             <Route path="/home/mycourses" element={<>MyCourses</>} />
                         </Route>
-                        <Route path="/courses/:courseId" element={<></>} />
-                        <Route path="/courses/:courseId/edit" element={<></>}>
-                            <Route path="/courses/:courseId/edit/published" element={<></>}/>
-                            <Route path="/courses/:courseId/edit/drafts" element={<></>}/>
+                        <Route path="/courses/:course_id" element={<></>} />
+                        <Route path="/courses/:course_id/edit" element={<></>}>
+                            <Route path="/courses/:course_id/edit/published" element={<></>}/>
+                            <Route path="/courses/:course_id/edit/drafts" element={<></>}/>
                         </Route>
                         <Route path="/courses/new" element={<CourseNew/>} />
-                        <Route path="/courses/:courseId/articles" element={<></>}>
-                            <Route path="/courses/:courseId/articles/:articleId" element={<></>}/>
+                        <Route path="/courses/:course_id/articles" element={<></>}>
+                            <Route path="/courses/:course_id/articles/:article_id" element={<></>}/>
                         </Route>
-                        <Route path="/courses/:courseId/articles/new" element={<></>} />
-                        <Route path="/courses/:courseId/articles/:articleId/edit" element={<></>} />
-                        <Route path="/authors/:authorId" element={<></>} />
+                        <Route path="/courses/:course_id/articles/:article_id/edit" element={<ArticleEditor/>}>
+                            <Route index element={<NavigateToContent/>} />
+                            <Route path="/courses/:course_id/articles/:article_id/edit/content" element={<EditContent/>} />
+                            <Route path="/courses/:course_id/articles/:article_id/edit/images" element={<EditImages/>} />
+                        </Route>
+                        <Route path="/authors/:author_id" element={<></>} />
                         <Route path="/become_author" element={<BecomeAuthor/>} />
                     </Route>
                     <Route path="/login" element={<LoginForm/>} />

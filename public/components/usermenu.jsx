@@ -9,12 +9,12 @@ export default function UserMenu() {
     const [username, setUsername] = useState("loading...");
 
     useEffect(() => {
-        async function get_data() {
+        const get_data = async function() {
             let user = await fetch_user(context);
             if (user) setUsername(user.username);
         }
         get_data();
-    }, []);
+    }, [context]);
 
     async function logout_click_handle() {
         let response = await fetch('/api/auth/logout', {

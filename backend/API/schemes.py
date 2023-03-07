@@ -62,15 +62,46 @@ class ArticleNew(BaseModel):
     name: str
     course_id: int
 
-class ArticleCreate(ArticleNew):
-    file: str
+class ArticleBase(ArticleNew):
     created_at: datetime
     updated_at: datetime
     is_published: bool = False
     published_at: datetime | None = None
     position_in_course: int | None = None
 
-class Article(ArticleCreate):
+class ArticleCreate(ArticleBase):
+    file: str
+
+class ArticleGet(ArticleBase):
     id: int
     class Config:
         orm_mode = True
+
+class ArticleUpdate(BaseModel):
+    updated_at: datetime
+
+class ArticleUpdateName(ArticleUpdate):
+    name: str
+
+class ArticleUpdatePublished(ArticleUpdate):
+    is_published: bool
+    published_at: datetime | None
+    position_in_course: int | None
+
+class ArticleUpdatePosition(ArticleUpdate):
+    position_in_course: int
+
+class ImageCreate(BaseModel):
+    article_id: int
+    file: str
+    original_name: str
+
+class ImageGet(BaseModel):
+    id: int
+    original_name: str  
+    class Config:
+        orm_mode = True
+
+class UploadImagesResponse(BaseModel):
+    article: ArticleGet
+    uploaded_images: list[ImageGet]
