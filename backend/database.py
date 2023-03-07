@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import json
 
-with open("backend/database/db_config.json", 'r') as config_file:
+with open("backend/db_config.json", 'r') as config_file:
     db_config = json.load(config_file)
     
     host = db_config['host']

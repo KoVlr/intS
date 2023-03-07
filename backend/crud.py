@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
-from . import schemes
-import backend.database.db_models as db_models
 import uuid
+
+from . import schemes
+from . import db_models
 
 def get_user(db: Session, email: str):
     return db.query(db_models.Users).filter(db_models.Users.email == email).first()

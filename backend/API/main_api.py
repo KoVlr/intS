@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi.responses import FileResponse
 from backend.API.auth import get_current_user
 from sqlalchemy.orm import Session
-from backend.database.database import get_db
+from backend.database import get_db
 from datetime import datetime
 from os import remove, removedirs
-from . import schemes
-from . import crud
+
+from .. import schemes
+from .. import crud
 
 main_api_router = APIRouter(
     prefix="/api",

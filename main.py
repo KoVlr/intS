@@ -5,8 +5,8 @@ from backend.API.main_api import main_api_router
 from backend.API.files_providing import files_providing_router
 from backend.API.articles import articles_router
 from fastapi.staticfiles import StaticFiles
-from backend.database.db_models import Base
-from backend.database.database import engine
+from backend.db_models import Base
+from backend.database import engine
 
 Base.metadata.create_all(bind=engine)
 

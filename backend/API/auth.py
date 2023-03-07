@@ -4,12 +4,12 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, Se
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
+from sqlalchemy.orm import Session
 import uuid
 
-from backend.database.database import get_db
-from sqlalchemy.orm import Session
-from . import schemes
-from . import crud
+from ..database import get_db
+from .. import schemes
+from .. import crud
 
 auth_router = APIRouter(
     prefix="/api/auth",

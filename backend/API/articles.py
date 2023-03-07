@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Security, UploadFile, Body
-from backend.API.auth import get_current_user
 from sqlalchemy.orm import Session
-from backend.database.database import get_db
 from datetime import datetime
+from os import makedirs
 import uuid
 import shutil
-from os import makedirs
-from . import schemes
-from . import crud
+
+from .auth import get_current_user
+from ..database import get_db
+from .. import schemes
+from .. import crud
 
 articles_router = APIRouter(
     prefix="/api/articles",
