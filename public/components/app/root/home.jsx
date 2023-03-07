@@ -1,6 +1,6 @@
 import React, {useContext} from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { TokenContext } from "./app.jsx";
+import { TokenContext } from "../../app.jsx";
 
 export default function Home() {
     let context = useContext(TokenContext);

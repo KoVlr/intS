@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { fetch_create_user, fetch_tokens } from '../api_requests.jsx';
-import { TokenContext } from './app.jsx';
+import { fetch_create_user, fetch_tokens } from '../../api_requests.jsx';
+import { TokenContext } from '../app.jsx';
 
 export default function SignupForm() {
     const context = useContext(TokenContext);

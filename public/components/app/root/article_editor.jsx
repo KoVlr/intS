@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Outlet, useParams, NavLink } from 'react-router-dom';
-import { fetch_article, fetch_change_article_name, fetch_publish_article } from '../api_requests.jsx';
-import { TokenContext } from './app.jsx';
+import { fetch_article, fetch_change_article_name, fetch_publish_article } from '../../../api_requests.jsx';
+import { TokenContext } from '../../app.jsx';
 
 export default function ArticleEditor() {
     const context = useContext(TokenContext);

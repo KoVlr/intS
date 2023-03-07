@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetch_tokens } from '../api_requests.jsx';
-import { TokenContext } from "./app.jsx";
+import { fetch_tokens } from '../../api_requests.jsx';
+import { TokenContext } from "../app.jsx";
 
 export default function LoginForm() {
     const context = useContext(TokenContext);
