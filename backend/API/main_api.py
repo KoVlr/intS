@@ -185,12 +185,13 @@ def upload_article_images(article_id: int, files: list[UploadFile], db: Session 
         with open(filepath, 'wb') as fdst:
             shutil.copyfileobj(file.file, fdst)
 
-        image = crud.create_image(db, image_data)
-        uploaded_images += [schemes.ImageGet(id=image.id, original_name=image.original_name)]
+        db_image = crud.create_image(db, image_data)
+        uploaded_images += [db_image]
 
     article_data = schemes.ArticleUpdate(updated_at=datetime.utcnow())
     db_article = crud.update_article(db, article_id, article_data)
-    return schemes.UploadImagesResponse(article=db_article, uploaded_images=uploaded_images)
+    #return schemes.UploadImagesResponse(article=db_article, uploaded_images=uploaded_images)
+    return {'article': db_article, 'uploaded_images': uploaded_images}
 
 
 @main_api_router.get("/images/{image_id}")
