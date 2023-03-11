@@ -115,8 +115,8 @@ def create_image(db: Session, image: schemes.ImageCreate):
     db.refresh(db_image)
     return db_image
 
-def get_article_images(db: Session, id: int):
-    return get_article(db, id).image
+def get_article_images(db: Session, article_id: int):
+    return get_article(db, article_id).image
 
 def get_image(db: Session, id: int):
     return db.query(db_models.Images).filter(db_models.Images.id == id).first()

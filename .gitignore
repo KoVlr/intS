@@ -6,3 +6,5 @@ vkr_env
 db_config.json
 design
 storage
+highlight.css
+purify.min.js

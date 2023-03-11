@@ -18,6 +18,8 @@ import ArticleEditor from "./app/root/article_editor.jsx";
 import EditContent from "./app/root/article_editor/edit_content.jsx";
 import EditImages from "./app/root/article_editor/edit_images.jsx";
 import NavigateToContent from "./app/root/article_editor/navigate_to_content.jsx";
+import ArticlePage from "./app/root/article_page.jsx";
+import Article from "./app/root/article_page/article.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
@@ -50,8 +52,8 @@ export default function App() {
                             <Route path="/courses/:course_id/edit/drafts" element={<></>}/>
                         </Route>
                         <Route path="/courses/new" element={<CourseNew/>} />
-                        <Route path="/courses/:course_id/articles" element={<></>}>
-                            <Route path="/courses/:course_id/articles/:article_id" element={<></>}/>
+                        <Route path="/courses/:course_id/articles" element={<ArticlePage/>}>
+                            <Route path="/courses/:course_id/articles/:article_id" element={<Article/>}/>
                         </Route>
                         <Route path="/courses/:course_id/articles/:article_id/edit" element={<ArticleEditor/>}>
                             <Route index element={<NavigateToContent/>} />

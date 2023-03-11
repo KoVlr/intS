@@ -2,8 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Security, UploadFile, Bod
 from sqlalchemy.orm import Session
 from datetime import datetime
 from os import makedirs
+from markdown import markdown
 import uuid
 import shutil
+import re
+
 
 from .auth import get_current_user
 from ..database import get_db
@@ -157,5 +160,27 @@ def upload_article_images(article_id: int, files: list[UploadFile], db: Session 
 
     article_data = schemes.ArticleUpdate(updated_at=datetime.utcnow())
     db_article = crud.update_article(db, article_id, article_data)
-    #return schemes.UploadImagesResponse(article=db_article, uploaded_images=uploaded_images)
     return {'article': db_article, 'uploaded_images': uploaded_images}
+
+@articles_router.get("/{article_id}/view")
+def get_article(article_id: int, db: Session = Depends(get_db)):
+    # Check that this article exists
+    # Check access to this article
+
+    db_article = crud.get_article(db, article_id)
+
+    with open('./' + db_article.file, 'r') as article_file:
+        content = article_file.read()
+    
+    html = markdown(content, extensions=['extra'])
+
+    def img_repl(match):
+        img_name = match.group(1)
+        for image in db_article.image:
+            if image.original_name == img_name:
+                return match.group(0).replace(img_name, f'/api/images/{image.id}')
+        return match.group(0)
+
+    html = re.sub(r'<img[^>]+?src\s*=\s*"(.+?)"', img_repl, html)
+
+    return {'html': html}

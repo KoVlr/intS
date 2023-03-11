@@ -258,3 +258,16 @@ export async function fetch_delete_image(context, image_id) {
         return article;
     }
 }
+
+export async function fetch_article_view(context, article_id) {
+    let response = await fetch(`/api/articles/${article_id}/view`, {
+        method: 'GET',
+        headers: {
+            Authorization: `${context.token.token_type} ${context.token.access_token}`
+        }
+    });
+    if (response.ok) {
+        let view = await response.json();
+        return view;
+    }
+}
