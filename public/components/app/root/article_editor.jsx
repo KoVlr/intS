@@ -1,24 +1,45 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Outlet, useParams, NavLink } from 'react-router-dom';
-import { fetch_article, fetch_change_article_name, fetch_publish_article } from '../../../api_requests.jsx';
+import { useParams } from 'react-router-dom';
+import {
+    fetch_article,
+    fetch_change_article_name,
+    fetch_publish_article,
+    fetch_article_content,
+    fetch_article_images
+} from '../../../api_requests.jsx';
 import { TokenContext } from '../../app.jsx';
+import EditContent from './article_editor/edit_content.jsx'
+import EditImages from './article_editor/edit_images.jsx'
 
 export default function ArticleEditor() {
     const context = useContext(TokenContext);
 
     const [article_data, setArticleData] = useState(null);
     const [name_edit_mode, setNameEditMode] = useState(false);
+    const [editor_type, setEditorType] = useState('content');
+    const [content, setContent] = useState("");
+    const [images, setImages] = useState(null);
 
     const {article_id} = useParams();
 
     useEffect(() => {
-        const effect = async function() {
+        const get_data = async function() {
             let article_data = await fetch_article(context, article_id);
             if (article_data) {
                 setArticleData(article_data);
             }
+
+            let content = await fetch_article_content(context, article_id);
+            if (content) {
+                setContent(content);
+            }
+
+            let images = await fetch_article_images(context, article_id);
+            if (images) {
+                setImages(images);
+            }
         };
-        effect();
+        get_data();
     }, [context])
 
     const handleNameChange = function() {
@@ -75,12 +96,19 @@ export default function ArticleEditor() {
 
             <nav>
                 <ul>
-                    <li><NavLink to={`/courses/:course_id/articles/${article_id}/edit/content`}>Редактор</NavLink></li>
-                    <li><NavLink to={`/courses/:course_id/articles/${article_id}/edit/images`}>Загрузка изображений</NavLink></li>
+                    <li><button onClick={() => setEditorType('content')}>Редактор</button></li>
+                    <li><button onClick={() => setEditorType('images')}>Загрузка изображений</button></li>
                 </ul>
             </nav>
 
-            <Outlet context={setArticleData}/>
+            {editor_type=='content' &&
+                <EditContent content={content} setContent={setContent} setArticleData={setArticleData}/>
+            }
+
+            {editor_type=='images' &&
+                <EditImages images={images} setImages={setImages} setArticleData={setArticleData}/>
+            }
+
         </div>
     )
 }
