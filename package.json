@@ -1,7 +1,4 @@
 {
-  "name": "authapp",
-  "description": "A React.js project using Webpack",
-  "version": "1.0.0",
   "scripts": {
     "start": "webpack && python main.py"
   },
