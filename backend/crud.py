@@ -59,7 +59,7 @@ def create_author(db: Session, author: schemes.AuthorCreate):
 
 
 def get_course(db: Session, id: int):
-    return db.query(db_models.Courses).filter(db_models.Courses.id == id).first()
+    return db.get(db_models.Courses, id)
 
 
 def get_course_by_name(db: Session, name: str, author_id: int):
@@ -80,7 +80,7 @@ def get_published_articles_count(db: Session, course_id: int):
 
 
 def get_article(db: Session, id: int):
-    return db.query(db_models.Articles).filter(db_models.Articles.id == id).first()
+    return db.get(db_models.Articles, id)
 
 
 def update_article(
@@ -89,7 +89,7 @@ def update_article(
             article_data: schemes.ArticleUpdate
         ):
     
-    db_article = db.query(db_models.Articles).filter(db_models.Articles.id == id).first()
+    db_article = db.get(db_models.Articles, id)
     
     for attr in article_data.dict(exclude_unset=True):
         setattr(db_article, attr, getattr(article_data, attr))
@@ -121,10 +121,10 @@ def get_article_images(db: Session, article_id: int):
     return get_article(db, article_id).image
 
 def get_image(db: Session, id: int):
-    return db.query(db_models.Images).filter(db_models.Images.id == id).first()
+    return db.get(db_models.Images, id)
 
 def delete_image(db: Session, id: int):
-    db_image = db.query(db_models.Images).filter(db_models.Images.id == id).first()
+    db_image = db.get(db_models.Images, id)
     if db_image:
         db.delete(db_image)
         db.commit()
