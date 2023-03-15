@@ -17,7 +17,7 @@ export async function fetch_tokens(context, username, password) {
 
 
 export async function fetch_refresh_tokens(context) {
-    let response = await fetch('/api/auth/refresh_tokens', {
+    let response = await fetch('/api/auth/tokens', {
         method: 'POST'
     });
     if (response.ok) {
@@ -69,7 +69,7 @@ export async function fetch_create_user(username, email, password) {
 export async function fetch_user(context) {
     await refresh_if_exp(context);
 
-    let response = await fetch('/api/user', {
+    let response = await fetch('/api/users/me', {
         method: 'GET',
         headers: {
             Authorization: `${context.token.token_type} ${context.token.access_token}`
@@ -85,7 +85,7 @@ export async function fetch_user(context) {
 export async function fetch_become_author(context) {
     await refresh_if_exp(context);
 
-    let response = await fetch('/api/become_author', {
+    let response = await fetch('/api/authors', {
         method: 'POST',
         headers: {
             Authorization: `${context.token.token_type} ${context.token.access_token}`
@@ -103,7 +103,7 @@ export async function fetch_become_author(context) {
 export async function fetch_create_course(context, course_name, description, is_public) {
     await refresh_if_exp(context);
 
-    let response = await fetch('http://127.0.0.1:8000/api/courses/new', {
+    let response = await fetch('http://127.0.0.1:8000/api/courses', {
         method: 'POST',
         headers: {
             Authorization: `${context.token.token_type} ${context.token.access_token}`,
@@ -143,11 +143,13 @@ export async function fetch_article(context, article_id) {
 export async function fetch_change_article_name(context, article_id, new_name) {
     await refresh_if_exp(context);
 
-    let response = await fetch(`/api/articles/${article_id}/name?new_name=${new_name}`, {
-        method: 'POST',
+    let response = await fetch(`/api/articles/${article_id}`, {
+        method: 'PATCH',
         headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        }
+            Authorization: `${context.token.token_type} ${context.token.access_token}`,
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({'name': new_name})
     });
     if (response.ok) {
         let article = await response.json();
@@ -159,11 +161,13 @@ export async function fetch_change_article_name(context, article_id, new_name) {
 export async function fetch_publish_article(context, article_id) {
     await refresh_if_exp(context);
 
-    let response = await fetch(`/api/articles/${article_id}/publish`, {
-        method: 'POST',
+    let response = await fetch(`/api/articles/${article_id}`, {
+        method: 'PATCH',
         headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        }
+            Authorization: `${context.token.token_type} ${context.token.access_token}`,
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({'is_published': true})
     });
     if (response.ok) {
         let article = await response.json();
@@ -258,6 +262,7 @@ export async function fetch_delete_image(context, image_id) {
         return article;
     }
 }
+
 
 export async function fetch_article_view(context, article_id) {
     let response = await fetch(`/api/articles/${article_id}/view`, {

@@ -86,12 +86,14 @@ def get_article(db: Session, id: int):
 def update_article(
             db: Session,
             id: int,
-            article_data: schemes.ArticleUpdate | schemes.ArticleUpdateName |\
-                schemes.ArticleUpdatePosition | schemes.ArticleUpdatePublished
+            article_data: schemes.ArticleUpdate
         ):
+    
     db_article = db.query(db_models.Articles).filter(db_models.Articles.id == id).first()
-    for attr in article_data.dict().keys():
+    
+    for attr in article_data.dict(exclude_unset=True):
         setattr(db_article, attr, getattr(article_data, attr))
+
     db.commit()
     return db_article
 

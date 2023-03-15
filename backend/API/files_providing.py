@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 
 files_providing_router = APIRouter(
     prefix="",
-    tags=["files_providing"]
+    tags=["Files_providing"]
 )
 
 @files_providing_router.get("/")

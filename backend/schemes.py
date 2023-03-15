@@ -51,9 +51,17 @@ class CourseCreate(CourseNew):
     author_id: int
     views_count: int = 0
     created_at: datetime
+    updated_at: datetime
 
 class Course(CourseCreate):
     id: int
+    name: str
+    description: str
+    is_public: bool
+    updated_at: datetime
+    views_count: int
+
+
     class Config:
         orm_mode = True
 
@@ -77,19 +85,16 @@ class ArticleGet(ArticleBase):
     class Config:
         orm_mode = True
 
+class ArticlePatch(BaseModel):
+    name: str | None
+    is_published: bool | None
+
 class ArticleUpdate(BaseModel):
     updated_at: datetime
-
-class ArticleUpdateName(ArticleUpdate):
-    name: str
-
-class ArticleUpdatePublished(ArticleUpdate):
-    is_published: bool
-    published_at: datetime | None
+    name: str | None
+    is_published: bool | None
     position_in_course: int | None
-
-class ArticleUpdatePosition(ArticleUpdate):
-    position_in_course: int
+    published_at: datetime | None
 
 class ImageCreate(BaseModel):
     article_id: int

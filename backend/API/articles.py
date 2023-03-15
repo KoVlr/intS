@@ -15,11 +15,20 @@ from .. import crud
 
 articles_router = APIRouter(
     prefix="/api/articles",
-    tags=["articles"]
+    tags=["Articles"]
 )
 
 
-@articles_router.post("/new", response_model=schemes.ArticleGet)
+def get_own_article(article_id: int, db: Session = Depends(get_db), user = Security(get_current_user, scopes=['author'])):
+    db_article = crud.get_article(db, article_id)
+    if db_article is None:
+        raise HTTPException(status_code=400, detail="This article does not exist")
+    if db_article.course.author_id != user.author[0].id:
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    return db_article
+
+
+@articles_router.post("", response_model=schemes.ArticleGet)
 def create_new_article(
         new_article: schemes.ArticleNew,
         db: Session = Depends(get_db),
@@ -67,34 +76,26 @@ def get_article(article_id: int, db: Session = Depends(get_db)):
     return crud.get_article(db, article_id)
 
 
-@articles_router.post("/{article_id}/name", response_model=schemes.ArticleGet)
-def change_article_name(article_id: int, new_name: str, db: Session = Depends(get_db)):
-    # Check that this article exists
-    # Check that this article belongs to this author
-    # Check that an article with the same name is not yet in this course
+@articles_router.patch("/{article_id}", response_model=schemes.ArticleGet)
+def change_article(
+        update_data: schemes.ArticlePatch,
+        article: schemes.ArticleGet = Depends(get_own_article),
+        db: Session = Depends(get_db)
+    ):
 
-    article_data = schemes.ArticleUpdateName(
-        updated_at=datetime.utcnow(),
-        name=new_name
-    )
-    return crud.update_article(db, article_id, article_data)
+    actual_update_data = update_data.dict(exclude_unset=True)
 
-
-@articles_router.post("/{article_id}/publish", response_model=schemes.ArticleGet)
-def publish_article(article_id: int, db: Session = Depends(get_db)):
-    # Check that this article exists
-    # Check that this article belongs to this author
-
-    db_article = crud.get_article(db, article_id)
-
-    article_data = schemes.ArticleUpdatePublished(
-        updated_at=datetime.utcnow(),
-        is_published=True,
-        published_at=datetime.utcnow(),
-        position_in_course=crud.get_published_articles_count(db, db_article.course_id)
-    )
+    updated_article = schemes.ArticleUpdate(**actual_update_data, updated_at=datetime.utcnow())
     
-    return crud.update_article(db, article_id, article_data)
+    if 'is_published' in actual_update_data:
+        if updated_article.is_published == False:
+            raise HTTPException(status_code=400, detail="Cancellation of article publication is not supported")
+        if article.is_published:
+            raise HTTPException(status_code=400, detail="This article has already been published")
+        updated_article.published_at = updated_article.updated_at
+        updated_article.position_in_course = crud.get_published_articles_count(db, article.course_id)
+
+    return crud.update_article(db, article.id, updated_article)
 
 
 @articles_router.get("/{article_id}/content")
@@ -161,6 +162,7 @@ def upload_article_images(article_id: int, files: list[UploadFile], db: Session 
     article_data = schemes.ArticleUpdate(updated_at=datetime.utcnow())
     db_article = crud.update_article(db, article_id, article_data)
     return {'article': db_article, 'uploaded_images': uploaded_images}
+
 
 @articles_router.get("/{article_id}/view")
 def get_article(article_id: int, db: Session = Depends(get_db)):

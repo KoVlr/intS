@@ -98,7 +98,7 @@ def login_for_access_token(
     return access_token
 
 
-@auth_router.post("/refresh_tokens", response_model=schemes.Token)
+@auth_router.post("/tokens", response_model=schemes.Token)
 def refresh_tokens(response: Response, refresh_token: uuid.UUID | None = Cookie(None), db: Session = Depends(get_db)):
     db_refresh_token = crud.get_refresh_token(db, refresh_token)
     if not db_refresh_token:

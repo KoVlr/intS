@@ -39,6 +39,7 @@ class Courses(Base):
     views_count = Column(Integer)
     rating = Column(Float)
     created_at = Column(TIMESTAMP, nullable=False)
+    updated_at = Column(TIMESTAMP, nullable=False)
 
     author = relationship('Authors', backref='courses')
 
