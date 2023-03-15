@@ -23,7 +23,7 @@ def get_own_article(article_id: int, db: Session = Depends(get_db), user = Secur
     db_article = crud.get_article(db, article_id)
     if db_article is None:
         raise HTTPException(status_code=400, detail="This article does not exist")
-    if db_article.course.author_id != user.author[0].id:
+    if db_article.course.author_id != user.author.id:
         raise HTTPException(status_code=400, detail="Not enough permissions")
     return db_article
 
@@ -43,7 +43,7 @@ def create_new_article(
     if course is None:
         raise HTTPException(status_code=400, detail="This course does not exist")
     
-    if course.author_id != user.author[0].id:
+    if course.author_id != user.author.id:
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
     existing_article = crud.get_article_by_name(db, new_article.name, new_article.course_id)
@@ -178,7 +178,7 @@ def get_article(article_id: int, db: Session = Depends(get_db)):
 
     def img_repl(match):
         img_name = match.group(1)
-        for image in db_article.image:
+        for image in db_article.images:
             if image.original_name == img_name:
                 return match.group(0).replace(img_name, f'/api/images/{image.id}')
         return match.group(0)

@@ -118,7 +118,7 @@ def create_image(db: Session, image: schemes.ImageCreate):
     return db_image
 
 def get_article_images(db: Session, article_id: int):
-    return get_article(db, article_id).image
+    return get_article(db, article_id).images
 
 def get_image(db: Session, id: int):
     return db.get(db_models.Images, id)

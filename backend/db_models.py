@@ -20,13 +20,18 @@ class Users(Base):
     email = Column(String, nullable=False, unique=True)
     hashed_password = Column(String, nullable=False)
 
+    author = relationship('Authors', uselist=False, back_populates='user')
+    comments = relationship('Comments', back_populates='user')
+    refresh_tokens = relationship('RefreshTokens', back_populates='user')
+
 class Authors(Base):
     __tablename__ = 'authors'
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
 
-    user = relationship('Users', backref='author', uselist=False)
+    user = relationship('Users', back_populates='author')
+    courses = relationship('Courses', back_populates='author')
 
 class Courses(Base):
     __tablename__ = 'courses'
@@ -41,7 +46,8 @@ class Courses(Base):
     created_at = Column(TIMESTAMP, nullable=False)
     updated_at = Column(TIMESTAMP, nullable=False)
 
-    author = relationship('Authors', backref='courses')
+    author = relationship('Authors', back_populates='courses')
+    articles = relationship('Articles', back_populates='course')
 
     __table_args__ = (
         UniqueConstraint('name', 'author_id'),
@@ -80,7 +86,9 @@ class Articles(Base):
     published_at = Column(TIMESTAMP)
     position_in_course = Column(Integer)
     
-    course = relationship('Courses', backref='article')
+    course = relationship('Courses', back_populates='articles')
+    images = relationship('Images', back_populates='article')
+    comments = relationship('Comments', back_populates='article')
 
     __table_args__ = (
         UniqueConstraint('name', 'course_id'),
@@ -95,13 +103,13 @@ class Images(Base):
     file = Column(String, nullable=False, unique=True)
     original_name = Column(String, nullable=False)
 
-    article = relationship('Articles', backref='image')
+    article = relationship('Articles', back_populates='images')
 
     __table_args__ = (
         UniqueConstraint('original_name', 'article_id'),
     )
 
-class Сomments(Base):
+class Comments(Base):
     __tablename__ = 'comments'
 
     id = Column(Integer, primary_key=True)
@@ -113,8 +121,8 @@ class Сomments(Base):
     content = Column(String)
     written_at = Column(TIMESTAMP, nullable=False)
 
-    user = relationship('Users', backref='comment')
-    article = relationship('Articles', backref='comment')
+    user = relationship('Users', back_populates='comments')
+    article = relationship('Articles', back_populates='comments')
 
 class History(Base):
     __tablename__ = 'history'
@@ -122,9 +130,6 @@ class History(Base):
     article_id = Column(Integer, ForeignKey('articles.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
     read_at = Column(TIMESTAMP, nullable=False)
-
-    user = relationship('Users', backref='history_record')
-    article = relationship('Articles', backref='history_record')
 
     __table_args__ = (
         PrimaryKeyConstraint('article_id', 'user_id'),
@@ -138,4 +143,4 @@ class RefreshTokens(Base):
     created_at = Column(TIMESTAMP)
     expires_in = Column(Integer)
 
-    user = relationship('Users', backref='refresh_token')
+    user = relationship('Users', back_populates='refresh_tokens')

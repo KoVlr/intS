@@ -20,13 +20,13 @@ def create_new_course(
         db: Session = Depends(get_db),
         user = Security(get_current_user, scopes=['author'])
     ):
-    existing_course = crud.get_course_by_name(db, new_course.name, user.author[0].id)
+    existing_course = crud.get_course_by_name(db, new_course.name, user.author.id)
     if existing_course:
         raise HTTPException(status_code=400, detail="Сourse with the same name already exists for this author")
     
     course = schemes.CourseCreate(
         **new_course.dict(),
-        author_id=user.author[0].id,
+        author_id=user.author.id,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
