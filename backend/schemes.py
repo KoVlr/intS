@@ -33,6 +33,7 @@ class User(UserBase):
         orm_mode = True
 
 
+
 class AuthorCreate(BaseModel):
     user_id: int
 
@@ -40,6 +41,7 @@ class Author(AuthorCreate):
     id: int
     class Config:
         orm_mode = True
+
 
 
 class CourseNew(BaseModel):
@@ -64,6 +66,18 @@ class Course(CourseCreate):
 
     class Config:
         orm_mode = True
+
+class CourseGet(BaseModel):
+    id: int
+    name: str
+    author: str
+    ownership: bool
+    in_collection: bool
+    updated_at: datetime
+    views_count: int
+    is_public: bool
+    access: bool | None
+    description: str
 
 
 class ArticleNew(BaseModel):
@@ -95,6 +109,8 @@ class ArticleUpdate(BaseModel):
     is_published: bool | None
     position_in_course: int | None
     published_at: datetime | None
+
+
 
 class ImageCreate(BaseModel):
     article_id: int

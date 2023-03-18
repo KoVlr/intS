@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi.responses import FileResponse
-from backend.API.auth import get_current_user
+from backend.API.auth import get_authenticated_user
 from sqlalchemy.orm import Session
 from backend.database import get_db
 from datetime import datetime
@@ -17,12 +17,12 @@ main_api_router = APIRouter(
 
 
 @main_api_router.get("/users/me", response_model=schemes.User)
-def get_user_info(user = Depends(get_current_user)):
+def get_user_info(user = Depends(get_authenticated_user)):
     return user
 
 
 @main_api_router.post("/authors", response_model=schemes.Author)
-def become_author(db: Session = Depends(get_db), user = Depends(get_current_user)):
+def become_author(db: Session = Depends(get_db), user = Depends(get_authenticated_user)):
     if user.author != []:
         raise HTTPException(status_code=400, detail="User is already author")
     return crud.create_author(db, schemes.AuthorCreate(user_id=user.id))

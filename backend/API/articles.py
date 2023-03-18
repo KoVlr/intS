@@ -8,7 +8,7 @@ import shutil
 import re
 
 
-from .auth import get_current_user
+from .auth import get_current_user, get_authenticated_user
 from ..database import get_db
 from .. import schemes
 from .. import crud
@@ -19,7 +19,7 @@ articles_router = APIRouter(
 )
 
 
-def get_own_article(article_id: int, db: Session = Depends(get_db), user = Security(get_current_user, scopes=['author'])):
+def get_own_article(article_id: int, db: Session = Depends(get_db), user = Security(get_authenticated_user, scopes=['author'])):
     db_article = crud.get_article(db, article_id)
     if db_article is None:
         raise HTTPException(status_code=400, detail="This article does not exist")
@@ -32,11 +32,8 @@ def get_own_article(article_id: int, db: Session = Depends(get_db), user = Secur
 def create_new_article(
         new_article: schemes.ArticleNew,
         db: Session = Depends(get_db),
-        user = Security(get_current_user, scopes=['author'])
+        user = Security(get_authenticated_user, scopes=['author'])
     ):
-    # Check that this course exists
-    # Check that this course belongs to this author
-    # Check that an article with the same name is not yet in this course
 
     course = crud.get_course(db, new_article.course_id)
 
@@ -45,10 +42,6 @@ def create_new_article(
     
     if course.author_id != user.author.id:
         raise HTTPException(status_code=400, detail="Not enough permissions")
-
-    existing_article = crud.get_article_by_name(db, new_article.name, new_article.course_id)
-    if existing_article:
-        raise HTTPException(status_code=400, detail="Article with the same name already exists in this course")
     
     filename = str(uuid.uuid4()) + '.md'
     dirpath = 'storage/articles/' + filename[:2] + '/' + filename[2:4] + '/'
@@ -69,23 +62,25 @@ def create_new_article(
 
 
 @articles_router.get("/{article_id}", response_model=schemes.ArticleGet)
-def get_article(article_id: int, db: Session = Depends(get_db)):
-    # Check that this article exists
-    # Check that this article belongs to this author
-
-    return crud.get_article(db, article_id)
+def get_article(article = Depends(get_own_article)):
+    return article
 
 
 @articles_router.patch("/{article_id}", response_model=schemes.ArticleGet)
 def change_article(
         update_data: schemes.ArticlePatch,
-        article: schemes.ArticleGet = Depends(get_own_article),
+        article = Depends(get_own_article),
         db: Session = Depends(get_db)
     ):
 
     actual_update_data = update_data.dict(exclude_unset=True)
 
     updated_article = schemes.ArticleUpdate(**actual_update_data, updated_at=datetime.utcnow())
+
+    if 'name' in actual_update_data and article.name != updated_article.name:
+        existing_article = crud.get_article_by_name(db, updated_article.name, article.course_id)
+        if existing_article:
+            raise HTTPException(status_code=400, detail="Article with the same name already exists in this course")
     
     if 'is_published' in actual_update_data:
         if updated_article.is_published == False:
@@ -99,11 +94,7 @@ def change_article(
 
 
 @articles_router.get("/{article_id}/content")
-def get_article_content(article_id: int, db: Session = Depends(get_db)):
-    # Check that this article exists
-    # Check that this article belongs to this author
-
-    article = crud.get_article(db, article_id)
+def get_article_content(article = Depends(get_own_article)):
     
     with open('./' + article.file, 'r') as article_file:
         content = article_file.read()
@@ -111,43 +102,41 @@ def get_article_content(article_id: int, db: Session = Depends(get_db)):
 
 
 @articles_router.post("/{article_id}/content", response_model=schemes.ArticleGet)
-def change_article_content(article_id: int, content: str = Body(embed=True), db: Session = Depends(get_db)):
-    # Check that this article exists
-    # Check that this article belongs to this author
-
-    article = crud.get_article(db, article_id)
+def change_article_content(article = Depends(get_own_article), content: str = Body(embed=True), db: Session = Depends(get_db)):
 
     with open('./' + article.file, 'w') as article_file:
         article_file.write(content)
 
     article_data = schemes.ArticleUpdate(updated_at=datetime.utcnow())
-    return crud.update_article(db, article_id, article_data)
+    return crud.update_article(db, article.id, article_data)
 
 
 @articles_router.get("/{article_id}/images", response_model=list[schemes.ImageGet])
-def get_article_images(article_id: int, db: Session = Depends(get_db)):
-    # Check that this article exists
-    # Check that this article belongs to this author
+def get_article_images(article = Depends(get_own_article), db: Session = Depends(get_db)):
 
-    return crud.get_article_images(db, article_id)
+    return crud.get_article_images(db, article.id)
 
 
 @articles_router.post("/{article_id}/images", response_model=schemes.UploadImagesResponse)
-def upload_article_images(article_id: int, files: list[UploadFile], db: Session = Depends(get_db)):
-    # Check that this article exists
-    # Check that this article belongs to this author
-    # Check that the received files are an image
-    # Check the uniqueness of the image names
-
+def upload_article_images(files: list[UploadFile], article = Depends(get_own_article), db: Session = Depends(get_db)):
+    
     uploaded_images = []
+    existing_images = crud.get_article_images(db, article.id)
 
     for file in files:
+        if file.content_type.split('/')[0] != 'image':
+            raise HTTPException(status_code=400, detail='Uploaded files must be images')
+        
+        for image in existing_images:
+            if image.original_name == file.filename:
+                raise HTTPException(status_code=400, detail="Image with the same name already exists in this article")
+
         filename = str(uuid.uuid4()) + '.' + file.filename.split('.')[-1]
         dirpath = 'storage/images/' + filename[:2] + '/' + filename[2:4] + '/'
         filepath = dirpath + filename
 
         image_data = schemes.ImageCreate(
-            article_id = article_id,
+            article_id = article.id,
             file = filepath,
             original_name = file.filename
         )
@@ -160,16 +149,29 @@ def upload_article_images(article_id: int, files: list[UploadFile], db: Session 
         uploaded_images += [db_image]
 
     article_data = schemes.ArticleUpdate(updated_at=datetime.utcnow())
-    db_article = crud.update_article(db, article_id, article_data)
+    db_article = crud.update_article(db, article.id, article_data)
     return {'article': db_article, 'uploaded_images': uploaded_images}
 
 
 @articles_router.get("/{article_id}/view")
-def get_article(article_id: int, db: Session = Depends(get_db)):
-    # Check that this article exists
-    # Check access to this article
-
+def get_article(article_id: int, user = Depends(get_current_user), db: Session = Depends(get_db)):
     db_article = crud.get_article(db, article_id)
+    if db_article is None:
+        raise HTTPException(status_code=400, detail="This article does not exist")
+    
+    access = False
+    if db_article.course.is_public:
+        access = True
+    elif user is not None:
+        if user.author.id == db_article.course.author_id:
+            access = True
+        else:
+            access_entry = crud.get_access_entry(db, db_article.course_id, user.id)
+            if access_entry is not None:
+                access = True
+    if not access:
+        raise HTTPException(status_code=400, detail="No access to this article")
+
 
     with open('./' + db_article.file, 'r') as article_file:
         content = article_file.read()

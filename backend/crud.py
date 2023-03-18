@@ -110,6 +110,7 @@ def create_article(db: Session, article: schemes.ArticleCreate):
     db.refresh(db_article)
     return db_article
 
+
 def create_image(db: Session, image: schemes.ImageCreate):
     db_image = db_models.Images(**image.dict())
     db.add(db_image)
@@ -117,11 +118,14 @@ def create_image(db: Session, image: schemes.ImageCreate):
     db.refresh(db_image)
     return db_image
 
+
 def get_article_images(db: Session, article_id: int):
     return get_article(db, article_id).images
 
+
 def get_image(db: Session, id: int):
     return db.get(db_models.Images, id)
+
 
 def delete_image(db: Session, id: int):
     db_image = db.get(db_models.Images, id)
@@ -131,3 +135,7 @@ def delete_image(db: Session, id: int):
         return True
     else:
         return False
+    
+
+def get_access_entry(db: Session, course_id: int, user_id: int):
+    return db.get(db_models.Access, (course_id, user_id))

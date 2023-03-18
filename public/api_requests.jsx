@@ -39,12 +39,10 @@ function isExpired(token) {
 
 
 async function refresh_if_exp(context) {
-    if (context.token === null || isExpired(context.token)) {
+    if (isExpired(context.token)) {
         await fetch_refresh_tokens(context);
     }
 }
-
-
 
 export async function fetch_create_user(username, email, password) {
     let response = await fetch('http://127.0.0.1:8000/api/auth/signup', {
@@ -265,11 +263,16 @@ export async function fetch_delete_image(context, image_id) {
 
 
 export async function fetch_article_view(context, article_id) {
+    let headers;
+    if (context.token !== null) {
+        headers = {Authorization: `${context.token.token_type} ${context.token.access_token}`};
+    } else {
+        headers = {};
+    }
+
     let response = await fetch(`/api/articles/${article_id}/view`, {
         method: 'GET',
-        headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        }
+        headers: headers
     });
     if (response.ok) {
         let view = await response.json();

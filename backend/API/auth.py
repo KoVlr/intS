@@ -24,6 +24,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = 30
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="api/auth/login",
     scopes={"author": "The right to create and edit courses"},
+    auto_error=False
 )
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -142,8 +143,9 @@ def logout(response: Response, refresh_token: uuid.UUID | None = Cookie(None), d
     return {'status': 'success'}
 
 
+
 def get_current_user(
-    security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    security_scopes: SecurityScopes, token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
@@ -154,6 +156,12 @@ def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": authenticate_value},
     )
+
+    if token is None:
+        if security_scopes.scopes:
+            raise credentials_exception
+        return None
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: int = payload.get("sub")
@@ -163,9 +171,11 @@ def get_current_user(
         token_data = schemes.TokenData(scopes=token_scopes, email=email)
     except (JWTError, ValidationError):
         raise credentials_exception
+    
     user = crud.get_user(db, token_data.email)
     if user is None:
         raise credentials_exception
+    
     for scope in security_scopes.scopes:
         if scope not in token_data.scopes:
             raise HTTPException(
@@ -173,4 +183,12 @@ def get_current_user(
                 detail="Not enough permissions",
                 headers={"WWW-Authenticate": authenticate_value},
             )
+    return user
+
+
+def get_authenticated_user(
+    user = Depends(get_current_user)
+):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Not authenticated')
     return user

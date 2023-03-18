@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 
-from .auth import get_current_user
+from .auth import get_authenticated_user
 from ..database import get_db
 from .. import schemes
 from .. import crud
@@ -18,7 +18,7 @@ courses_router = APIRouter(
 def create_new_course(
         new_course: schemes.CourseNew,
         db: Session = Depends(get_db),
-        user = Security(get_current_user, scopes=['author'])
+        user = Security(get_authenticated_user, scopes=['author'])
     ):
     existing_course = crud.get_course_by_name(db, new_course.name, user.author.id)
     if existing_course:
