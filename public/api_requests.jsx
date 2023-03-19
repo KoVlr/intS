@@ -9,23 +9,19 @@ export async function fetch_tokens(context, username, password) {
     });
     if (response.ok) {
         let token = await response.json();
-        context.setToken(token);
-        return true;
+        return token;
     }
-    else return false;
 }
 
 
-export async function fetch_refresh_tokens(context) {
+export async function fetch_refresh_tokens() {
     let response = await fetch('/api/auth/tokens', {
         method: 'POST'
     });
     if (response.ok) {
         let token = await response.json();
-        context.token = token;
-        context.setToken(token);
+        return token;
     }
-    else return null;
 }
 
 
@@ -39,10 +35,24 @@ function isExpired(token) {
 
 
 async function refresh_if_exp(context) {
-    if (isExpired(context.token)) {
-        await fetch_refresh_tokens(context);
+    if (context.token !== null && isExpired(context.token)) {
+        let token = await fetch_refresh_tokens(context);
+        if (token) {
+            context.token = token;
+            context.setToken(token);
+        }
     }
 }
+
+
+function get_auth_header(token) {
+    if (token === null) {
+        return {};
+    } else {
+        return {Authorization: `${token.token_type} ${token.access_token}`};
+    }
+}
+
 
 export async function fetch_create_user(username, email, password) {
     let response = await fetch('http://127.0.0.1:8000/api/auth/signup', {
@@ -60,7 +70,6 @@ export async function fetch_create_user(username, email, password) {
             let user = await response.json();
             return user;
         }
-        else return false;
 }
 
 
@@ -69,9 +78,7 @@ export async function fetch_user(context) {
 
     let response = await fetch('/api/users/me', {
         method: 'GET',
-        headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        }
+        headers: get_auth_header(context.token)
     });
     if (response.ok) {
         let user = await response.json();
@@ -85,13 +92,10 @@ export async function fetch_become_author(context) {
 
     let response = await fetch('/api/authors', {
         method: 'POST',
-        headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        }
+        headers: get_auth_header(context.token)
     });
     if (response.ok) {
         let author = await response.json();
-        await fetch_refresh_tokens(context);
         return author;
     }
 }
@@ -104,8 +108,8 @@ export async function fetch_create_course(context, course_name, description, is_
     let response = await fetch('http://127.0.0.1:8000/api/courses', {
         method: 'POST',
         headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`,
-            'Content-Type': 'application/json;charset=utf-8'
+            'Content-Type': 'application/json;charset=utf-8',
+            ...get_auth_header(context.token)
         },
         body: JSON.stringify({
             name: course_name,
@@ -117,7 +121,6 @@ export async function fetch_create_course(context, course_name, description, is_
         let course = await response.json();
         return course;
     }
-    else return false;
 }
 
 
@@ -127,9 +130,7 @@ export async function fetch_article(context, article_id) {
 
     let response = await fetch(`/api/articles/${article_id}`, {
         method: 'GET',
-        headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        }
+        headers: get_auth_header(context.token)
     });
     if (response.ok) {
         let article = await response.json();
@@ -144,8 +145,8 @@ export async function fetch_change_article_name(context, article_id, new_name) {
     let response = await fetch(`/api/articles/${article_id}`, {
         method: 'PATCH',
         headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`,
-            'Content-Type': 'application/json;charset=utf-8'
+            'Content-Type': 'application/json;charset=utf-8',
+            ...get_auth_header(context.token)
         },
         body: JSON.stringify({'name': new_name})
     });
@@ -162,8 +163,8 @@ export async function fetch_publish_article(context, article_id) {
     let response = await fetch(`/api/articles/${article_id}`, {
         method: 'PATCH',
         headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`,
-            'Content-Type': 'application/json;charset=utf-8'
+            'Content-Type': 'application/json;charset=utf-8',
+            ...get_auth_header(context.token)
         },
         body: JSON.stringify({'is_published': true})
     });
@@ -179,9 +180,7 @@ export async function fetch_article_content(context, article_id) {
 
     let response = await fetch(`/api/articles/${article_id}/content`, {
         method: 'GET',
-        headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        }
+        headers: get_auth_header(context.token)
     });
     if (response.ok) {
         let article = await response.json();
@@ -196,8 +195,8 @@ export async function fetch_save_content(context, article_id, content) {
     let response = await fetch(`/api/articles/${article_id}/content`, {
         method: 'POST',
         headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`,
-            'Content-Type': 'application/json;charset=utf-8'
+            'Content-Type': 'application/json;charset=utf-8',
+            ...get_auth_header(context.token)
         },
         body: JSON.stringify({"content": content})
     });
@@ -213,9 +212,7 @@ export async function fetch_article_images(context, article_id) {
 
     let response = await fetch(`/api/articles/${article_id}/images`, {
         method: 'GET',
-        headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        }
+        headers: get_auth_header(context.token)
     });
     if (response.ok) {
         let images = await response.json();
@@ -234,9 +231,7 @@ export async function fetch_upload_images(context, article_id, files) {
 
     let response = await fetch(`http://127.0.0.1:8000/api/articles/${article_id}/images`, {
         method: "POST",
-        headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        },
+        headers: get_auth_header(context.token),
         body: formdata
     });
     if (response.ok) {
@@ -251,9 +246,7 @@ export async function fetch_delete_image(context, image_id) {
 
     let response = await fetch(`http://127.0.0.1:8000/api/images/${image_id}`, {
         method: "DELETE",
-        headers: {
-            Authorization: `${context.token.token_type} ${context.token.access_token}`
-        }
+        headers: get_auth_header(context.token)
     });
     if (response.ok) {
         let article = await response.json();
@@ -263,16 +256,11 @@ export async function fetch_delete_image(context, image_id) {
 
 
 export async function fetch_article_view(context, article_id) {
-    let headers;
-    if (context.token !== null) {
-        headers = {Authorization: `${context.token.token_type} ${context.token.access_token}`};
-    } else {
-        headers = {};
-    }
+    await refresh_if_exp(context);
 
     let response = await fetch(`/api/articles/${article_id}/view`, {
         method: 'GET',
-        headers: headers
+        headers: get_auth_header(context.token)
     });
     if (response.ok) {
         let view = await response.json();

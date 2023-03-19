@@ -14,7 +14,7 @@ export default function UserMenu() {
             if (user) setUsername(user.username);
         }
         get_data();
-    }, [context]);
+    }, [context.token===null]);
 
     async function logout_click_handle() {
         let response = await fetch('/api/auth/logout', {

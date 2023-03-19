@@ -15,7 +15,10 @@ export default function SignupForm() {
 
         let user = await fetch_create_user(username, email, password);
         if (user) {
-            await fetch_tokens(context, email, password);
+            let token = await fetch_tokens(context, email, password);
+            if (token) {
+                context.setToken(token);
+            }
         }
     };
 

@@ -22,7 +22,7 @@ export default function Article() {
             }
         }
         get_view();
-    }, [context]);
+    }, [context.token===null]);
 
     useEffect(() => {
         MathJax.typeset();

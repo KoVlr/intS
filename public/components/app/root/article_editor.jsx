@@ -40,7 +40,7 @@ export default function ArticleEditor() {
             }
         };
         get_data();
-    }, [context])
+    }, [context.token===null])
 
     const handleNameChange = function() {
         setNameEditMode(true);
@@ -48,7 +48,7 @@ export default function ArticleEditor() {
 
     const handleSubmitName = async function(event) {
         event.preventDefault();
-
+        
         let article = await fetch_change_article_name(context, article_id, article_data.name);
         if (article) {
             setArticleData(article);

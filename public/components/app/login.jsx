@@ -12,8 +12,11 @@ export default function LoginForm() {
 
     const handleSubmit = async function(event) {
         event.preventDefault();
-        let success = await fetch_tokens(context, email, password);
-        if (success) navigate("/");
+        let token = await fetch_tokens(context, email, password);
+        if (token) {
+            context.setToken(token);
+            navigate("/");
+        }
     };
 
     return (
