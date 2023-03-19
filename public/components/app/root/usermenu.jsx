@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { TokenContext } from "../../app.jsx";
-import { fetch_user } from "../../../api_requests.jsx";
+import { fetch_logout, fetch_user } from "../../../api_requests.jsx";
 
 export default function UserMenu() {
     const context = useContext(TokenContext);
@@ -17,10 +17,8 @@ export default function UserMenu() {
     }, [context.token===null]);
 
     async function logout_click_handle() {
-        let response = await fetch('/api/auth/logout', {
-            method: 'POST'
-        });
-        if (response.ok) {
+        let success = await fetch_logout(context);
+        if (success) {
             context.setToken(null);
         }
     }

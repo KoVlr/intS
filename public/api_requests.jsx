@@ -87,6 +87,19 @@ export async function fetch_user(context) {
 }
 
 
+export async function fetch_logout(context) {
+    await refresh_if_exp(context);
+
+    let response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        return true;
+    }
+}
+
+
 export async function fetch_become_author(context) {
     await refresh_if_exp(context);
 

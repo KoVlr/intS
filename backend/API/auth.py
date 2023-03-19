@@ -18,7 +18,7 @@ auth_router = APIRouter(
 
 SECRET_KEY = "dc2055582fbc7a9624f25f09ddfc757be3d43868d25a7b1390971e84fc99c1f9"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 0.2
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 30
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -99,30 +99,6 @@ def login_for_access_token(
     return access_token
 
 
-@auth_router.post("/tokens", response_model=schemes.Token)
-def refresh_tokens(response: Response, refresh_token: uuid.UUID | None = Cookie(None), db: Session = Depends(get_db)):
-    db_refresh_token = crud.get_refresh_token(db, refresh_token)
-    if not db_refresh_token:
-        raise HTTPException(status_code=400, detail="Refresh_token not found")
-    
-    refresh_token_age = (datetime.utcnow() - db_refresh_token.created_at).total_seconds()
-    if refresh_token_age > db_refresh_token.expires_in:
-        raise HTTPException(status_code=400, detail="Refresh_token expired")
-
-    new_refresh_token = update_refresh_token(db_refresh_token.user_id, refresh_token, db)
-    access_token = create_access_token(new_refresh_token.user.email, db)
-
-    response.set_cookie(
-            key="refresh_token",
-            value=new_refresh_token.uuid,
-            max_age=new_refresh_token.expires_in,
-            httponly=True,
-            path='/api/auth',
-            samesite='strict'
-        )
-    return access_token
-
-
 @auth_router.post("/signup", response_model=schemes.User)
 def sign_up(user: schemes.UserCreate, db: Session = Depends(get_db)):
     existing_user = crud.get_user(db, user.email)
@@ -132,15 +108,6 @@ def sign_up(user: schemes.UserCreate, db: Session = Depends(get_db)):
     user.password = get_hash(user.password)
 
     return crud.create_user(db, user)
-
-
-@auth_router.post("/logout")
-def logout(response: Response, refresh_token: uuid.UUID | None = Cookie(None), db: Session = Depends(get_db)):
-    if refresh_token is not None:
-        crud.delete_refresh_token(db, refresh_token)
-
-    response.delete_cookie(key="refresh_token")
-    return {'status': 'success'}
 
 
 
@@ -192,3 +159,50 @@ def get_authenticated_user(
     if user is None:
         raise HTTPException(status_code=401, detail='Not authenticated')
     return user
+
+
+
+@auth_router.post("/tokens", response_model=schemes.Token)
+def refresh_tokens(
+        response: Response,
+        refresh_token: uuid.UUID | None = Cookie(None),
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    db_refresh_token = crud.get_refresh_token(db, refresh_token)
+    if not db_refresh_token:
+        raise HTTPException(status_code=400, detail="Refresh_token not found")
+    
+    if db_refresh_token.user_id != user.id:
+        raise HTTPException(status_code=400, detail="Refresh_token does not belong to this user")
+    
+    refresh_token_age = (datetime.utcnow() - db_refresh_token.created_at).total_seconds()
+    if refresh_token_age > db_refresh_token.expires_in:
+        raise HTTPException(status_code=400, detail="Refresh_token expired")
+
+    new_refresh_token = update_refresh_token(db_refresh_token.user_id, refresh_token, db)
+    access_token = create_access_token(new_refresh_token.user.email, db)
+
+    response.set_cookie(
+            key="refresh_token",
+            value=new_refresh_token.uuid,
+            max_age=new_refresh_token.expires_in,
+            httponly=True,
+            path='/api/auth',
+            samesite='strict'
+        )
+    return access_token
+
+
+@auth_router.post("/logout")
+def logout(
+        response: Response,
+        refresh_token: uuid.UUID | None = Cookie(None),
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    if refresh_token is not None:
+        crud.delete_refresh_token(db, refresh_token)
+
+    response.delete_cookie(key="refresh_token")
+    return {'status': 'success'}
