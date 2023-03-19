@@ -60,24 +60,27 @@ class Course(CourseCreate):
     name: str
     description: str
     is_public: bool
-    updated_at: datetime
-    views_count: int
-
 
     class Config:
         orm_mode = True
 
-class CourseGet(BaseModel):
+
+class ArticleInCourse(BaseModel):
     id: int
     name: str
+
+    class Config:
+        orm_mode = True
+
+
+class CourseGet(BaseModel):
+    course_data: Course
     author: str
     ownership: bool
-    in_collection: bool
-    updated_at: datetime
-    views_count: int
-    is_public: bool
-    access: bool | None
-    description: str
+    in_collection: bool | None
+    access: bool
+    articles: List[ArticleInCourse]
+
 
 
 class ArticleNew(BaseModel):

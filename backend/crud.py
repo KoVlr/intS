@@ -76,7 +76,15 @@ def create_course(db: Session, course: schemes.CourseCreate):
 
 
 def get_published_articles_count(db: Session, course_id: int):
-    return db.query(db_models.Articles).filter(db_models.Articles.course_id == course_id, db_models.Articles.is_published == True).count()
+    return db.query(db_models.Articles)\
+        .filter(db_models.Articles.course_id == course_id,
+                db_models.Articles.is_published == True).count()
+
+def get_published_articles(db: Session, course_id: int):
+    return db.query(db_models.Articles)\
+        .filter(db_models.Articles.course_id == course_id,
+                db_models.Articles.is_published == True)\
+                    .order_by(db_models.Articles.position_in_course).all()
 
 
 def get_article(db: Session, id: int):

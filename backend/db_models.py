@@ -48,6 +48,8 @@ class Courses(Base):
 
     author = relationship('Authors', back_populates='courses')
     articles = relationship('Articles', back_populates='course')
+    collections = relationship('Collections')
+    access = relationship('Access')
 
     __table_args__ = (
         UniqueConstraint('name', 'author_id'),
