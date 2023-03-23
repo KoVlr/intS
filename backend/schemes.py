@@ -68,6 +68,7 @@ class Course(CourseCreate):
 class ArticleInCourse(BaseModel):
     id: int
     name: str
+    position_in_course: int
 
     class Config:
         orm_mode = True

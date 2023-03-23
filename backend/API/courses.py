@@ -46,7 +46,10 @@ def get_course(
         in_collection = False
         access = True if db_course.is_public else False
     else:
-        ownership = (db_course.author_id == user.author.id)
+        if user.author is not None and db_course.author_id == user.author.id:
+            ownership = (db_course.author_id == user.author.id)
+        else:
+            ownership = False
 
         if ownership:
             in_collection = None
