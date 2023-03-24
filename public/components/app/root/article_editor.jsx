@@ -18,7 +18,7 @@ export default function ArticleEditor() {
     const [name_edit_mode, setNameEditMode] = useState(false);
     const [editor_type, setEditorType] = useState('content');
     const [content, setContent] = useState("");
-    const [images, setImages] = useState(null);
+    const [images, setImages] = useState([]);
 
     const {article_id} = useParams();
 

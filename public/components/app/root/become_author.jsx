@@ -9,7 +9,7 @@ export default function BecomeAuthor() {
     async function click_handle() {
         let author = await fetch_become_author(context);
         if (author) {
-            let token = await fetch_refresh_tokens(context);
+            let token = await fetch_refresh_tokens(context.token);
             if (token) {
                 context.setToken(token);
             }

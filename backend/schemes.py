@@ -49,17 +49,39 @@ class CourseNew(BaseModel):
     description: str
     is_public: bool
 
+
 class CourseCreate(CourseNew):
     author_id: int
     views_count: int = 0
     created_at: datetime
     updated_at: datetime
 
+
 class Course(CourseCreate):
     id: int
     name: str
     description: str
     is_public: bool
+
+    class Config:
+        orm_mode = True
+
+
+class CourseInList(BaseModel):
+    id: int
+    name: str
+    author: str
+    description: str
+    is_public: bool
+
+
+class CourseInAuthorList(BaseModel):
+    id: int
+    name: str
+    description: str
+    is_public: bool
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True

@@ -19,6 +19,7 @@ import ArticlePage from "./app/root/article_page.jsx";
 import Article from "./app/root/article_page/article.jsx";
 import Course from "./app/root/course.jsx";
 import CourseEditor from "./app/root/course_editor.jsx";
+import MyCourses from "./app/home/my_courses.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
@@ -46,12 +47,10 @@ export default function App() {
                             <Route path="/home/collection" element={<>Collection</>} />
                             <Route path="/home/history" element={<>History</>} />
                             <Route path="/home/allcourses" element={<>Allcourses</>} />
-                            <Route path="/home/mycourses" element={<>MyCourses</>} />
+                            <Route path="/home/mycourses" element={<MyCourses/>} />
                         </Route>
                         <Route path="/courses/:course_id" element={<Course/>} />
                         <Route path="/courses/:course_id/edit" element={<CourseEditor/>}>
-                            <Route path="/courses/:course_id/edit/published" element={<></>}/>
-                            <Route path="/courses/:course_id/edit/drafts" element={<></>}/>
                         </Route>
                         <Route path="/courses/new" element={<CourseNew/>} />
                         <Route path="/courses/:course_id/articles" element={<ArticlePage/>}>

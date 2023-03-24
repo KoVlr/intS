@@ -25,6 +25,15 @@ export async function fetch_refresh_tokens() {
 }
 
 
+function get_auth_header(token) {
+    if (token === null) {
+        return {};
+    } else {
+        return {Authorization: `${token.token_type} ${token.access_token}`};
+    }
+}
+
+
 function isExpired(token) {
     let token_exp_ms = token.expires * 1000;
     let margin_ms = 3000;
@@ -36,7 +45,7 @@ function isExpired(token) {
 
 async function refresh_if_exp(context) {
     if (context.token !== null && isExpired(context.token)) {
-        let token = await fetch_refresh_tokens(context);
+        let token = await fetch_refresh_tokens();
         if (token) {
             context.token = token;
             context.setToken(token);
@@ -44,14 +53,6 @@ async function refresh_if_exp(context) {
     }
 }
 
-
-function get_auth_header(token) {
-    if (token === null) {
-        return {};
-    } else {
-        return {Authorization: `${token.token_type} ${token.access_token}`};
-    }
-}
 
 
 export async function fetch_create_user(username, email, password) {
@@ -136,6 +137,33 @@ export async function fetch_create_course(context, course_name, description, is_
     }
 }
 
+
+export async function fetch_my_courses(context) {
+    await refresh_if_exp(context);
+
+    let response = await fetch('/api/courses/mine', {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let courses = await response.json();
+        return courses;
+    }
+}
+
+
+export async function fetch_course(context, course_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/courses/${course_id}`, {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let course = await response.json();
+        return course;
+    }
+}
 
 
 export async function fetch_article(context, article_id) {

@@ -31,7 +31,7 @@ export default function CourseNew() {
                 </label>
                 <label>
                     Описание курса:
-                    <input name="description" type="text" value={description} onChange={(event)=>setDescription(event.target.value)}/>
+                    <textarea name="description" value={description} onChange={(event)=>setDescription(event.target.value)}/>
                 </label>
                 <label>
                     <input name="public" type="radio" value="public" checked={is_public} onChange={(event)=>setIsPublic(!is_public)}/>

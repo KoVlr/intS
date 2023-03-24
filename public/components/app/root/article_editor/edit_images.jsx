@@ -19,22 +19,21 @@ export default function EditImages(props) {
         props.setArticleData(article);
     }
 
-    const image_list = props.images ?
-        props.images.map((image) =>
-            <li key={image.id}>
-                {image.original_name}
-                <img src={`/api/images/${image.id}`} alt={image.original_name} width="100" height="100" />
-                <button onClick={async () => {
-                    let article = await fetch_delete_image(context, image.id);
-                    if (article) {
-                        props.setImages(images => images.filter(img => img.id != image.id));
-                        props.setArticleData(article);
-                    }
-                }}>
-                    Удалить
-                </button>
-            </li>
-        ) : null;
+    const image_list = props.images.map((image) =>
+        <li key={image.id}>
+            {image.original_name}
+            <img src={`/api/images/${image.id}`} alt={image.original_name} width="100" height="100" />
+            <button onClick={async () => {
+                let article = await fetch_delete_image(context, image.id);
+                if (article) {
+                    props.setImages(images => images.filter(img => img.id != image.id));
+                    props.setArticleData(article);
+                }
+            }}>
+                Удалить
+            </button>
+        </li>
+    );
 
     return (
         <div>

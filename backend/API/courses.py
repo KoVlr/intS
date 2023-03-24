@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Security
+from typing import List, Annotated
+from fastapi import APIRouter, Depends, HTTPException, Security, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -33,7 +34,33 @@ def create_new_course(
     return crud.create_course(db, course)
 
 
-@courses_router.get("{course_id}", response_model=schemes.CourseGet)
+@courses_router.get("", response_model = List[schemes.CourseInList])
+def get_courses(
+        offset: Annotated[int, Query(ge=0)] = 0,
+        limit: Annotated[int, Query(ge=1, le=100)] = 20,
+        db: Session = Depends(get_db)
+    ):
+    db_courses = crud.get_courses_list(db, offset, limit)
+    courses = [schemes.Course.from_orm(db_course) for db_course in db_courses]
+
+    for i, db_course in enumerate(db_courses):
+        author = db_course.author.user.username
+        courses[i] = schemes.CourseInList(**courses[i].dict(), author=author)
+
+    return courses
+
+
+@courses_router.get("/mine", response_model = List[schemes.CourseInAuthorList])
+def get_my_courses(
+        offset: Annotated[int, Query(ge=0)] = 0,
+        limit: Annotated[int, Query(ge=1, le=100)] = 20,
+        user = Security(get_authenticated_user, scopes=["author"]),
+        db: Session = Depends(get_db)
+    ):
+    return crud.get_courses_by_author(db, user.author.id, offset, limit)
+
+
+@courses_router.get("/{course_id}", response_model=schemes.CourseGet)
 def get_course(
         course_id: int, user = Depends(get_current_user), db: Session = Depends(get_db)
     ):
@@ -75,4 +102,3 @@ def get_course(
         access=access,
         articles=articles
     )
-        

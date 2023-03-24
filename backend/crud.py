@@ -63,8 +63,8 @@ def get_course(db: Session, id: int):
 
 
 def get_course_by_name(db: Session, name: str, author_id: int):
-    return db.query(db_models.Courses).\
-        filter(db_models.Courses.name == name, db_models.Courses.author_id == author_id).first()
+    return db.query(db_models.Courses)\
+        .filter(db_models.Courses.name == name, db_models.Courses.author_id == author_id).first()
 
 
 def create_course(db: Session, course: schemes.CourseCreate):
@@ -75,10 +75,24 @@ def create_course(db: Session, course: schemes.CourseCreate):
     return db_course
 
 
+def get_courses_list(db: Session, offset: int, limit: int):
+    return db.query(db_models.Courses)\
+        .order_by(db_models.Courses.is_public.desc())\
+        .offset(offset).limit(limit).all()
+
+
+def get_courses_by_author(db: Session, author_id: int, offset: int, limit: int):
+    return db.query(db_models.Courses)\
+        .filter(db_models.Courses.author_id == author_id)\
+        .order_by(db_models.Courses.updated_at.desc())\
+        .offset(offset).limit(limit).all()
+
+
 def get_published_articles_count(db: Session, course_id: int):
     return db.query(db_models.Articles)\
         .filter(db_models.Articles.course_id == course_id,
                 db_models.Articles.is_published == True).count()
+
 
 def get_published_articles(db: Session, course_id: int):
     return db.query(db_models.Articles)\
@@ -107,8 +121,8 @@ def update_article(
 
 
 def get_article_by_name(db: Session, name: str, course_id: int):
-    return db.query(db_models.Articles).\
-        filter(db_models.Articles.name == name, db_models.Articles.course_id == course_id).first()
+    return db.query(db_models.Articles)\
+        .filter(db_models.Articles.name == name, db_models.Articles.course_id == course_id).first()
 
 
 def create_article(db: Session, article: schemes.ArticleCreate):
