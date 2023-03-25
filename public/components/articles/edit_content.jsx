@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetch_save_content } from '../../../../api_requests.jsx';
-import { TokenContext } from '../../../app.jsx';
+import { fetch_save_content } from '../../api_requests.jsx';
+import { TokenContext } from '../app.jsx';
 
 export default function EditContent(props) {
     const context = useContext(TokenContext);

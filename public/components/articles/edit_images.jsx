@@ -1,7 +1,7 @@
 import React, { useContext, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetch_delete_image, fetch_upload_images } from '../../../../api_requests.jsx';
-import { TokenContext } from '../../../app.jsx';
+import { fetch_delete_image, fetch_upload_images } from '../../api_requests.jsx';
+import { TokenContext } from '../app.jsx';
 
 export default function EditImages(props) {
     const context = useContext(TokenContext);

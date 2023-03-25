@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { fetch_article_view } from "../../../../api_requests.jsx";
-import { TokenContext } from "../../../app.jsx";
+import { fetch_article_view } from "../../api_requests.jsx";
+import { TokenContext } from "../app.jsx";
 import hljs from 'highlight.js';
 import DOMPurify from "dompurify";
 

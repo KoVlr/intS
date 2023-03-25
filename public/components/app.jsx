@@ -8,18 +8,18 @@ import {
 
 import { fetch_refresh_tokens } from "../api_requests.jsx";
 
-import Root from "./app/root.jsx";
-import Home from "./app/root/home.jsx";
-import LoginForm from "./app/login.jsx";
-import SignupForm from "./app/signup.jsx";
-import BecomeAuthor from "./app/root/become_author.jsx";
-import CourseNew from "./app/root/course_new.jsx";
-import ArticleEditor from "./app/root/article_editor.jsx";
-import ArticlePage from "./app/root/article_page.jsx";
-import Article from "./app/root/article_page/article.jsx";
-import Course from "./app/root/course.jsx";
-import CourseEditor from "./app/root/course_editor.jsx";
-import MyCourses from "./app/home/my_courses.jsx";
+import Root from "./root/root.jsx";
+import Home from "./home.jsx";
+import LoginForm from "./auth/login.jsx";
+import SignupForm from "./auth/signup.jsx";
+import BecomeAuthor from "./root/become_author.jsx";
+import CourseNew from "./courses/course_new.jsx";
+import ArticleEditor from "./articles/article_editor.jsx";
+import ArticlePage from "./articles/article_page.jsx";
+import Article from "./articles/article.jsx";
+import Course from "./courses/course.jsx";
+import CourseEditor from "./courses/course_editor.jsx";
+import MyCourses from "./courses/my_courses.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 

@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import { TokenContext } from "../../app.jsx";
-import { fetch_become_author, fetch_refresh_tokens } from "../../../api_requests.jsx";
+import { TokenContext } from "../app.jsx";
+import { fetch_become_author, fetch_refresh_tokens } from "../../api_requests.jsx";
 import { Navigate } from 'react-router-dom';
 
 export default function BecomeAuthor() {

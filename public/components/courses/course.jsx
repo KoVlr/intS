@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
-import { fetch_course } from "../../../api_requests.jsx";
-import { TokenContext } from "../../app.jsx";
+import { fetch_course } from "../../api_requests.jsx";
+import { TokenContext } from "../app.jsx";
 
 export default function Course() {
     const context = useContext(TokenContext);

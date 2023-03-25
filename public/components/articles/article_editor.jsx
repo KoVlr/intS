@@ -6,10 +6,10 @@ import {
     fetch_publish_article,
     fetch_article_content,
     fetch_article_images
-} from '../../../api_requests.jsx';
-import { TokenContext } from '../../app.jsx';
-import EditContent from './article_editor/edit_content.jsx'
-import EditImages from './article_editor/edit_images.jsx'
+} from '../../api_requests.jsx';
+import { TokenContext } from '../app.jsx';
+import EditContent from './edit_content.jsx'
+import EditImages from './edit_images.jsx'
 
 export default function ArticleEditor() {
     const context = useContext(TokenContext);
