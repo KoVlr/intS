@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useOutletContext, useParams, Link } from "react-router-dom";
 import { fetch_article_view } from "../../api_requests.jsx";
 import { TokenContext } from "../app.jsx";
 import hljs from 'highlight.js';
@@ -11,7 +11,9 @@ export default function Article() {
 
     const [view, setView] = useState("");
 
-    const {article_id} = useParams();
+    const {course_id, article_id} = useParams();
+
+    const course = useOutletContext();
 
     useEffect(() => {
         const get_view = async function() {
@@ -31,6 +33,13 @@ export default function Article() {
 
 
     return (
-        <div dangerouslySetInnerHTML={{__html: view}}/>
+        <div>
+            {course?.ownership &&
+                <div>
+                    <Link to={`/courses/${course_id}/articles/${article_id}/edit`}>Редактировать</Link>
+                </div>
+            }
+            <div dangerouslySetInnerHTML={{__html: view}}/>
+        </div>
     )
 }

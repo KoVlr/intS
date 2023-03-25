@@ -90,6 +90,7 @@ class CourseInAuthorList(BaseModel):
 class ArticleInCourse(BaseModel):
     id: int
     name: str
+    updated_at: datetime
     position_in_course: int
 
     class Config:
@@ -103,7 +104,6 @@ class CourseGet(BaseModel):
     in_collection: bool | None
     access: bool
     articles: List[ArticleInCourse]
-
 
 
 class ArticleNew(BaseModel):
