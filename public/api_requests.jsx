@@ -138,10 +138,10 @@ export async function fetch_create_course(context, course_name, description, is_
 }
 
 
-export async function fetch_my_courses(context) {
+export async function fetch_my_courses(context, offset, limit) {
     await refresh_if_exp(context);
 
-    let response = await fetch('/api/courses/mine', {
+    let response = await fetch(`/api/courses/mine?offset=${offset}&limit=${limit}`, {
         method: 'GET',
         headers: get_auth_header(context.token)
     });
