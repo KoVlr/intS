@@ -14,7 +14,7 @@ export default function UserMenu() {
             if (user) setUsername(user.username);
         }
         get_data();
-    }, [context.token===null]);
+    }, []);
 
     async function logout_click_handle() {
         let success = await fetch_logout(context);
@@ -26,8 +26,7 @@ export default function UserMenu() {
     return (
         <>
             {username}<br/>
-            {
-                !context.token.rights.includes("author") &&
+            {!context.token.rights.includes("author") &&
                 <><Link to="/become_author">Стать автором</Link><br/></>
             }
             <button onClick={logout_click_handle}>Выход</button>

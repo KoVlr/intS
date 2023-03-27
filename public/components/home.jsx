@@ -13,8 +13,7 @@ export default function Home() {
                     <li><NavLink to="/home/history">История</NavLink></li>
                     <li><NavLink to="/home/allcourses">Все курсы</NavLink></li>
                     {
-                        context.token !== null &&
-                        context.token.rights.includes("author") &&
+                        context.token?.rights.includes("author") &&
                         <li><NavLink to="/home/mycourses">Мои курсы</NavLink></li>
                     }
                 </ul>

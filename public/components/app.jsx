@@ -20,21 +20,26 @@ import Article from "./articles/article.jsx";
 import Course from "./courses/course.jsx";
 import CourseEditor from "./courses/course_editor.jsx";
 import MyCourses from "./courses/my_courses.jsx";
+import AllCourses from "./courses/all_courses.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
 export default function App() {
-    const [token, setToken] = useState(null);
+    const [token, setToken] = useState(undefined);
 
     useEffect(() => {
         const refresh_tokens = async function() {
             let token = await fetch_refresh_tokens();
             if (token) {
                 setToken(token);
+            } else {
+                setToken(null);
             }
         };
         refresh_tokens();
     }, [])
+
+    if (token === undefined) return <>Loading...</>;
 
     return (
         <TokenContext.Provider value={{token: token, setToken: setToken}}>
@@ -46,7 +51,7 @@ export default function App() {
                             <Route index element={<Navigate to="/home/collection"/>} />
                             <Route path="/home/collection" element={<>Collection</>} />
                             <Route path="/home/history" element={<>History</>} />
-                            <Route path="/home/allcourses" element={<>Allcourses</>} />
+                            <Route path="/home/allcourses" element={<AllCourses/>} />
                             <Route path="/home/mycourses" element={<MyCourses/>} />
                         </Route>
                         <Route path="/courses/:course_id" element={<Course/>} />

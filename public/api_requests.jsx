@@ -26,10 +26,10 @@ export async function fetch_refresh_tokens() {
 
 
 function get_auth_header(token) {
-    if (token === null) {
-        return {};
-    } else {
+    if (token) {
         return {Authorization: `${token.token_type} ${token.access_token}`};
+    } else {
+        return {};
     }
 }
 
@@ -44,7 +44,7 @@ function isExpired(token) {
 
 
 async function refresh_if_exp(context) {
-    if (context.token !== null && isExpired(context.token)) {
+    if (context.token && isExpired(context.token)) {
         let token = await fetch_refresh_tokens();
         if (token) {
             context.token = token;
@@ -134,6 +134,20 @@ export async function fetch_create_course(context, course_name, description, is_
     if (response.ok){
         let course = await response.json();
         return course;
+    }
+}
+
+
+export async function fetch_all_courses(context, offset, limit) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/courses?offset=${offset}&limit=${limit}`, {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let courses = await response.json();
+        return courses;
     }
 }
 

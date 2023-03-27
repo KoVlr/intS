@@ -77,7 +77,7 @@ def create_course(db: Session, course: schemes.CourseCreate):
 
 def get_courses_list(db: Session, offset: int, limit: int):
     return db.query(db_models.Courses)\
-        .order_by(db_models.Courses.is_public.desc())\
+        .order_by(db_models.Courses.is_public.desc(), db_models.Courses.id)\
         .offset(offset).limit(limit).all()
 
 

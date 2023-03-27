@@ -40,7 +40,7 @@ export default function ArticleEditor() {
             }
         };
         get_data();
-    }, [context.token===null])
+    }, [])
 
     const handleNameChange = function() {
         setNameEditMode(true);

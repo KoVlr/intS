@@ -16,7 +16,7 @@ export default function BecomeAuthor() {
         }
     }
 
-    if (context.token.rights.includes("author")) {
+    if (context.token?.rights.includes("author")) {
         return (<Navigate to="/home/mycourses"/>);
     }
 

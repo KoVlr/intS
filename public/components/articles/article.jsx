@@ -24,7 +24,7 @@ export default function Article() {
             }
         }
         get_view();
-    }, [context.token===null]);
+    }, []);
 
     useEffect(() => {
         MathJax.typeset();

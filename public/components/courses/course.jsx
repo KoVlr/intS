@@ -18,7 +18,7 @@ export default function Course() {
             }
         }
         get_course();
-    }, [context.token===null])
+    }, [])
 
     const article_list = course?.articles.map((article) =>
         <li key={article.id}>

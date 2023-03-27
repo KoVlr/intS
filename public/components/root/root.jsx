@@ -13,12 +13,12 @@ export default function Root() {
                 <h1>intSpread</h1>
             </header>
             
-            {context.token === null
-                ? <><Link to="/login">Войти</Link> <Link to="/signup">Зарегистрироваться</Link></>
-                : <>
+            {context.token
+                ? <>
                     <Notifications/>
                     <UserMenu/>
                 </>
+                : <><Link to="/login">Войти</Link> <Link to="/signup">Зарегистрироваться</Link></>
             }
 
             <Outlet/>

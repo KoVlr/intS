@@ -105,6 +105,9 @@ def refresh_tokens(
         refresh_token: uuid.UUID | None = Cookie(None),
         db: Session = Depends(get_db)
     ):
+    if refresh_token is None:
+        raise HTTPException(status_code=400, detail="Refresh_token not found")
+    
     db_refresh_token = crud.get_refresh_token(db, refresh_token)
     if not db_refresh_token:
         raise HTTPException(status_code=400, detail="Refresh_token not found")

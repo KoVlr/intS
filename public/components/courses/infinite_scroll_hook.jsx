@@ -18,19 +18,24 @@ export default function useInfiniteScroll(fetch_items) {
 
                 //Loading data until there are chunk_size new unique elements or until all data is loaded.
                 while (new_items.length < chunk_size) {
-                    let downloaded_items = await fetch_items(context, download_count.current, chunk_size);
-                    if (downloaded_items) {
-                        download_count.current += downloaded_items.length;
+                    let chunk_items = await fetch_items(context, download_count.current, chunk_size);
+                    if (chunk_items) {
+                        download_count.current += chunk_items.length;
 
-                        for_downloaded_items: for (let downloaded_item of downloaded_items) {
-                            for (let item of items) {
-                                if (downloaded_item.id == item.id) continue for_downloaded_items;
+                        let saved_items = [...items, ...new_items];
+
+                        for_chunk_items: for (let chunk_item of chunk_items) {
+                            for (let item of saved_items) {
+                                if (chunk_item.id == item.id) {
+                                    console.log(item.id);
+                                    continue for_chunk_items;
+                                }
                             }
-                            new_items.push(downloaded_item);
+                            new_items.push(chunk_item);
                         }
                         
                         //if all data is loaded
-                        if (downloaded_items.length < chunk_size) {
+                        if (chunk_items.length < chunk_size) {
                             setCourses(items => [...items, ...new_items]);
                             //value of listenScroll remains equal to false
                             return;
@@ -48,7 +53,7 @@ export default function useInfiniteScroll(fetch_items) {
 
             get_items();
         }
-    }, [listenScroll, context.token===null])
+    }, [listenScroll])
 
 
     const scrollHandler = async function(event) {
