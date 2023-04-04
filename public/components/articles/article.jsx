@@ -24,7 +24,7 @@ export default function Article() {
             }
         }
         get_view();
-    }, []);
+    }, [article_id]);
 
     useEffect(() => {
         MathJax.typeset();
