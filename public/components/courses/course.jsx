@@ -34,6 +34,9 @@ export default function Course() {
                 <>
                     <h2>{course.course_data.name}</h2>
                     <p>Автор: {course.author}</p>
+                    {course.access_code &&
+                        course.access_code
+                    }
                     <p>{course.course_data.description}</p>
                     <ul>{article_list}</ul>
                 </>

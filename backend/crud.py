@@ -11,7 +11,7 @@ def get_user(db: Session, email: str):
 def get_scopes(db: Session, email: str):
     user = db.query(db_models.Users).filter(db_models.Users.email == email).first()
     scopes = []
-    if user.author != []:
+    if user.author is not None:
         scopes += ['author']
     return scopes
 
@@ -109,8 +109,7 @@ def update_article(
             db: Session,
             id: int,
             article_data: schemes.ArticleUpdate
-        ):
-    
+        ):    
     db_article = db.get(db_models.Articles, id)
     
     for attr in article_data.dict(exclude_unset=True):
@@ -118,6 +117,20 @@ def update_article(
 
     db.commit()
     return db_article
+
+
+def update_course(
+            db: Session,
+            id: int,
+            course_data: schemes.CourseUpdate
+        ):
+    
+    db_course = db.get(db_models.Courses, id)
+    
+    for attr in course_data.dict(exclude_unset=True):
+        setattr(db_course, attr, getattr(course_data, attr))
+
+    db.commit()
 
 
 def get_article_by_name(db: Session, name: str, course_id: int):

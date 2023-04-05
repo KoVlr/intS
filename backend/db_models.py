@@ -42,7 +42,7 @@ class Courses(Base):
     description = Column(Text)
     is_public = Column(Boolean, nullable=False)
     views_count = Column(Integer)
-    rating = Column(Float)
+    access_code = Column(String)
     created_at = Column(TIMESTAMP, nullable=False)
     updated_at = Column(TIMESTAMP, nullable=False)
 

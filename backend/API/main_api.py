@@ -23,7 +23,7 @@ def get_user_info(user = Depends(get_authenticated_user)):
 
 @main_api_router.post("/authors", response_model=schemes.Author)
 def become_author(db: Session = Depends(get_db), user = Depends(get_authenticated_user)):
-    if user.author != []:
+    if user.author is not None:
         raise HTTPException(status_code=400, detail="User is already author")
     return crud.create_author(db, schemes.AuthorCreate(user_id=user.id))
 

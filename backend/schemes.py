@@ -53,15 +53,20 @@ class CourseNew(BaseModel):
 class CourseCreate(CourseNew):
     author_id: int
     views_count: int = 0
+    access_code: str | None
     created_at: datetime
     updated_at: datetime
 
 
-class Course(CourseCreate):
+class Course(BaseModel):
     id: int
     name: str
     description: str
     is_public: bool
+    author_id: int
+    views_count: int = 0
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
@@ -103,7 +108,25 @@ class CourseGet(BaseModel):
     ownership: bool
     in_collection: bool | None
     access: bool
+    access_code: str | None
     articles: List[ArticleInCourse]
+
+
+class CourseChangeData(BaseModel):
+    name: str | None
+    description: str | None
+    is_public: bool | None
+
+
+class CourseUpdate(CourseChangeData):
+    access_code: str | None
+    updated_at: datetime
+
+
+class CoursePatch(BaseModel):
+    course_data: CourseChangeData | None
+    change_access_code: bool | None
+    articles_order: List[int] | None
 
 
 class ArticleNew(BaseModel):
@@ -130,12 +153,11 @@ class ArticlePatch(BaseModel):
     is_published: bool | None
 
 class ArticleUpdate(BaseModel):
-    updated_at: datetime
+    updated_at: datetime | None
     name: str | None
     is_published: bool | None
     position_in_course: int | None
     published_at: datetime | None
-
 
 
 class ImageCreate(BaseModel):

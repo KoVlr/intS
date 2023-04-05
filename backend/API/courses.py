@@ -2,6 +2,8 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Security, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
+from random import choices
+import string
 
 
 from .auth import get_authenticated_user, get_current_user
@@ -13,6 +15,10 @@ courses_router = APIRouter(
     prefix="/api/courses",
     tags=["Courses"]
 )
+
+
+def generate_access_code():
+    return ''.join(choices(string.ascii_uppercase + string.digits, k=8))
 
 
 @courses_router.post("", response_model=schemes.Course)
@@ -28,6 +34,7 @@ def create_new_course(
     course = schemes.CourseCreate(
         **new_course.dict(),
         author_id=user.author.id,
+        access_code = None if new_course.is_public else generate_access_code(),
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -81,6 +88,7 @@ def get_course(
         if ownership:
             in_collection = None
             access = True
+            access_code = db_course.access_code
         else:
             in_collection = False
             for collection in db_course.collections:
@@ -89,6 +97,7 @@ def get_course(
                     break
 
             access = False
+            access_code = None
             for access_entry in db_course.access:
                 if access_entry.user_id == user.id:
                     access = True
@@ -96,9 +105,41 @@ def get_course(
     
     return schemes.CourseGet(
         course_data=db_course,
-        author=author, 
+        author=author,
         ownership=ownership,
         in_collection=in_collection,
         access=access,
+        access_code=access_code,
         articles=articles
     )
+
+
+@courses_router.patch("/{course_id}")
+def change_course(
+        update_data: schemes.CoursePatch,
+        course_id: int,
+        db: Session = Depends(get_db)
+    ):
+    #Check access
+    db_course = crud.get_course(db, course_id)
+
+    course_update_data = update_data.course_data.dict(exclude_unset=True)
+    
+    if db_course.access_code and update_data.change_access_code\
+        or not db_course.access_code and update_data.course_data.is_public is False:
+        course_update_data['access_code'] = generate_access_code()
+    
+    if update_data.articles_order is not None:
+        articles_list = crud.get_published_articles(db, course_id)
+        for article in articles_list:
+            crud.update_article(db, article.id, schemes.ArticleUpdate(position_in_course=None))
+
+        for (pos, article_id) in enumerate(update_data.articles_order):
+            crud.update_article(db, article_id, schemes.ArticleUpdate(position_in_course=pos))
+
+    updated_course = schemes.CourseUpdate(
+        **course_update_data,
+        updated_at=datetime.utcnow()
+    )
+
+    crud.update_course(db, course_id, updated_course)
