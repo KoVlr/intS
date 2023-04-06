@@ -101,6 +101,13 @@ def get_published_articles(db: Session, course_id: int):
                     .order_by(db_models.Articles.position_in_course).all()
 
 
+def get_drafts(db: Session, course_id: int):
+    return db.query(db_models.Articles)\
+        .filter(db_models.Articles.course_id == course_id,
+                db_models.Articles.is_published == False)\
+                    .order_by(db_models.Articles.updated_at.desc()).all()
+
+
 def create_access(db: Session, access_entry: schemes.AccessCreate):
     db_access = db_models.Access(**access_entry.dict())
     db.add(db_access)

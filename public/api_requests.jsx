@@ -180,6 +180,37 @@ export async function fetch_course(context, course_id) {
 }
 
 
+export async function fetch_course_drafts(context, course_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/courses/${course_id}/drafts`, {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let drafts = await response.json();
+        return drafts;
+    }
+}
+
+
+export async function fetch_change_course(context, course_id, update_data) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/courses/${course_id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            ...get_auth_header(context.token)
+        },
+        body: JSON.stringify(update_data)
+    });
+    if (response.ok) {
+        return 'success';
+    }
+}
+
+
 export async function fetch_get_access(context, course_id, access_code) {
     await refresh_if_exp(context);
 
@@ -221,6 +252,27 @@ export async function fetch_delete_from_collection(context, course_id) {
     });
     if (response.ok){
         return 'success';
+    }
+}
+
+
+export async function fetch_create_article(context, article_name, course_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch('http://127.0.0.1:8000/api/articles', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            ...get_auth_header(context.token)
+        },
+        body: JSON.stringify({
+            name: article_name,
+            course_id: course_id
+        })
+    });
+    if (response.ok){
+        let article = await response.json();
+        return article;
     }
 }
 

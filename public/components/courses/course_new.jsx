@@ -25,22 +25,31 @@ export default function CourseNew() {
         <form onSubmit={handleSubmit}>
             <fieldset>
                 <legend>Новый курс</legend>
-                <label>
-                    Название курса:
-                    <input name="course_name" type="text" value={course_name} onChange={(event)=>setCourseName(event.target.value)}/>
-                </label>
-                <label>
-                    Описание курса:
-                    <textarea name="description" value={description} onChange={(event)=>setDescription(event.target.value)}/>
-                </label>
-                <label>
-                    <input name="public" type="radio" value="public" checked={is_public} onChange={(event)=>setIsPublic(!is_public)}/>
-                    Публичный курс
-                </label>
-                <label>
-                    <input name="private" type="radio" value="private" checked={!is_public} onChange={(event)=>setIsPublic(!is_public)}/>
-                    Закрытый курс
-                </label>
+                <div>
+                    <label>
+                        Название курса:
+                        <input name="course_name" type="text" value={course_name} onChange={(event)=>setCourseName(event.target.value)}/>
+                    </label>
+                </div>
+
+                <div>
+                    <label>
+                        Описание курса:
+                        <textarea name="description" value={description} onChange={(event)=>setDescription(event.target.value)}/>
+                    </label>
+                </div>
+
+                <div>
+                    <label>
+                        <input name="public" type="radio" value="public" checked={is_public} onChange={(event)=>setIsPublic(!is_public)}/>
+                        Публичный курс
+                    </label>
+                    <label>
+                        <input name="private" type="radio" value="private" checked={!is_public} onChange={(event)=>setIsPublic(!is_public)}/>
+                        Закрытый курс
+                    </label>
+                </div>
+                
                 <input type="submit" value="Создать курс"/>
             </fieldset>
         </form>

@@ -114,6 +114,17 @@ def get_course(
     )
 
 
+@courses_router.get("/{course_id}/drafts", response_model=List[schemes.DraftInCourse])
+def get_course_drafts(
+        course_id: int,
+        user = Security(get_authenticated_user, scopes=['author']),
+        db: Session = Depends(get_db)
+    ):
+    #Check access
+
+    return crud.get_drafts(db, course_id)
+
+
 @courses_router.patch("/{course_id}")
 def change_course(
         update_data: schemes.CoursePatch,
@@ -123,7 +134,8 @@ def change_course(
     #Check access
     db_course = crud.get_course(db, course_id)
 
-    course_update_data = update_data.course_data.dict(exclude_unset=True)
+    course_update_data = {} if update_data.course_data is None\
+                            else update_data.course_data.dict(exclude_unset=True)
     
     if db_course.access_code and update_data.change_access_code\
         or not db_course.access_code and update_data.course_data.is_public is False:
