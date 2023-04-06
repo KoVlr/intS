@@ -129,6 +129,22 @@ class CoursePatch(BaseModel):
     articles_order: List[int] | None
 
 
+class AccessPost(BaseModel):
+    access_code: str
+
+
+class AccessCreate(BaseModel):
+    user_id: int
+    course_id: int
+    received_at: datetime
+
+
+class CollectionCreate(BaseModel):
+    user_id: int
+    course_id: int
+    added_at: datetime
+
+
 class ArticleNew(BaseModel):
     name: str
     course_id: int

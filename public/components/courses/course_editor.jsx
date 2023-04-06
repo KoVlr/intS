@@ -5,7 +5,7 @@ export default function CourseEditor() {
 
     return (
         <div>
-            
+            CourseEditor
         </div>
     )
 }

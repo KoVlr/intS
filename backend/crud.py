@@ -101,6 +101,32 @@ def get_published_articles(db: Session, course_id: int):
                     .order_by(db_models.Articles.position_in_course).all()
 
 
+def create_access(db: Session, access_entry: schemes.AccessCreate):
+    db_access = db_models.Access(**access_entry.dict())
+    db.add(db_access)
+    db.commit()
+    db.refresh(db_access)
+    return db_access
+
+
+def create_collection_entry(db: Session, collection_entry: schemes.CollectionCreate):
+    db_collection = db_models.Collections(**collection_entry.dict())
+    db.add(db_collection)
+    db.commit()
+    db.refresh(db_collection)
+    return db_collection
+
+
+def delete_collection_entry(db: Session, user_id: int, course_id: int):
+    db_collection = db.get(db_models.Collections, (user_id, course_id))
+    if db_collection:
+        db.delete(db_collection)
+        db.commit()
+        return True
+    else:
+        return False
+
+
 def get_article(db: Session, id: int):
     return db.get(db_models.Articles, id)
 

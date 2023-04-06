@@ -143,3 +143,53 @@ def change_course(
     )
 
     crud.update_course(db, course_id, updated_course)
+
+
+@courses_router.post("/{course_id}/access")
+def get_access_to_course(
+        course_id: int,
+        access_data: schemes.AccessPost,
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    existing_access = crud.get_access_entry(db, user.id, course_id)
+    if existing_access is not None:
+        raise HTTPException(status_code=400, detail="User already has access")
+    
+    db_course = crud.get_course(db, course_id)
+    if db_course is None:
+        raise HTTPException(status_code=400, detail="Course does not exist")
+    
+    if user.author is not None and user.author.id == db_course.author_id:
+        raise HTTPException(status_code=400, detail="User is the author of the course")
+    
+    if access_data.access_code != db_course.access_code:
+        raise HTTPException(status_code=400, detail="Invalid access code")
+    
+    crud.create_access(db, schemes.AccessCreate(
+            user_id=user.id,
+            course_id=course_id,
+            received_at=datetime.utcnow()
+        ))
+    
+
+@courses_router.post("/collection/{course_id}")
+def add_course_to_collection(
+        course_id: int,
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    #Check access
+    crud.create_collection_entry(db, schemes.CollectionCreate(
+        user_id=user.id, course_id=course_id, added_at=datetime.utcnow()
+    ))
+
+
+@courses_router.delete("/collection/{course_id}")
+def delete_course_from_collection(
+        course_id: int,
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    #Check access
+    crud.delete_collection_entry(db, user.id, course_id)

@@ -180,6 +180,51 @@ export async function fetch_course(context, course_id) {
 }
 
 
+export async function fetch_get_access(context, course_id, access_code) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/courses/${course_id}/access`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            ...get_auth_header(context.token)
+        },
+        body: JSON.stringify({
+            access_code: access_code
+        })
+    });
+    if (response.ok){
+        return 'success';
+    }
+}
+
+
+export async function fetch_add_to_collection(context, course_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/courses/collection/${course_id}`, {
+        method: 'POST',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok){
+        return 'success';
+    }
+}
+
+
+export async function fetch_delete_from_collection(context, course_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/courses/collection/${course_id}`, {
+        method: 'DELETE',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok){
+        return 'success';
+    }
+}
+
+
 export async function fetch_article(context, article_id) {
     await refresh_if_exp(context);
 
