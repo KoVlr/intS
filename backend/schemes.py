@@ -92,17 +92,13 @@ class CourseInAuthorList(BaseModel):
         orm_mode = True
 
 
-class DraftInCourse(BaseModel):
+class ArticleInCourse(BaseModel):
     id: int
     name: str
     updated_at: datetime
 
     class Config:
         orm_mode = True
-
-
-class ArticleInCourse(DraftInCourse):
-    position_in_course: int
 
 
 class CourseGet(BaseModel):

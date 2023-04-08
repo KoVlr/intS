@@ -1,3 +1,7 @@
 nav a.active {
     background-color:grey;
 }
+
+li {
+    border: 1px solid black;
+  }  

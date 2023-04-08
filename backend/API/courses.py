@@ -114,7 +114,7 @@ def get_course(
     )
 
 
-@courses_router.get("/{course_id}/drafts", response_model=List[schemes.DraftInCourse])
+@courses_router.get("/{course_id}/drafts", response_model=List[schemes.ArticleInCourse])
 def get_course_drafts(
         course_id: int,
         user = Security(get_authenticated_user, scopes=['author']),

@@ -104,7 +104,7 @@ export default function CourseEditor() {
                     </nav>
 
                     {articles_type == 'published' &&
-                        <EditPublished articles={course.articles} />
+                        <EditPublished articles={course.articles} setArticles={(articles)=>setCourse(course=>({...course, articles: articles}))} />
                     }
 
                     {articles_type == 'drafts' &&
