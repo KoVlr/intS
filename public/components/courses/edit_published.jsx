@@ -1,18 +1,25 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useContext } from 'react';
 import { useParams, Link } from "react-router-dom";
+import { fetch_change_course } from "../../api_requests.jsx";
+import { TokenContext } from "../app.jsx";
+
 
 export default function EditPublished(props) {
+    const context = useContext(TokenContext);
 
     const [top, setTop] = useState(0);
-    const [drag_item, SetDragItem] = useState(null);
+    const [drag_item, setDragItem] = useState(null);
 
     const initial_mouse_top = useRef(null);
     const initial_elem_top = useRef(null);
     const upper_limit = useRef(null);
     const lower_limit = useRef(null);
 
+    const articles_order = props.articles.map(elem => (elem.id));
+
     const {course_id} = useParams();
 
+    
     const get_limits = function(target_elem) {
         let upper_limit = null;
         let lower_limit = null;
@@ -37,15 +44,6 @@ export default function EditPublished(props) {
     }
 
 
-    const get_order = function() {
-        let res = "";
-        props.articles.forEach(elem => {
-            res += `${elem.id}`;
-        });
-        return res;
-    }
-
-
     useLayoutEffect(()=>{
         if(drag_item!==null) {
             let target_elem = document.querySelector(`li[data-article_id="${drag_item}"]`);
@@ -57,7 +55,7 @@ export default function EditPublished(props) {
 
             setTop(top=>(top - diff));
         }
-    }, [get_order()]);
+    }, articles_order);
 
 
     const handle_mouse_move = function(event) {
@@ -95,15 +93,22 @@ export default function EditPublished(props) {
         }
     }
 
-    const handle_mouse_up = function(event) {
-        SetDragItem(null);
+    const handle_mouse_up = async function(event) {
+        setDragItem(null);
         setTop(0);
+
+        document.removeEventListener('mousemove', handle_mouse_move);
+        document.removeEventListener('mouseup', handle_mouse_up);
+
+        let success = await fetch_change_course(context, course_id, {articles_order: articles_order});
     }
 
 
     useEffect(() => {
-        document.addEventListener('mousemove', handle_mouse_move);
-        document.addEventListener('mouseup', handle_mouse_up);
+        if(drag_item !== null) {
+            document.addEventListener('mousemove', handle_mouse_move);
+            document.addEventListener('mouseup', handle_mouse_up);
+        }
         return () => {
             document.removeEventListener('mousemove', handle_mouse_move);
             document.removeEventListener('mouseup', handle_mouse_up);
@@ -121,7 +126,7 @@ export default function EditPublished(props) {
         [upper_limit.current, lower_limit.current] = get_limits(target);
         initial_elem_top.current = target.offsetTop;
         
-        SetDragItem(target.dataset.article_id);
+        setDragItem(target.dataset.article_id);
     }
 
 
