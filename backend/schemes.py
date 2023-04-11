@@ -71,6 +71,9 @@ class Course(BaseModel):
     class Config:
         orm_mode = True
 
+class CourseForAuthor(Course):
+    access_code: str
+
 
 class CourseInList(BaseModel):
     id: int

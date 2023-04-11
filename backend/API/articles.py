@@ -9,6 +9,7 @@ import re
 
 
 from .auth import get_current_user, get_authenticated_user
+from .courses import check_own_course, check_available_course
 from ..database import get_db
 from .. import schemes
 from .. import crud
@@ -19,13 +20,31 @@ articles_router = APIRouter(
 )
 
 
-def get_own_article(article_id: int, db: Session = Depends(get_db), user = Security(get_authenticated_user, scopes=['author'])):
+def get_own_article(
+        article_id: int,
+        user = Security(get_authenticated_user, scopes=['author']),
+        db: Session = Depends(get_db)
+    ):
     db_article = crud.get_article(db, article_id)
     if db_article is None:
         raise HTTPException(status_code=400, detail="This article does not exist")
-    if db_article.course.author_id != user.author.id:
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+    
+    check_own_course(db_article.course, user)
     return db_article
+
+
+def get_available_article(
+        article_id: int,
+        user = Depends(get_current_user),
+        db: Session = Depends(get_db)
+    ):
+    db_article = crud.get_article(db, article_id)
+    if db_article is None:
+        raise HTTPException(status_code=400, detail="This article does not exist")
+    
+    check_available_course(db_article.course, user, db)
+    return db_article
+
 
 
 @articles_router.post("", response_model=schemes.ArticleGet)
@@ -154,25 +173,7 @@ def upload_article_images(files: list[UploadFile], article = Depends(get_own_art
 
 
 @articles_router.get("/{article_id}/view")
-def get_article(article_id: int, user = Depends(get_current_user), db: Session = Depends(get_db)):
-    db_article = crud.get_article(db, article_id)
-    if db_article is None:
-        raise HTTPException(status_code=400, detail="This article does not exist")
-    
-    access = False
-    if db_article.course.is_public:
-        access = True
-    elif user is not None:
-        if user.author.id == db_article.course.author_id:
-            access = True
-        else:
-            access_entry = crud.get_access_entry(db, db_article.course_id, user.id)
-            if access_entry is not None:
-                access = True
-    if not access:
-        raise HTTPException(status_code=400, detail="No access to this article")
-
-
+def get_article(db_article = Depends(get_available_article)):
     with open('./' + db_article.file, 'r') as article_file:
         content = article_file.read()
     

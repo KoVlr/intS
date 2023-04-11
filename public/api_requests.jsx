@@ -206,7 +206,8 @@ export async function fetch_change_course(context, course_id, update_data) {
         body: JSON.stringify(update_data)
     });
     if (response.ok) {
-        return 'success';
+        let course_data = await response.json();
+        return course_data;
     }
 }
 

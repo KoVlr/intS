@@ -10,6 +10,7 @@ from .auth import get_authenticated_user, get_current_user
 from ..database import get_db
 from .. import schemes
 from .. import crud
+from .. import db_models
 
 courses_router = APIRouter(
     prefix="/api/courses",
@@ -19,6 +20,76 @@ courses_router = APIRouter(
 
 def generate_access_code():
     return ''.join(choices(string.ascii_uppercase + string.digits, k=8))
+
+
+
+def is_own_course(db_course: db_models.Courses, user: db_models.Users):
+    if db_course.author_id != user.author.id:
+        return False
+    else:
+        return True
+
+
+def is_available_course(
+        db_course: db_models.Courses,
+        user: db_models.Users,
+        db: Session
+    ):
+    if db_course.is_public:
+        return True
+    
+    if user is None:
+        return False
+    
+    db_access_entry = crud.get_access_entry(db, db_course.id, user.id)
+    if db_access_entry is not None:
+        return True
+    
+    if user.author is not None and db_course.author_id == user.author.id:
+        return True
+    
+    return False
+
+
+def check_own_course(db_course: db_models.Courses, user: db_models.Users):
+    if not is_own_course(db_course, user):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+
+
+def check_available_course(
+        db_course: db_models.Courses,
+        user: db_models.Users,
+        db: Session
+    ):
+    if not is_available_course(db_course, user, db):
+        raise HTTPException(status_code=400, detail="No access to this course")
+
+
+def get_own_course(
+        course_id: int,
+        user = Security(get_authenticated_user, scopes=['author']),
+        db: Session = Depends(get_db)
+    ):
+    db_course = crud.get_course(db, course_id)
+    if db_course is None:
+        raise HTTPException(status_code=400, detail="This course does not exist")
+    
+    check_own_course(db_course, user)
+    return db_course
+
+
+def get_available_course(
+        course_id: int,
+        user = Depends(get_current_user),
+        db: Session = Depends(get_db)
+    ):
+    db_course = crud.get_course(db, course_id)
+    if db_course is None:
+        raise HTTPException(status_code=400, detail="This course does not exist")
+    
+    check_available_course(db_course, user, db)
+    return db_course
+
 
 
 @courses_router.post("", response_model=schemes.Course)
@@ -74,6 +145,7 @@ def get_course(
     db_course = crud.get_course(db, course_id)
     author = db_course.author.user.username
     articles = crud.get_published_articles(db, course_id)
+    access_code = None
 
     if user is None:
         ownership = False
@@ -97,7 +169,6 @@ def get_course(
                     break
 
             access = False
-            access_code = None
             for access_entry in db_course.access:
                 if access_entry.user_id == user.id:
                     access = True
@@ -116,24 +187,18 @@ def get_course(
 
 @courses_router.get("/{course_id}/drafts", response_model=List[schemes.ArticleInCourse])
 def get_course_drafts(
-        course_id: int,
-        user = Security(get_authenticated_user, scopes=['author']),
+        db_course = Depends(get_own_course),
         db: Session = Depends(get_db)
     ):
-    #Check access
-
-    return crud.get_drafts(db, course_id)
+    return crud.get_drafts(db, db_course.id)
 
 
-@courses_router.patch("/{course_id}")
+@courses_router.patch("/{course_id}", response_model=schemes.CourseForAuthor)
 def change_course(
         update_data: schemes.CoursePatch,
-        course_id: int,
+        db_course = Depends(get_own_course),
         db: Session = Depends(get_db)
     ):
-    #Check access
-    db_course = crud.get_course(db, course_id)
-
     course_update_data = {} if update_data.course_data is None\
                             else update_data.course_data.dict(exclude_unset=True)
     
@@ -142,7 +207,7 @@ def change_course(
         course_update_data['access_code'] = generate_access_code()
     
     if update_data.articles_order is not None:
-        articles_list = crud.get_published_articles(db, course_id)
+        articles_list = crud.get_published_articles(db, db_course.id)
         for article in articles_list:
             crud.update_article(db, article.id, schemes.ArticleUpdate(position_in_course=None))
 
@@ -154,7 +219,7 @@ def change_course(
         updated_at=datetime.utcnow()
     )
 
-    crud.update_course(db, course_id, updated_course)
+    return crud.update_course(db, db_course.id, updated_course)
 
 
 @courses_router.post("/{course_id}/access")
@@ -191,7 +256,6 @@ def add_course_to_collection(
         user = Depends(get_authenticated_user),
         db: Session = Depends(get_db)
     ):
-    #Check access
     crud.create_collection_entry(db, schemes.CollectionCreate(
         user_id=user.id, course_id=course_id, added_at=datetime.utcnow()
     ))
@@ -203,5 +267,4 @@ def delete_course_from_collection(
         user = Depends(get_authenticated_user),
         db: Session = Depends(get_db)
     ):
-    #Check access
     crud.delete_collection_entry(db, user.id, course_id)

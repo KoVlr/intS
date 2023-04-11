@@ -164,6 +164,7 @@ def update_course(
         setattr(db_course, attr, getattr(course_data, attr))
 
     db.commit()
+    return db_course
 
 
 def get_article_by_name(db: Session, name: str, course_id: int):

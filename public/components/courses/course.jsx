@@ -82,8 +82,9 @@ export default function Course() {
                     {!course.course_data.is_public &&
                         <>
                             <p>Закрытый курс</p>
-                            {!course.access &&
-                                <form onSubmit={handleSubmitAccessCode}>
+                            {course.access
+                                ?<p>Доступ получен</p>
+                                :<form onSubmit={handleSubmitAccessCode}>
                                     Введите код доступа: 
                                     <input type="text" value={access_code} onChange={(event)=>{
                                             setAccessCode(event.target.value);

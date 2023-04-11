@@ -33,25 +33,28 @@ export default function CourseEditor() {
     const change_name = async function(event) {
         event.preventDefault();
 
-        let success = await fetch_change_course(context, course_id, {course_data: {name: course.course_data.name}});
+        await fetch_change_course(context, course_id, {course_data: {name: course.course_data.name}});
     }
 
     const change_description = async function(event) {
         event.preventDefault();
 
-        let success = await fetch_change_course(context, course_id, {course_data: {description: course.course_data.description}});
+        await fetch_change_course(context, course_id, {course_data: {description: course.course_data.description}});
     }
 
     const change_access_type = async function(event) {
         event.preventDefault();
 
-        let success = await fetch_change_course(context, course_id, {course_data: {is_public: course.course_data.is_public}});
+        await fetch_change_course(context, course_id, {course_data: {is_public: course.course_data.is_public}});
     }
 
     const update_access_code = async function(event) {
         event.preventDefault();
 
-        let success = await fetch_change_course(context, course_id, {change_access_code: true});
+        let course_data = await fetch_change_course(context, course_id, {change_access_code: true});
+        if (course_data) {
+            setCourse(course => ({...course, access_code: course_data.access_code}));
+        }
     }
 
 
