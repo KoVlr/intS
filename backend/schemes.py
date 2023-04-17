@@ -195,3 +195,32 @@ class ImageGet(BaseModel):
 class UploadImagesResponse(BaseModel):
     article: ArticleGet
     uploaded_images: list[ImageGet]
+
+
+
+class CommentNew(BaseModel):
+    article_id: int
+    content: str
+    reply_to: int | None = None
+
+
+class CommentCreate(CommentNew):
+    user_id: int
+    created_at: datetime
+    viewed_by_author: bool = False
+    reply_viewed: bool | None = None
+
+
+class Comment(CommentCreate):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class CommentGet(BaseModel):
+    id: int
+    user: str
+    content: str
+    created_at: datetime
+    reply_to: int | None

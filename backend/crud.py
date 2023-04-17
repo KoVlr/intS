@@ -215,3 +215,12 @@ def delete_image(db: Session, id: int):
 
 def get_access_entry(db: Session, course_id: int, user_id: int):
     return db.get(db_models.Access, (course_id, user_id))
+
+
+
+def create_comment(db: Session, comment: schemes.CommentCreate):
+    db_comment = db_models.Comments(**comment.dict())
+    db.add(db_comment)
+    db.commit()
+    db.refresh(db_comment)
+    return db_comment

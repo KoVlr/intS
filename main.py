@@ -4,6 +4,7 @@ from backend.API.auth import auth_router
 from backend.API.main_api import main_api_router
 from backend.API.files_providing import files_providing_router
 from backend.API.articles import articles_router
+from backend.API.comments import comments_router
 from backend.API.courses import courses_router
 from fastapi.staticfiles import StaticFiles
 from backend.db_models import Base

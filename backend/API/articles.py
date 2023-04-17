@@ -50,8 +50,8 @@ def get_available_article(
 @articles_router.post("", response_model=schemes.ArticleGet)
 def create_new_article(
         new_article: schemes.ArticleNew,
-        db: Session = Depends(get_db),
-        user = Security(get_authenticated_user, scopes=['author'])
+        user = Security(get_authenticated_user, scopes=['author']),
+        db: Session = Depends(get_db)
     ):
 
     course = crud.get_course(db, new_article.course_id)
