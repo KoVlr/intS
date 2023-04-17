@@ -166,6 +166,20 @@ export async function fetch_my_courses(context, offset, limit) {
 }
 
 
+export async function fetch_collection(context, offset, limit) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/courses/collection?offset=${offset}&limit=${limit}`, {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let courses = await response.json();
+        return courses;
+    }
+}
+
+
 export async function fetch_course(context, course_id) {
     await refresh_if_exp(context);
 

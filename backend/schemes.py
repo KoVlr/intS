@@ -82,6 +82,9 @@ class CourseInList(BaseModel):
     description: str
     is_public: bool
 
+    class Config:
+        orm_mode = True
+
 
 class CourseInAuthorList(BaseModel):
     id: int

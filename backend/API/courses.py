@@ -138,6 +138,23 @@ def get_my_courses(
     return crud.get_courses_by_author(db, user.author.id, offset, limit)
 
 
+@courses_router.get("/collection", response_model = List[schemes.CourseInList])
+def get_collection(
+        offset: Annotated[int, Query(ge=0)] = 0,
+        limit: Annotated[int, Query(ge=1, le=100)] = 20,
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    db_courses = crud.get_courses_in_collection(db, user.id,offset, limit)
+    courses = [schemes.Course.from_orm(db_course) for db_course in db_courses]
+
+    for i, db_course in enumerate(db_courses):
+        author = db_course.author.user.username
+        courses[i] = schemes.CourseInList(**courses[i].dict(), author=author)
+
+    return courses
+
+
 @courses_router.get("/{course_id}", response_model=schemes.CourseGet)
 def get_course(
         course_id: int, user = Depends(get_current_user), db: Session = Depends(get_db)

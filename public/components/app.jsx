@@ -21,6 +21,7 @@ import Course from "./courses/course.jsx";
 import CourseEditor from "./courses/course_editor.jsx";
 import MyCourses from "./courses/my_courses.jsx";
 import AllCourses from "./courses/all_courses.jsx";
+import Collection from "./courses/Collection.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
@@ -49,7 +50,7 @@ export default function App() {
                         <Route index element={<Navigate to="/home"/>} />
                         <Route path="/home" element={<Home/>}>
                             <Route index element={<Navigate to="/home/collection"/>} />
-                            <Route path="/home/collection" element={<>Collection</>} />
+                            <Route path="/home/collection" element={<Collection/>} />
                             <Route path="/home/history" element={<>History</>} />
                             <Route path="/home/allcourses" element={<AllCourses/>} />
                             <Route path="/home/mycourses" element={<MyCourses/>} />

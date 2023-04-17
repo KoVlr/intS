@@ -121,7 +121,7 @@ class Comments(Base):
     reply_to = Column(Integer, ForeignKey('comments.id'))
     viewed = Column(Boolean)
     content = Column(String)
-    written_at = Column(TIMESTAMP, nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False)
 
     user = relationship('Users', back_populates='comments')
     article = relationship('Articles', back_populates='comments')

@@ -88,6 +88,13 @@ def get_courses_by_author(db: Session, author_id: int, offset: int, limit: int):
         .offset(offset).limit(limit).all()
 
 
+def get_courses_in_collection(db: Session, user_id: int, offset: int, limit: int):
+    return db.query(db_models.Courses).join(db_models.Collections)\
+        .filter(db_models.Collections.user_id == user_id)\
+        .order_by(db_models.Courses.updated_at.desc())\
+        .offset(offset).limit(limit).all()
+
+
 def get_published_articles_count(db: Session, course_id: int):
     return db.query(db_models.Articles)\
         .filter(db_models.Articles.course_id == course_id,
