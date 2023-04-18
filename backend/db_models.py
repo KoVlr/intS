@@ -125,6 +125,7 @@ class Comments(Base):
 
     user = relationship('Users', back_populates='comments')
     article = relationship('Articles', back_populates='comments')
+    replies = relationship('Comments')
 
 class History(Base):
     __tablename__ = 'history'

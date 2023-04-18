@@ -224,3 +224,10 @@ def create_comment(db: Session, comment: schemes.CommentCreate):
     db.commit()
     db.refresh(db_comment)
     return db_comment
+
+
+def get_comments(db: Session, article_id: int, reply_to: int | None, offset: int, limit: int):
+    return db.query(db_models.Comments)\
+        .filter(db_models.Comments.article_id==article_id, db_models.Comments.reply_to==reply_to)\
+        .order_by(db_models.Comments.created_at.desc())\
+        .offset(offset).limit(limit).all()

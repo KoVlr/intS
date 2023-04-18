@@ -224,3 +224,4 @@ class CommentGet(BaseModel):
     content: str
     created_at: datetime
     reply_to: int | None
+    replies_count: int
