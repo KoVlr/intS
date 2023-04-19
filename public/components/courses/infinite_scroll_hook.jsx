@@ -2,10 +2,10 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { TokenContext } from "../app.jsx";
 
 
-export default function useInfiniteScroll(fetch_items) {
+export default function useInfiniteScroll(fetch_items, get_scroll_limit) {
     const context = useContext(TokenContext);
 
-    const [items, setCourses] = useState([]);
+    const [items, setItems] = useState([]);
     const [listenScroll, setListenScroll] = useState(false);
 
     const download_count = useRef(0);
@@ -13,7 +13,7 @@ export default function useInfiniteScroll(fetch_items) {
     useEffect(() => {
         if (!listenScroll) {
             const get_items = async function() {
-                let chunk_size = 20;
+                let chunk_size = 3;
                 let new_items = [];
 
                 //Loading data until there are chunk_size new unique elements or until all data is loaded.
@@ -36,18 +36,18 @@ export default function useInfiniteScroll(fetch_items) {
                         
                         //if all data is loaded
                         if (chunk_items.length < chunk_size) {
-                            setCourses(items => [...items, ...new_items]);
+                            setItems(items => [...items, ...new_items]);
                             //value of listenScroll remains equal to false
                             return;
                         }
                     } else {
-                        setCourses(items => [...items, ...new_items]);
+                        setItems(items => [...items, ...new_items]);
                         if (items.length >= chunk_size) setListenScroll(true);
                         return;
                     }
                 }
                 
-                setCourses(items => [...items, ...new_items]);
+                setItems(items => [...items, ...new_items]);
                 setListenScroll(true);
             }
 
@@ -59,7 +59,10 @@ export default function useInfiniteScroll(fetch_items) {
     const scrollHandler = async function(event) {
         if (listenScroll) {
             let margin = 500;
-            if (event.target.scrollHeight - (event.target.scrollTop + event.target.clientHeight) < margin) {
+            let target = event.target == document ? document.documentElement : event.target;
+            let scroll_limit = get_scroll_limit !== undefined ? get_scroll_limit() : target.scrollHeight;
+
+            if (scroll_limit - (target.scrollTop + target.clientHeight) < margin) {
                 setListenScroll(false);
             }
         }

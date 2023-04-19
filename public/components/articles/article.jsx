@@ -4,6 +4,7 @@ import { fetch_article_view } from "../../api_requests.jsx";
 import { TokenContext } from "../app.jsx";
 import hljs from 'highlight.js';
 import DOMPurify from "dompurify";
+import Comments from "../comments/comments.jsx";
 
 
 export default function Article() {
@@ -40,6 +41,7 @@ export default function Article() {
                 </div>
             }
             <div dangerouslySetInnerHTML={{__html: view}}/>
+            <Comments reply_to={null}/>
         </div>
     )
 }

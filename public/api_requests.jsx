@@ -434,3 +434,17 @@ export async function fetch_article_view(context, article_id) {
         return view;
     }
 }
+
+
+export async function fetch_comments(context, article_id, reply_to, offset, limit) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/articles/${article_id}/comments?`+ (reply_to!==null ? `reply_to=${reply_to}&` : '') + `offset=${offset}&limit=${limit}`, {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let comments = await response.json();
+        return comments;
+    }
+}
