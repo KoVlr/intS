@@ -41,7 +41,7 @@ export default function Article() {
                 </div>
             }
             <div dangerouslySetInnerHTML={{__html: view}}/>
-            <Comments reply_to={null}/>
+            <Comments reply_to={null} display={true}/>
         </div>
     )
 }

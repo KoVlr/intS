@@ -20,7 +20,9 @@ export default function Comments(props) {
     );
 
     useEffect(() => {
-        document.addEventListener('scroll', scrollHandler);
+        if(props.display) {
+            document.addEventListener('scroll', scrollHandler);
+        }
         return () => {
             document.removeEventListener('scroll', scrollHandler);
         }

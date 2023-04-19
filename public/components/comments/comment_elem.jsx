@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import Comments from "./comments.jsx";
 
 export default function CommentElem(props) {
+    const [display, setDisplay] = useState(false);
+
+    const clickHandler = function() {
+        setDisplay(display=>(!display));
+    }
 
     return (
         <div>
@@ -12,7 +17,10 @@ export default function CommentElem(props) {
             </div>
 
             {props.comment.replies_count!=0 &&
-                <Comments reply_to={props.comment.id}/>
+                <details onClick={clickHandler}>
+                    <summary>{`${props.comment.replies_count} ответов`}</summary>
+                    <Comments reply_to={props.comment.id} display={display}/>
+                </details>
             }
         </div>
     );
