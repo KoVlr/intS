@@ -115,3 +115,19 @@ def delete_comment(
         parent = crud.get_comment(db, parent_id)
         if parent is not None and parent.content is None and parent.replies == []:
             crud.delete_comment(db, parent_id)
+
+
+@comments_router.get("/direct", response_model=List[schemes.CommentNotification])
+def get_direct_comments(
+        limit: int = 20,
+        offset: int = 0,
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    db_comments = crud.get_direct_comments(db, user.id, offset, limit)
+    return [{
+        **schemes.CommentNotificationBase.from_orm(db_comment).dict(),
+        'user': db_comment.user.username,
+        'course': db_comment.article.course.name,
+        'article': db_comment.article.name
+    } for db_comment in db_comments]

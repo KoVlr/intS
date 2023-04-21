@@ -206,7 +206,7 @@ class CommentCreate(CommentNew):
     user_id: int
     created_at: datetime
     viewed_by_author: bool = False
-    reply_viewed: bool | None = None
+    reply_viewed: bool = False
 
 
 class Comment(CommentCreate):
@@ -231,3 +231,18 @@ class CommentPatch(BaseModel):
 
 class CommentUpdate(CommentPatch):
     created_at: datetime | None = None
+
+
+class CommentNotificationBase(BaseModel):
+    id: int
+    content: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class CommentNotification(CommentNotificationBase):
+    user: str
+    course: str
+    article: str
