@@ -13,7 +13,7 @@ export default function useInfiniteScroll(fetch_items, get_scroll_limit) {
     useEffect(() => {
         if (!listenScroll) {
             const get_items = async function() {
-                let chunk_size = 3;
+                let chunk_size = 20;
                 let new_items = [];
 
                 //Loading data until there are chunk_size new unique elements or until all data is loaded.
@@ -27,7 +27,6 @@ export default function useInfiniteScroll(fetch_items, get_scroll_limit) {
                         for_chunk_items: for (let chunk_item of chunk_items) {
                             for (let item of saved_items) {
                                 if (chunk_item.id == item.id) {
-                                    console.log(item.id);
                                     continue for_chunk_items;
                                 }
                             }
@@ -68,5 +67,5 @@ export default function useInfiniteScroll(fetch_items, get_scroll_limit) {
         }
     }
 
-    return [items, scrollHandler];
+    return [items, setItems, scrollHandler];
 }

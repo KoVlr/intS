@@ -5,12 +5,16 @@ import { TokenContext } from "../app.jsx";
 import hljs from 'highlight.js';
 import DOMPurify from "dompurify";
 import Comments from "../comments/comments.jsx";
+import CommentEditor from "../comments/comment_editor.jsx";
+
 
 
 export default function Article() {
     const context = useContext(TokenContext);
 
     const [view, setView] = useState("");
+    const [edit_comment, setEditComment] = useState(false);
+    const [new_comment, setNewComment] = useState(null);
 
     const {course_id, article_id} = useParams();
 
@@ -40,8 +44,23 @@ export default function Article() {
                     <Link to={`/courses/${course_id}/articles/${article_id}/edit`}>Редактировать</Link>
                 </div>
             }
+            
             <div dangerouslySetInnerHTML={{__html: view}}/>
-            <Comments reply_to={null} display={true}/>
+
+
+            <button onClick={() => setEditComment(true)}>Написать комментарий</button>
+
+            {edit_comment &&
+                <CommentEditor
+                    cancelHandler = {() => setEditComment(false)}
+                    setComment = {(comment) => {
+                        setEditComment(false);
+                        setNewComment(comment);
+                    }}
+                />
+            }
+
+            <Comments parent={null} display={true} new_comment={new_comment}/>
         </div>
     )
 }

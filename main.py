@@ -18,6 +18,7 @@ app.include_router(main_api_router)
 app.include_router(auth_router)
 app.include_router(articles_router)
 app.include_router(courses_router)
+app.include_router(comments_router)
 app.mount("/public", StaticFiles(directory="public"), name="public")
 app.include_router(files_providing_router)
 

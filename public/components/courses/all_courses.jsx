@@ -5,7 +5,7 @@ import CourseElem from "./course_elem.jsx";
 
 
 export default function AllCourses() {
-    const [courses, scrollHandler] = useInfiniteScroll(fetch_all_courses);
+    const [courses, setCourses, scrollHandler] = useInfiniteScroll(fetch_all_courses);
 
     const course_list = courses.map((course) =>
             <CourseElem key={course.id} course={course} />

@@ -173,10 +173,8 @@ class ArticlePatch(BaseModel):
     name: str | None
     is_published: bool | None
 
-class ArticleUpdate(BaseModel):
+class ArticleUpdate(ArticlePatch):
     updated_at: datetime | None
-    name: str | None
-    is_published: bool | None
     position_in_course: int | None
     published_at: datetime | None
 
@@ -200,7 +198,7 @@ class UploadImagesResponse(BaseModel):
 
 class CommentNew(BaseModel):
     article_id: int
-    content: str
+    content: str | None
     reply_to: int | None = None
 
 
@@ -221,7 +219,15 @@ class Comment(CommentCreate):
 class CommentGet(BaseModel):
     id: int
     user: str
-    content: str
+    content: str | None
     created_at: datetime
     reply_to: int | None
     replies_count: int
+    ownership: bool = False
+
+
+class CommentPatch(BaseModel):
+    content: str | None
+
+class CommentUpdate(CommentPatch):
+    created_at: datetime | None = None

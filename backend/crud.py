@@ -146,10 +146,10 @@ def get_article(db: Session, id: int):
 
 
 def update_article(
-            db: Session,
-            id: int,
-            article_data: schemes.ArticleUpdate
-        ):    
+        db: Session,
+        id: int,
+        article_data: schemes.ArticleUpdate
+    ):    
     db_article = db.get(db_models.Articles, id)
     
     for attr in article_data.dict(exclude_unset=True):
@@ -160,10 +160,10 @@ def update_article(
 
 
 def update_course(
-            db: Session,
-            id: int,
-            course_data: schemes.CourseUpdate
-        ):
+        db: Session,
+        id: int,
+        course_data: schemes.CourseUpdate
+    ):
     
     db_course = db.get(db_models.Courses, id)
     
@@ -226,6 +226,11 @@ def create_comment(db: Session, comment: schemes.CommentCreate):
     return db_comment
 
 
+
+def get_comment(db: Session, id: int):
+    return db.get(db_models.Comments, id)
+
+
 def get_comments(db: Session, article_id: int, reply_to: int | None, offset: int, limit: int):
     query = db.query(db_models.Comments)\
         .filter(db_models.Comments.article_id==article_id, db_models.Comments.reply_to==reply_to)
@@ -234,3 +239,27 @@ def get_comments(db: Session, article_id: int, reply_to: int | None, offset: int
     else:
         query = query.order_by(db_models.Comments.created_at)
     return query.offset(offset).limit(limit).all()
+
+
+def update_comment(
+    db: Session,
+    id: int,
+    comment_data: schemes.CommentUpdate
+):
+    db_comment = db.get(db_models.Comments, id)
+    
+    for attr in comment_data.dict(exclude_unset=True):
+        setattr(db_comment, attr, getattr(comment_data, attr))
+
+    db.commit()
+    return db_comment
+
+
+def delete_comment(db: Session, id: int):
+    db_comment = db.get(db_models.Comments, id)
+    if db_comment:
+        db.delete(db_comment)
+        db.commit()
+        return True
+    else:
+        return False
