@@ -44,10 +44,16 @@ export default function Comments(props) {
     }, [props.new_comment?.id])
 
 
+    const setComment = function(i) {
+        return (cb_update_comment) => {
+            setComments(comments => [...comments.slice(0,i), cb_update_comment(comments[i]), ...comments.slice(i+1)]);
+        };
+    }
+
     const comment_list = comments.map((comment, i) =>
         <CommentElem key={comment.id}
             comment={comment}
-            setComment={comment => (setComments([...Array.from(comments).slice(0,i), comment, ...Array.from(comments).slice(i+1)]))}
+            setComment={setComment(i)}
         />
     );
 

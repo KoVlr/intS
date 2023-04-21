@@ -20,7 +20,7 @@ export default function CommentElem(props) {
     const deleteHandler = async function() {
         let success = await fetch_delete_comment(context, props.comment.id);
         if (success) {
-            props.setComment({...props.comment, content: null});
+            props.setComment((prev_comment) => ({...prev_comment, content: null}));
         }
     }
 
@@ -56,7 +56,7 @@ export default function CommentElem(props) {
                                 comment = {props.comment}
                                 setComment = {(comment) => {
                                     setEditMode(false);
-                                    props.setComment(comment);
+                                    props.setComment((prev_comment) => comment);
                                 }}
                             />
                         }
@@ -67,7 +67,7 @@ export default function CommentElem(props) {
                                 reply_to = {props.comment.id}
                                 setComment = {(comment) => {
                                     setReplyMode(false);
-                                    props.setComment({...props.comment, replies_count: props.comment.replies_count+1});
+                                    props.setComment((prev_comment) => ({...prev_comment, replies_count: prev_comment.replies_count+1}));
                                     setNewReply(comment);
                                 }}
                             />
@@ -80,7 +80,7 @@ export default function CommentElem(props) {
 
             {props.comment.replies_count!=0 &&
                 <details onClick={detailsHandler}>
-                    <summary>{`${props.comment.replies_count} ответов`}</summary>
+                    <summary>{`ответов: ${props.comment.replies_count}`}</summary>
                     <Comments parent={props.comment} new_comment={new_reply} display={display}/>
                 </details>
             }
