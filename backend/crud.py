@@ -286,3 +286,26 @@ def get_direct_comments(db: Session, user_id: int, offset: int, limit: int):
             )
     
     return replies.union(to_author).order_by(db_models.Comments.created_at.desc()).offset(offset).limit(limit).all()
+
+
+def get_direct_count(db: Session, user_id: int):
+    Parent = aliased(db_models.Comments)
+    replies = db.query(db_models.Comments)\
+        .join(Parent, db_models.Comments.parent)\
+            .filter(
+                Parent.user_id==user_id,
+                db_models.Comments.reply_viewed!=True,
+                db_models.Comments.content != None,
+                db_models.Comments.user_id!=user_id
+            )
+    
+    to_author = db.query(db_models.Comments)\
+        .join(db_models.Articles).join(db_models.Courses).join(db_models.Authors).join(db_models.Users)\
+            .filter(
+                db_models.Users.id == user_id,
+                db_models.Comments.viewed_by_author!=True,
+                db_models.Comments.content != None,
+                db_models.Comments.user_id!=user_id
+            )
+    
+    return replies.union(to_author).count()

@@ -26,7 +26,7 @@ export default function CommentElem(props) {
 
     return (
         <div>
-            <div>
+            <div id={`comment${props.comment.id}`}>
                 {props.comment.content !== null
                     ? <>
                         {!edit_mode &&

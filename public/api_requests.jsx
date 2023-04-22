@@ -500,3 +500,42 @@ export async function fetch_delete_comment(context, comment_id) {
     });
     return response.ok;
 }
+
+
+export async function fetch_direct_comments(context, offset, limit) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/comments/direct?offset=${offset}&limit=${limit}`, {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let comments = await response.json();
+        return comments;
+    }
+}
+
+
+export async function fetch_direct_count(context) {
+    await refresh_if_exp(context);
+
+    let response = await fetch('/api/comments/direct/count', {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let res = await response.json();
+        return res.count;
+    }
+}
+
+
+export async function fetch_delete_direct_entry(context, comment_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/comments/direct/${comment_id}`, {
+        method: 'DELETE',
+        headers: get_auth_header(context.token)
+    });
+    return response.ok;
+}

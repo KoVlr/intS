@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useOutletContext, useParams, Link } from "react-router-dom";
+import { useOutletContext, useParams, Link, useLocation } from "react-router-dom";
 import { fetch_article_view } from "../../api_requests.jsx";
 import { TokenContext } from "../app.jsx";
 import hljs from 'highlight.js';
@@ -8,9 +8,10 @@ import Comments from "../comments/comments.jsx";
 import CommentEditor from "../comments/comment_editor.jsx";
 
 
-
 export default function Article() {
     const context = useContext(TokenContext);
+
+    const {state} = useLocation();
 
     const [view, setView] = useState("");
     const [edit_comment, setEditComment] = useState(false);

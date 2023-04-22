@@ -8,7 +8,7 @@ export default function AllCourses() {
     const [courses, setCourses, scrollHandler] = useInfiniteScroll(fetch_all_courses);
 
     const course_list = courses.map((course) =>
-            <CourseElem key={course.id} course={course} />
+        <CourseElem key={course.id} course={course} />
     );
 
     return (

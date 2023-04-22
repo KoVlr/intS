@@ -227,16 +227,19 @@ class CommentGet(BaseModel):
 
 
 class CommentPatch(BaseModel):
-    content: str | None
+    content: str | None = None
 
 class CommentUpdate(CommentPatch):
     created_at: datetime | None = None
+    viewed_by_author: bool | None = None
+    reply_viewed: bool | None = None
 
 
 class CommentNotificationBase(BaseModel):
     id: int
     content: str
     created_at: datetime
+    article_id: int
 
     class Config:
         orm_mode = True
@@ -246,3 +249,4 @@ class CommentNotification(CommentNotificationBase):
     user: str
     course: str
     article: str
+    course_id: int
