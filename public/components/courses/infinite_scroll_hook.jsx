@@ -13,7 +13,7 @@ export default function useInfiniteScroll(fetch_items, get_scroll_limit) {
     useEffect(() => {
         if (!listenScroll) {
             const get_items = async function() {
-                let chunk_size = 20;
+                let chunk_size = 5;
                 let new_items = [];
 
                 //Loading data until there are chunk_size new unique elements or until all data is loaded.
@@ -55,7 +55,7 @@ export default function useInfiniteScroll(fetch_items, get_scroll_limit) {
     }, [listenScroll])
 
 
-    const scrollHandler = async function(event) {
+    const scrollHandler = function(event) {
         if (listenScroll) {
             let margin = 500;
             let target = event.target == document ? document.documentElement : event.target;
@@ -67,5 +67,13 @@ export default function useInfiniteScroll(fetch_items, get_scroll_limit) {
         }
     }
 
-    return [items, setItems, scrollHandler];
+
+    const activateLoad = function() {
+        if(listenScroll) {
+            setListenScroll(false);
+        }
+    }
+
+
+    return [items, setItems, scrollHandler, activateLoad];
 }

@@ -8,7 +8,7 @@ import DirectElem from "./direct_elem.jsx";
 export default function Notifications() {
     const context = useContext(TokenContext);
 
-    const [comments, setComments, scrollHandler] = useInfiniteScroll(fetch_direct_comments);
+    const [comments, setComments, scrollHandler, activateLoad] = useInfiniteScroll(fetch_direct_comments);
 
     const [count, setCount] = useState('-');
     const [display, setDisplay] = useState(false);
@@ -24,9 +24,10 @@ export default function Notifications() {
     }, []);
 
 
-    const comment_list = comments.map((comment) =>
+    const comment_list = comments.map((comment, i) =>
         <DirectElem key={comment.id} comment={comment} handleClick={() => {
             setDisplay(false);
+            setComments(comments => [...comments.slice(0,i), ...comments.slice(i+1)]);
             setCount(count => count-1);
         }}/>
     );

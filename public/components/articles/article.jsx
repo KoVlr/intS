@@ -61,7 +61,7 @@ export default function Article() {
                 />
             }
 
-            <Comments parent={null} display={true} new_comment={new_comment}/>
+            <Comments parent={null} display={true} new_comment={new_comment} parent_sequence={state?.parent_sequence}/>
         </div>
     )
 }

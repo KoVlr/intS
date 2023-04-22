@@ -15,7 +15,7 @@ export default function Comments(props) {
     }
 
     
-    const [comments, setComments, scrollHandler] = useInfiniteScroll(
+    const [comments, setComments, scrollHandler, activateLoad] = useInfiniteScroll(
         (context, offset, limit)=>fetch_comments(context, article_id, props.parent?.id, offset, limit),
         get_scroll_limit
     );
@@ -44,6 +44,15 @@ export default function Comments(props) {
     }, [props.new_comment?.id])
 
 
+    useEffect(() => {
+        if(props.parent_sequence != null && comments.length!=0) {
+            if (!comments.map(comment => comment.id).includes(props.parent_sequence[0])) {
+                activateLoad();
+            }
+        }
+    }, [comments.length]);
+
+
     const setComment = function(i) {
         return (cb_update_comment) => {
             setComments(comments => [...comments.slice(0,i), cb_update_comment(comments[i]), ...comments.slice(i+1)]);
@@ -54,6 +63,7 @@ export default function Comments(props) {
         <CommentElem key={comment.id}
             comment={comment}
             setComment={setComment(i)}
+            parent_sequence={props.parent_sequence}
         />
     );
 

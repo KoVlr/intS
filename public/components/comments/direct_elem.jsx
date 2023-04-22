@@ -14,7 +14,7 @@ export default function DirectElem(props) {
             props.handleClick();
             navigate(
                 `/courses/${props.comment.course_id}/articles/${props.comment.article_id}`,
-                {state: {comment_id: props.comment.id}}
+                {state: {parent_sequence: props.comment.parent_sequence}}
             );
         }
     }

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Comments from "./comments.jsx";
 import CommentEditor from "./comment_editor.jsx";
 import { TokenContext } from "../app.jsx";
@@ -11,9 +11,24 @@ export default function CommentElem(props) {
     const [edit_mode, setEditMode] = useState(false);
     const [reply_mode, setReplyMode] = useState(false);
     const [new_reply, setNewReply] = useState(null);
+    const [parent_sequence, setParentSequence] = useState(null);
+
+    useEffect(() => {
+        if (props.parent_sequence != null && props.comment.id == props.parent_sequence[props.parent_sequence.length - 1]) {
+            if (props.parent_sequence.length == 1) {
+                let comment_elem = document.querySelector(`#comment${props.comment.id}`);
+                comment_elem?.scrollIntoView();
+            } else {
+                setDisplay(true);
+                setParentSequence(props.parent_sequence.slice(0,-1));
+            }
+        }
+    }, [props.parent_sequence && props.parent_sequence[0]]);
 
 
-    const detailsHandler = function() {
+    const detailsHandler = function(event) {
+        event.preventDefault();
+
         setDisplay(display=>(!display));
     }
 
@@ -79,9 +94,9 @@ export default function CommentElem(props) {
             
 
             {props.comment.replies_count!=0 &&
-                <details onClick={detailsHandler}>
-                    <summary>{`ответов: ${props.comment.replies_count}`}</summary>
-                    <Comments parent={props.comment} new_comment={new_reply} display={display}/>
+                <details open={display}>
+                    <summary onClick={detailsHandler}>{`ответов: ${props.comment.replies_count}`}</summary>
+                    <Comments parent={props.comment} new_comment={new_reply} display={display} parent_sequence={parent_sequence}/>
                 </details>
             }
         </div>

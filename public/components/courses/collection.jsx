@@ -6,7 +6,7 @@ import useInfiniteScroll from "./infinite_scroll_hook.jsx";
 
 
 export default function Collection() {
-    const [courses, setCourses, scrollHandler] = useInfiniteScroll(fetch_collection);
+    const [courses, setCourses, scrollHandler, activateLoad] = useInfiniteScroll(fetch_collection);
 
     const course_list = courses.map((course) =>
             <CourseElem key={course.id} course={course} />

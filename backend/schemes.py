@@ -250,3 +250,4 @@ class CommentNotification(CommentNotificationBase):
     course: str
     article: str
     course_id: int
+    parent_sequence: List[int]

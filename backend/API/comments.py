@@ -125,12 +125,22 @@ def get_direct_comments(
     db: Session = Depends(get_db)
 ):
     db_comments = crud.get_direct_comments(db, user.id, offset, limit)
+
+    def get_parent_sequence(db_comment):
+        curr_comment = db_comment
+        parent_sequence = [curr_comment.id]
+        while curr_comment.parent is not None:
+            parent_sequence += [curr_comment.parent.id]
+            curr_comment = curr_comment.parent
+        return parent_sequence
+
     return [{
         **schemes.CommentNotificationBase.from_orm(db_comment).dict(),
         'user': db_comment.user.username,
         'course': db_comment.article.course.name,
         'article': db_comment.article.name,
-        'course_id': db_comment.article.course_id
+        'course_id': db_comment.article.course_id,
+        'parent_sequence': get_parent_sequence(db_comment)
     } for db_comment in db_comments]
 
 
