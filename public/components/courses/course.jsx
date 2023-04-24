@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import { fetch_add_to_collection, fetch_course, fetch_delete_from_collection, fetch_get_access } from "../../api_requests.jsx";
 import { TokenContext } from "../app.jsx";
+import { get_str_local_date } from "../../local_date.js";
 
 export default function Course() {
     const context = useContext(TokenContext);
@@ -75,7 +76,7 @@ export default function Course() {
                     }
 
                     <p>Автор: {course.author}</p>
-                    <p>Последнее обновление: {course.course_data.updated_at}</p>
+                    <p>Последнее обновление: {get_str_local_date(course.course_data.updated_at)}</p>
                     <p>Количество просмотров: {course.course_data.views_count}</p>
                     <p>{course.course_data.description}</p>
 

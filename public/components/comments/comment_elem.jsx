@@ -3,6 +3,7 @@ import Comments from "./comments.jsx";
 import CommentEditor from "./comment_editor.jsx";
 import { TokenContext } from "../app.jsx";
 import { fetch_delete_comment } from "../../api_requests.jsx";
+import { get_str_local_date } from "../../local_date.js";
 
 export default function CommentElem(props) {
     const context = useContext(TokenContext);
@@ -48,7 +49,7 @@ export default function CommentElem(props) {
                             <>
                                 <p>{props.comment.user}</p>
                                 <p>{props.comment.content}</p>
-                                <p>{props.comment.created_at}</p>
+                                <p>{get_str_local_date(props.comment.created_at)}</p>
                             </>
                         }
                         

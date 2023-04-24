@@ -10,6 +10,7 @@ import {
 import { TokenContext } from '../app.jsx';
 import EditContent from './edit_content.jsx'
 import EditImages from './edit_images.jsx'
+import { get_str_local_date } from '../../local_date.js';
 
 export default function ArticleEditor() {
     const context = useContext(TokenContext);
@@ -63,11 +64,6 @@ export default function ArticleEditor() {
         }
     }
 
-    const getDate = function(strdate) {
-        let utcdate = new Date(strdate);
-        return new Date(utcdate.getTime() - utcdate.getTimezoneOffset() * 60000);
-    }
-
     return (
         <div>
             {article_data &&
@@ -86,7 +82,7 @@ export default function ArticleEditor() {
                         </div>
                     }
                     
-                    <div>{getDate(article_data.updated_at).toString()}</div>
+                    <div>{get_str_local_date(article_data.updated_at)}</div>
 
                     {!article_data.is_published &&
                         <button onClick={handlePublish}>Опубликовать</button>
