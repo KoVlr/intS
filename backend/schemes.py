@@ -162,7 +162,7 @@ class ArticleBase(ArticleNew):
     position_in_course: int | None = None
 
 class ArticleCreate(ArticleBase):
-    file: str
+    content: str
 
 class ArticleGet(ArticleBase):
     id: int
@@ -177,6 +177,7 @@ class ArticleUpdate(ArticlePatch):
     updated_at: datetime | None
     position_in_course: int | None
     published_at: datetime | None
+    content: str | None
 
 
 class ImageCreate(BaseModel):

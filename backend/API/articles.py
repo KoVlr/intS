@@ -61,21 +61,13 @@ def create_new_article(
     
     if course.author_id != user.author.id:
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    
-    filename = str(uuid.uuid4()) + '.md'
-    dirpath = 'storage/articles/' + filename[:2] + '/' + filename[2:4] + '/'
-    filepath = dirpath + filename
 
     article = schemes.ArticleCreate(
         **new_article.dict(),
-        file = filepath,
+        content = '',
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
-
-    makedirs(dirpath, exist_ok=True)
-    with open(filepath, 'w'):
-        pass
 
     return crud.create_article(db, article)
 
@@ -114,19 +106,12 @@ def change_article(
 
 @articles_router.get("/{article_id}/content")
 def get_article_content(article = Depends(get_own_article)):
-    
-    with open('./' + article.file, 'r') as article_file:
-        content = article_file.read()
-    return content
+    return article.content
 
 
 @articles_router.post("/{article_id}/content", response_model=schemes.ArticleGet)
 def change_article_content(article = Depends(get_own_article), content: str = Body(embed=True), db: Session = Depends(get_db)):
-
-    with open('./' + article.file, 'w') as article_file:
-        article_file.write(content)
-
-    article_data = schemes.ArticleUpdate(updated_at=datetime.utcnow())
+    article_data = schemes.ArticleUpdate(content=content, updated_at=datetime.utcnow())
     return crud.update_article(db, article.id, article_data)
 
 
@@ -174,10 +159,7 @@ def upload_article_images(files: list[UploadFile], article = Depends(get_own_art
 
 @articles_router.get("/{article_id}/view")
 def get_article(db_article = Depends(get_available_article)):
-    with open('./' + db_article.file, 'r') as article_file:
-        content = article_file.read()
-    
-    html = markdown(content, extensions=['extra'])
+    html = markdown(db_article.content, extensions=['extra'])
 
     def img_repl(match):
         img_name = match.group(1)

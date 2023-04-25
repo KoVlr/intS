@@ -1,6 +1,6 @@
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy import Column, Integer, String, UUID, Boolean, TIMESTAMP, Float, ForeignKey, UniqueConstraint, Text, PrimaryKeyConstraint
+from sqlalchemy import Column, Integer, String, UUID, Boolean, TIMESTAMP, ForeignKey, UniqueConstraint, Text, PrimaryKeyConstraint
 from sqlalchemy.ext.declarative import declarative_base
 
 def base_repr(self):
@@ -81,7 +81,7 @@ class Articles(Base):
     id = Column(Integer, primary_key=True)
     course_id = Column(Integer, ForeignKey('courses.id'))
     name = Column(String, nullable=False)
-    file = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
     created_at = Column(TIMESTAMP, nullable=False)
     updated_at = Column(TIMESTAMP, nullable=False)
     is_published = Column(Boolean, nullable=False)
