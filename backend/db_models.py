@@ -1,7 +1,9 @@
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy import Column, Integer, String, UUID, Boolean, TIMESTAMP, ForeignKey, UniqueConstraint, Text, PrimaryKeyConstraint
+from sqlalchemy import Column, Integer, String, UUID, Boolean, TIMESTAMP,\
+    ForeignKey, UniqueConstraint, Text, PrimaryKeyConstraint, types, Computed, Index
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import TSVECTOR
 
 def base_repr(self):
     """Representation method for every sqlalchemy Base instance"""
@@ -11,6 +13,11 @@ def base_repr(self):
 
 Base = declarative_base()
 setattr(Base, "__repr__", base_repr)
+
+
+class TSVector(types.TypeDecorator):
+    impl = TSVECTOR
+
 
 class Users(Base):
     __tablename__ = 'users'
@@ -45,6 +52,10 @@ class Courses(Base):
     access_code = Column(String)
     created_at = Column(TIMESTAMP, nullable=False)
     updated_at = Column(TIMESTAMP, nullable=False)
+    ts_vector = Column(TSVector(), Computed(
+        "to_tsvector('russian', name || ' ' || description)",
+        persisted=True
+    ))
 
     author = relationship('Authors', back_populates='courses')
     articles = relationship('Articles', back_populates='course')
@@ -53,6 +64,7 @@ class Courses(Base):
 
     __table_args__ = (
         UniqueConstraint('name', 'author_id'),
+        Index('ix_courses_ts_vector', ts_vector, postgresql_using='gin'),
     )
 
 class Collections(Base):
@@ -87,14 +99,19 @@ class Articles(Base):
     is_published = Column(Boolean, nullable=False)
     published_at = Column(TIMESTAMP)
     position_in_course = Column(Integer)
+    ts_vector = Column(TSVector(), Computed(
+        "to_tsvector('russian', name || ' ' || content)",
+        persisted=True
+    ))
     
     course = relationship('Courses', back_populates='articles')
     images = relationship('Images', back_populates='article')
     comments = relationship('Comments', back_populates='article')
-
+    
     __table_args__ = (
         UniqueConstraint('name', 'course_id'),
         UniqueConstraint('position_in_course', 'course_id'),
+        Index('ix_articles_ts_vector', ts_vector, postgresql_using='gin'),
     )
 
 class Images(Base):

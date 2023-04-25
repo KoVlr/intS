@@ -98,6 +98,25 @@ class CourseInAuthorList(BaseModel):
         orm_mode = True
 
 
+class ArticleSearch(BaseModel):
+    id: int
+    name: str
+    class Config:
+        orm_mode = True
+
+
+class CourseSearchBase(BaseModel):
+    id: int
+    name: str
+    class Config:
+        orm_mode = True
+
+
+class CourseSearch(CourseSearchBase):
+    author: str
+    article: ArticleSearch | None = None
+
+
 class ArticleInCourse(BaseModel):
     id: int
     name: str

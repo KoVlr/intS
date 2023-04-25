@@ -155,6 +155,52 @@ def get_collection(
     return courses
 
 
+@courses_router.get("/search", response_model = List[schemes.CourseSearch])
+def search_in_courses(
+    query: str,
+    mine: bool = False,
+    collection: bool = False,
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    db_courses = crud.get_search_in_courses(
+        db,
+        query=query,
+        user_id = user.id if user is not None else None,
+        offset=offset,
+        limit=limit,
+        mine=mine,
+        collection=collection
+    )
+
+    db_articles = crud.get_search_in_articles(
+        db,
+        query=query,
+        user_id = user.id if user is not None else None,
+        offset=offset,
+        limit=limit,
+        mine=mine,
+        collection=collection
+    )
+
+    search_result = []
+    for db_course in db_courses:
+        search_result += [{
+            **schemes.CourseSearchBase.from_orm(db_course).dict(),
+            'author': db_course.author.user.username
+        }]
+    for db_article in db_articles:
+        search_result += [{
+            'id': db_article.course.id,
+            'name': db_article.course.name,
+            'author': db_article.course.author.user.username,
+            'article': schemes.ArticleSearch.from_orm(db_article)
+        }]
+    return search_result
+
+
 @courses_router.get("/{course_id}", response_model=schemes.CourseGet)
 def get_course(
         course_id: int, user = Depends(get_current_user), db: Session = Depends(get_db)

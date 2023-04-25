@@ -309,3 +309,41 @@ def get_direct_count(db: Session, user_id: int):
             )
     
     return replies.union(to_author).count()
+
+
+def get_search_in_courses(
+        db: Session,
+        query: str, 
+        user_id: int, 
+        offset: int,
+        limit: int,
+        mine: bool,
+        collection: bool
+    ):
+    db_query = db.query(db_models.Courses)
+    if mine:
+        db_query = db_query.join(db_models.Authors)\
+            .filter(db_models.Authors.user_id==user_id)
+    if collection:
+        db_query = db_query.join(db_models.Collections)\
+        .filter(db_models.Collections.user_id == user_id)
+    return db_query.filter(db_models.Courses.ts_vector.match(query)).offset(offset).limit(limit).all()
+
+
+def get_search_in_articles(
+        db: Session,
+        query: str, 
+        user_id: int, 
+        offset: int,
+        limit: int,
+        mine: bool,
+        collection: bool
+    ):
+    db_query = db.query(db_models.Articles)
+    if mine:
+        db_query = db_query.join(db_models.Courses).join(db_models.Authors)\
+            .filter(db_models.Authors.user_id==user_id)
+    if collection:
+        db_query = db_query.join(db_models.Courses).join(db_models.Collections)\
+        .filter(db_models.Collections.user_id == user_id)
+    return db_query.filter(db_models.Articles.ts_vector.match(query)).offset(offset).limit(limit).all()

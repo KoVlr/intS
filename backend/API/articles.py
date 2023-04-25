@@ -158,7 +158,7 @@ def upload_article_images(files: list[UploadFile], article = Depends(get_own_art
 
 
 @articles_router.get("/{article_id}/view")
-def get_article(db_article = Depends(get_available_article)):
+def get_article_view(db_article = Depends(get_available_article)):
     html = markdown(db_article.content, extensions=['extra'])
 
     def img_repl(match):
