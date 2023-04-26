@@ -339,11 +339,16 @@ def get_search_in_articles(
         mine: bool,
         collection: bool
     ):
-    db_query = db.query(db_models.Articles)
+    db_query = db.query(db_models.Articles).join(db_models.Courses).join(db_models.Authors)
     if mine:
-        db_query = db_query.join(db_models.Courses).join(db_models.Authors)\
-            .filter(db_models.Authors.user_id==user_id)
+        db_query = db_query.filter(db_models.Authors.user_id==user_id)
     if collection:
-        db_query = db_query.join(db_models.Courses).join(db_models.Collections)\
+        db_query = db_query.join(db_models.Collections)\
         .filter(db_models.Collections.user_id == user_id)
-    return db_query.filter(db_models.Articles.ts_vector.match(query)).offset(offset).limit(limit).all()
+    
+    available_courses = db.query(db_models.Access.course_id).filter(db_models.Access.user_id==user_id)
+
+    return db_query.filter((db_models.Courses.is_public==True)\
+                           | (db_models.Courses.id.in_(available_courses))\
+                            | (db_models.Authors.user_id==user_id))\
+        .filter(db_models.Articles.ts_vector.match(query)).offset(offset).limit(limit).all()
