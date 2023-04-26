@@ -539,3 +539,20 @@ export async function fetch_delete_direct_entry(context, comment_id) {
     });
     return response.ok;
 }
+
+
+export async function fetch_search_in_courses(context, query, offset, limit, mine, collection) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(
+        `/api/courses/search?query=${query}&offset=${offset}&limit=${limit}&mine=${mine}&collection=${collection}`,
+        {
+            method: 'GET',
+            headers: get_auth_header(context.token)
+        }
+    );
+    if (response.ok) {
+        let search_result = await response.json();
+        return search_result;
+    }
+}
