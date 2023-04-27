@@ -342,6 +342,9 @@ def get_search_in_articles(
     db_query = db.query(db_models.Articles).join(db_models.Courses).join(db_models.Authors)
     if mine:
         db_query = db_query.filter(db_models.Authors.user_id==user_id)
+    else:
+        db_query = db_query.filter(db_models.Articles.is_published==True)
+        
     if collection:
         db_query = db_query.join(db_models.Collections)\
         .filter(db_models.Collections.user_id == user_id)

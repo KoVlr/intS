@@ -9,7 +9,7 @@ import re
 
 
 from .auth import get_current_user, get_authenticated_user
-from .courses import check_own_course, check_available_course, courses_router
+from .courses import check_own_course, check_available_course, is_own_course, courses_router
 from ..database import get_db
 from .. import schemes
 from .. import crud
@@ -43,6 +43,10 @@ def get_available_article(
         raise HTTPException(status_code=400, detail="This article does not exist")
     
     check_available_course(db_article.course, user, db)
+
+    if not db_article.is_published and not is_own_course(db_article.course, user):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+
     return db_article
 
 
@@ -53,7 +57,7 @@ def create_new_article(
     user = Security(get_authenticated_user, scopes=['author']),
     db: Session = Depends(get_db)
 ):
-    course = crud.get_course(db, new_article.course_id)
+    course = crud.get_course(db, course_id)
 
     if course is None:
         raise HTTPException(status_code=400, detail="This course does not exist")
