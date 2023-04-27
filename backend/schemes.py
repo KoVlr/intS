@@ -171,9 +171,9 @@ class CollectionCreate(BaseModel):
 
 class ArticleNew(BaseModel):
     name: str
-    course_id: int
 
 class ArticleBase(ArticleNew):
+    course_id: int
     created_at: datetime
     updated_at: datetime
     is_published: bool = False

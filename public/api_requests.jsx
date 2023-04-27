@@ -274,15 +274,14 @@ export async function fetch_delete_from_collection(context, course_id) {
 export async function fetch_create_article(context, article_name, course_id) {
     await refresh_if_exp(context);
 
-    let response = await fetch('/api/articles', {
+    let response = await fetch(`/api/courses/${course_id}/articles`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset=utf-8',
             ...get_auth_header(context.token)
         },
         body: JSON.stringify({
-            name: article_name,
-            course_id: course_id
+            name: article_name
         })
     });
     if (response.ok){

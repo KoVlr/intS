@@ -9,7 +9,7 @@ import re
 
 
 from .auth import get_current_user, get_authenticated_user
-from .courses import check_own_course, check_available_course
+from .courses import check_own_course, check_available_course, courses_router
 from ..database import get_db
 from .. import schemes
 from .. import crud
@@ -46,14 +46,13 @@ def get_available_article(
     return db_article
 
 
-
-@articles_router.post("", response_model=schemes.ArticleGet)
+@courses_router.post("/{course_id}/articles", response_model=schemes.ArticleGet)
 def create_new_article(
-        new_article: schemes.ArticleNew,
-        user = Security(get_authenticated_user, scopes=['author']),
-        db: Session = Depends(get_db)
-    ):
-
+    course_id: int,
+    new_article: schemes.ArticleNew,
+    user = Security(get_authenticated_user, scopes=['author']),
+    db: Session = Depends(get_db)
+):
     course = crud.get_course(db, new_article.course_id)
 
     if course is None:
@@ -64,6 +63,7 @@ def create_new_article(
 
     article = schemes.ArticleCreate(
         **new_article.dict(),
+        course_id=course_id,
         content = '',
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()

@@ -12,11 +12,18 @@ export default function DirectElem(props) {
     const clickHandler = async function() {
         let res = await fetch_delete_direct_entry(context, props.comment.id);
         if (res) {
-            props.handleClick();
+            props.handleClick(true);
             navigate(
                 `/courses/${props.comment.course_id}/articles/${props.comment.article_id}`,
                 {state: {parent_sequence: props.comment.parent_sequence}}
             );
+        }
+    }
+
+    const clearHandler = async function() {
+        let res = await fetch_delete_direct_entry(context, props.comment.id);
+        if (res) {
+            props.handleClick(false);
         }
     }
 
@@ -29,6 +36,7 @@ export default function DirectElem(props) {
                 <p>{props.comment.course}</p>
                 <p>{props.comment.article}</p>
             </div>
+            <button onClick={clearHandler}>Прочитано</button>
         </li>
     );
 }
