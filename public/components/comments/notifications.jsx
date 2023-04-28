@@ -1,10 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
-import { fetch_direct_comments, fetch_direct_count } from "../../api_requests.jsx";
+import { fetch_clear_direct, fetch_direct_comments, fetch_direct_count } from "../../api_requests.jsx";
 import { TokenContext } from '../app.jsx';
 import useInfiniteScroll from "../courses/infinite_scroll_hook.jsx";
 import DirectElem from "./direct_elem.jsx";
-import { fetch_delete_direct_entry } from "../../api_requests.jsx";
-
 
 
 export default function Notifications() {
@@ -36,11 +34,7 @@ export default function Notifications() {
 
 
     const handleClear = async function() {
-        let res;
-        for (let comment of comments) {
-            res = await fetch_delete_direct_entry(context, comment.id);
-            if (!res) break;
-        }
+        let res = await fetch_clear_direct(context);
         if (res) {
             setComments([]);
             setCount(0);

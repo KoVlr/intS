@@ -539,6 +539,16 @@ export async function fetch_delete_direct_entry(context, comment_id) {
     return response.ok;
 }
 
+export async function fetch_clear_direct(context) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/comments/direct`, {
+        method: 'DELETE',
+        headers: get_auth_header(context.token)
+    });
+    return response.ok;
+}
+
 
 export async function fetch_search_in_courses(context, query, offset, limit, mine, collection) {
     await refresh_if_exp(context);
@@ -554,4 +564,42 @@ export async function fetch_search_in_courses(context, query, offset, limit, min
         let search_result = await response.json();
         return search_result;
     }
+}
+
+
+export async function fetch_history(context, offset, limit) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/articles/history?offset=${offset}&limit=${limit}`, {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let articles = await response.json();
+        return articles;
+    }
+}
+
+
+export async function fetch_delete_history_entry(context, article_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/articles/history/${article_id}`, {
+        method: 'DELETE',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok){
+        return 'success';
+    }
+}
+
+
+export async function fetch_clear_history(context) {
+    await refresh_if_exp(context);
+
+    let response = await fetch('/api/articles/history', {
+        method: 'DELETE',
+        headers: get_auth_header(context.token)
+    });
+    return response.ok
 }

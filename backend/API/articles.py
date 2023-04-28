@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Security, UploadFile, Body
+from fastapi import APIRouter, Depends, HTTPException, Security, UploadFile, Body, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
 from os import makedirs
 from markdown import markdown
+from typing import List, Annotated
 import uuid
 import shutil
 import re
@@ -73,7 +74,43 @@ def create_new_article(
         updated_at=datetime.utcnow()
     )
 
+    crud.update_course(db, course_id, schemes.CourseUpdate(updated_at=datetime.utcnow()))
+
     return crud.create_article(db, article)
+
+
+@articles_router.get("/history", response_model=List[schemes.HistoryGet])
+def get_history(
+    user = Depends(get_authenticated_user),
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    db: Session = Depends(get_db)
+):
+    history =  crud.get_history(db, user.id, offset, limit)
+    return [{
+        'id': history_entry[0].id,
+        'name': history_entry[0].name,
+        'read_at': history_entry[1].read_at,
+        'course_name': history_entry[0].course.name,
+        'course_id': history_entry[0].course.id
+    } for history_entry in history]
+
+
+@articles_router.delete("/history")
+def delete_all_history(
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    crud.delete_all_history(db, user.id)
+
+
+@articles_router.delete("/history/{article_id}")
+def delete_history_entry(
+        article_id: int,
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    crud.delete_history_entry(db, article_id, user.id)
 
 
 @articles_router.get("/{article_id}", response_model=schemes.ArticleGet)
@@ -105,6 +142,8 @@ def change_article(
         updated_article.published_at = updated_article.updated_at
         updated_article.position_in_course = crud.get_published_articles_count(db, article.course_id)
 
+    crud.update_course(db, article.course_id, schemes.CourseUpdate(updated_at=datetime.utcnow()))
+
     return crud.update_article(db, article.id, updated_article)
 
 
@@ -116,6 +155,7 @@ def get_article_content(article = Depends(get_own_article)):
 @articles_router.post("/{article_id}/content", response_model=schemes.ArticleGet)
 def change_article_content(article = Depends(get_own_article), content: str = Body(embed=True), db: Session = Depends(get_db)):
     article_data = schemes.ArticleUpdate(content=content, updated_at=datetime.utcnow())
+    crud.update_course(db, article.course_id, schemes.CourseUpdate(updated_at=datetime.utcnow()))
     return crud.update_article(db, article.id, article_data)
 
 
@@ -162,7 +202,22 @@ def upload_article_images(files: list[UploadFile], article = Depends(get_own_art
 
 
 @articles_router.get("/{article_id}/view")
-def get_article_view(db_article = Depends(get_available_article)):
+def get_article_view(
+    db_article = Depends(get_available_article), 
+    user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    crud.update_course(db, db_article.course_id, schemes.CourseUpdate(
+        views_count=db_article.course.views_count+1
+    ))
+
+    if user is not None:
+        crud.update_history_entry(db, schemes.History(
+            article_id=db_article.id,
+            user_id=user.id,
+            read_at=datetime.utcnow())
+        )
+
     html = markdown(db_article.content, extensions=['extra'])
 
     def img_repl(match):

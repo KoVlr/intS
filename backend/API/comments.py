@@ -79,6 +79,90 @@ def get_comments(
     return comments
 
 
+@comments_router.get("/direct", response_model=List[schemes.CommentNotification])
+def get_direct_comments(
+    limit: int = 20,
+    offset: int = 0,
+    user = Depends(get_authenticated_user),
+    db: Session = Depends(get_db)
+):
+    db_comments = crud.get_direct_comments(db, user.id, offset, limit)
+
+    def get_parent_sequence(db_comment):
+        curr_comment = db_comment
+        parent_sequence = [curr_comment.id]
+        while curr_comment.parent is not None:
+            parent_sequence += [curr_comment.parent.id]
+            curr_comment = curr_comment.parent
+        return parent_sequence
+
+    return [{
+        **schemes.CommentNotificationBase.from_orm(db_comment).dict(),
+        'user': db_comment.user.username,
+        'course': db_comment.article.course.name,
+        'article': db_comment.article.name,
+        'course_id': db_comment.article.course_id,
+        'parent_sequence': get_parent_sequence(db_comment)
+    } for db_comment in db_comments]
+
+
+@comments_router.delete("/direct")
+def delete_all_direct_entry(
+    user = Depends(get_authenticated_user),
+    db: Session = Depends(get_db)
+):
+    db_comments = crud.get_direct_comments(db, user.id, 0, None)
+    for db_comment in db_comments:
+        update_data = {}
+        if db_comment.parent is not None and db_comment.parent.user_id == user.id:
+            update_data['reply_viewed'] = True
+        if db_comment.article.course.author.user.id == user.id:
+            update_data['viewed_by_author'] = True
+        if len(update_data)!=0:
+            crud.update_comment(db, db_comment.id, schemes.CommentUpdate(**update_data))
+
+
+@comments_router.delete("/direct")
+def delete_all_direct_entry(
+    user = Depends(get_authenticated_user),
+    db: Session = Depends(get_db)
+):
+    db_comments = crud.get_direct_comments(db, user.id, 0, None)
+    for db_comment in db_comments:
+        update_data = {}
+        if db_comment.parent is not None and db_comment.parent.user_id == user.id:
+            update_data['reply_viewed'] = True
+        if db_comment.article.course.author.user.id == user.id:
+            update_data['viewed_by_author'] = True
+        if len(update_data)!=0:
+            crud.update_comment(db, db_comment.id, schemes.CommentUpdate(**update_data))
+
+
+@comments_router.get("/direct/count")
+def get_direct_count(
+    user = Depends(get_authenticated_user),
+    db: Session = Depends(get_db)
+):
+    count = crud.get_direct_count(db, user.id)
+    return {'count': count}
+
+
+@comments_router.delete("/direct/{comment_id}")
+def delete_direct_entry(
+    comment_id: int,
+    user = Depends(get_authenticated_user),
+    db: Session = Depends(get_db)
+):
+    db_comment = crud.get_comment(db, comment_id)
+    update_data = {}
+    if db_comment.parent is not None and db_comment.parent.user_id == user.id:
+        update_data['reply_viewed'] = True
+    if db_comment.article.course.author.user.id == user.id:
+        update_data['viewed_by_author'] = True
+    if len(update_data)!=0:
+        crud.update_comment(db, comment_id, schemes.CommentUpdate(**update_data))
+
+
 @comments_router.patch("/{comment_id}", response_model=schemes.CommentGet)
 def update_comment(
     comment_id: int,
@@ -115,55 +199,3 @@ def delete_comment(
         parent = crud.get_comment(db, parent_id)
         if parent is not None and parent.content is None and parent.replies == []:
             crud.delete_comment(db, parent_id)
-
-
-@comments_router.get("/direct", response_model=List[schemes.CommentNotification])
-def get_direct_comments(
-    limit: int = 20,
-    offset: int = 0,
-    user = Depends(get_authenticated_user),
-    db: Session = Depends(get_db)
-):
-    db_comments = crud.get_direct_comments(db, user.id, offset, limit)
-
-    def get_parent_sequence(db_comment):
-        curr_comment = db_comment
-        parent_sequence = [curr_comment.id]
-        while curr_comment.parent is not None:
-            parent_sequence += [curr_comment.parent.id]
-            curr_comment = curr_comment.parent
-        return parent_sequence
-
-    return [{
-        **schemes.CommentNotificationBase.from_orm(db_comment).dict(),
-        'user': db_comment.user.username,
-        'course': db_comment.article.course.name,
-        'article': db_comment.article.name,
-        'course_id': db_comment.article.course_id,
-        'parent_sequence': get_parent_sequence(db_comment)
-    } for db_comment in db_comments]
-
-
-@comments_router.get("/direct/count")
-def get_direct_count(
-    user = Depends(get_authenticated_user),
-    db: Session = Depends(get_db)
-):
-    count = crud.get_direct_count(db, user.id)
-    return {'count': count}
-
-
-@comments_router.delete("/direct/{comment_id}")
-def delete_direct_entry(
-    comment_id: int,
-    user = Depends(get_authenticated_user),
-    db: Session = Depends(get_db)
-):
-    db_comment = crud.get_comment(db, comment_id)
-    update_data = {}
-    if db_comment.parent is not None and db_comment.parent.user_id == user.id:
-        update_data['reply_viewed'] = True
-    if db_comment.article.course.author.user.id == user.id:
-        update_data['viewed_by_author'] = True
-    if len(update_data)!=0:
-        crud.update_comment(db, comment_id, schemes.CommentUpdate(**update_data))

@@ -77,7 +77,11 @@ def create_course(db: Session, course: schemes.CourseCreate):
 
 def get_courses_list(db: Session, offset: int, limit: int):
     return db.query(db_models.Courses)\
-        .order_by(db_models.Courses.is_public.desc(), db_models.Courses.name)\
+        .order_by(
+            db_models.Courses.is_public.desc(),
+            db_models.Courses.views_count.desc(),
+            db_models.Courses.name
+        )\
         .offset(offset).limit(limit).all()
 
 
@@ -146,10 +150,10 @@ def get_article(db: Session, id: int):
 
 
 def update_article(
-        db: Session,
-        id: int,
-        article_data: schemes.ArticleUpdate
-    ):    
+    db: Session,
+    id: int,
+    article_data: schemes.ArticleUpdate
+):    
     db_article = db.get(db_models.Articles, id)
     
     for attr in article_data.dict(exclude_unset=True):
@@ -160,11 +164,10 @@ def update_article(
 
 
 def update_course(
-        db: Session,
-        id: int,
-        course_data: schemes.CourseUpdate
-    ):
-    
+    db: Session,
+    id: int,
+    course_data: schemes.CourseUpdate
+):    
     db_course = db.get(db_models.Courses, id)
     
     for attr in course_data.dict(exclude_unset=True):
@@ -265,7 +268,7 @@ def delete_comment(db: Session, id: int):
         return False
     
 
-def get_direct_comments(db: Session, user_id: int, offset: int, limit: int):
+def get_direct_comments(db: Session, user_id: int, offset: int, limit: int | None):
     Parent = aliased(db_models.Comments)
     replies = db.query(db_models.Comments)\
         .join(Parent, db_models.Comments.parent)\
@@ -285,7 +288,10 @@ def get_direct_comments(db: Session, user_id: int, offset: int, limit: int):
                 db_models.Comments.user_id!=user_id
             )
     
-    return replies.union(to_author).order_by(db_models.Comments.created_at.desc()).offset(offset).limit(limit).all()
+    direct_comments = replies.union(to_author).order_by(db_models.Comments.created_at.desc()).offset(offset)
+    if limit is not None:
+        direct_comments = direct_comments.limit(limit)
+    return direct_comments.all()
 
 
 def get_direct_count(db: Session, user_id: int):
@@ -344,7 +350,7 @@ def get_search_in_articles(
         db_query = db_query.filter(db_models.Authors.user_id==user_id)
     else:
         db_query = db_query.filter(db_models.Articles.is_published==True)
-        
+
     if collection:
         db_query = db_query.join(db_models.Collections)\
         .filter(db_models.Collections.user_id == user_id)
@@ -355,3 +361,47 @@ def get_search_in_articles(
                            | (db_models.Courses.id.in_(available_courses))\
                             | (db_models.Authors.user_id==user_id))\
         .filter(db_models.Articles.ts_vector.match(query)).offset(offset).limit(limit).all()
+
+
+def get_history(db: Session, user_id: int, offset: int, limit: int | None):
+    q = db.query(db_models.Articles, db_models.History).join(db_models.History)\
+        .filter(db_models.History.user_id==user_id).order_by(db_models.History.read_at.desc())\
+        .offset(offset)
+    if limit is not None:
+        q = q.limit(limit)
+    return q.all()
+
+
+def update_history_entry(
+    db: Session,
+    history_entry: schemes.History
+):
+    db_history = db.get(db_models.History, (history_entry.article_id, history_entry.user_id))
+    if db_history is None:
+        db_history = db_models.History(**history_entry.dict())
+        db.add(db_history)
+        db.commit()
+        db.refresh(db_history)
+        return db_history
+    
+    db_history.read_at = history_entry.read_at
+    db.commit()
+    return db_history
+
+
+def delete_history_entry(db: Session, article_id: int, user_id: int):
+    db_history = db.get(db_models.History, (article_id, user_id))
+    if db_history:
+        db.delete(db_history)
+        db.commit()
+        return True
+    else:
+        return False
+    
+
+def delete_all_history(db: Session, user_id: int):
+    db_history_list = get_history(db, user_id, 0, None)
+    for db_history in db_history_list:
+        db.delete(db_history[1])
+    db.commit()
+    return True

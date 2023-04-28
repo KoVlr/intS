@@ -64,7 +64,6 @@ class Course(BaseModel):
     description: str
     is_public: bool
     author_id: int
-    views_count: int = 0
     created_at: datetime
     updated_at: datetime
 
@@ -144,7 +143,8 @@ class CourseChangeData(BaseModel):
 
 class CourseUpdate(CourseChangeData):
     access_code: str | None
-    updated_at: datetime
+    views_count: int | None
+    updated_at: datetime | None
 
 
 class CoursePatch(BaseModel):
@@ -215,7 +215,6 @@ class UploadImagesResponse(BaseModel):
     uploaded_images: list[ImageGet]
 
 
-
 class CommentNew(BaseModel):
     article_id: int
     content: str | None
@@ -271,3 +270,17 @@ class CommentNotification(CommentNotificationBase):
     article: str
     course_id: int
     parent_sequence: List[int]
+
+
+class History(BaseModel):
+    article_id: int
+    user_id: int
+    read_at: datetime
+
+
+class HistoryGet(BaseModel):
+    id: int
+    name: str
+    read_at: datetime
+    course_name: str
+    course_id: int

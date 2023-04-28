@@ -77,7 +77,6 @@ export default function Course() {
 
                     <p>Автор: {course.author}</p>
                     <p>Последнее обновление: {get_str_local_date(course.course_data.updated_at)}</p>
-                    <p>Количество просмотров: {course.course_data.views_count}</p>
                     <p>{course.course_data.description}</p>
 
                     {!course.course_data.is_public &&

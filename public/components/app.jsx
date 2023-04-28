@@ -21,7 +21,8 @@ import Course from "./courses/course.jsx";
 import CourseEditor from "./courses/course_editor.jsx";
 import MyCourses from "./courses/my_courses.jsx";
 import AllCourses from "./courses/all_courses.jsx";
-import Collection from "./courses/Collection.jsx";
+import Collection from "./courses/collection.jsx";
+import ArticleHistory from "./articles/article_history.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
@@ -51,7 +52,7 @@ export default function App() {
                         <Route path="/home" element={<Home/>}>
                             <Route index element={<Navigate to="/home/collection"/>} />
                             <Route path="/home/collection" element={<Collection/>} />
-                            <Route path="/home/history" element={<>History</>} />
+                            <Route path="/home/history" element={<ArticleHistory/>} />
                             <Route path="/home/allcourses" element={<AllCourses/>} />
                             <Route path="/home/mycourses" element={<MyCourses/>} />
                         </Route>
@@ -63,7 +64,6 @@ export default function App() {
                             <Route path="/courses/:course_id/articles/:article_id" element={<Article/>}/>
                         </Route>
                         <Route path="/courses/:course_id/articles/:article_id/edit" element={<ArticleEditor/>} />
-                        <Route path="/authors/:author_id" element={<></>} />
                         <Route path="/become_author" element={<BecomeAuthor/>} />
                     </Route>
                     <Route path="/login" element={<LoginForm/>} />
