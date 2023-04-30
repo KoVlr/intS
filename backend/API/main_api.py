@@ -6,7 +6,7 @@ from backend.database import get_db
 from datetime import datetime
 from os import remove, removedirs
 
-from .courses import check_own_course, check_available_course
+from .courses import check_own_course, check_available_course, toCourseGet
 from .. import schemes
 from .. import crud
 
@@ -104,13 +104,18 @@ def delete_image(image_id: int, db_image = Depends(get_own_image), db: Session =
 
 @main_api_router.get("/files/{file_id}")
 def get_file(
-        file_id: int, db_file = Depends(get_available_file),  db: Session = Depends(get_db)
+        db_file = Depends(get_available_file),  db: Session = Depends(get_db)
     ):    
     return FileResponse(db_file.path, filename=db_file.original_name)
 
 
-@main_api_router.delete("/files/{file_id}", response_model=schemes.Course)
-def delete_file(file_id: int, db_file = Depends(get_own_file), db: Session = Depends(get_db)):
+@main_api_router.delete("/files/{file_id}", response_model=schemes.CourseGet)
+def delete_file(
+    file_id: int,
+    user = Depends(get_current_user),
+    db_file = Depends(get_own_file),
+    db: Session = Depends(get_db)
+):
 
     filepath = str(db_file.path)
     dirpath = filepath[:filepath.rfind('/')]
@@ -119,4 +124,5 @@ def delete_file(file_id: int, db_file = Depends(get_own_file), db: Session = Dep
     crud.delete_file(db, file_id)
 
     course_data = schemes.CourseUpdate(updated_at=datetime.utcnow())
-    return crud.update_course(db, db_file.course_id, course_data)
+    db_course = crud.update_course(db, db_file.course_id, course_data)
+    return toCourseGet(db_course, user, db)

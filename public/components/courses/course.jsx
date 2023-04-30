@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { fetch_add_to_collection, fetch_course, fetch_delete_from_collection, fetch_get_access } from "../../api_requests.jsx";
 import { TokenContext } from "../app.jsx";
 import { get_str_local_date } from "../../local_date.js";
+import CourseFiles from "./course_files.jsx";
 
 export default function Course() {
     const context = useContext(TokenContext);
@@ -96,6 +97,11 @@ export default function Course() {
                     }
 
                     <ul>{article_list}</ul>
+                    
+                    <div>
+                        Файлы:
+                        <CourseFiles files={course.files} setCourse={setCourse} edit_mode={false}/>
+                    </div>
                 </>
             }
         </div>

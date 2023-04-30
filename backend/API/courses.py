@@ -225,14 +225,14 @@ def delete_course_from_collection(
     crud.delete_collection_entry(db, user.id, course_id)
 
 
-@courses_router.get("/{course_id}", response_model=schemes.CourseGet)
-def get_course(
-        course_id: int, user = Depends(get_current_user), db: Session = Depends(get_db)
-    ):
-    db_course = crud.get_course(db, course_id)
+def toCourseGet(
+    db_course: db_models.Courses,
+    user: db_models.Users,
+    db: Session
+):
     author = db_course.author.user.username
-    articles = crud.get_published_articles(db, course_id)
-    files = crud.get_course_files(db, course_id)
+    articles = crud.get_published_articles(db, db_course.id)
+    files = crud.get_course_files(db, db_course.id)
     ownership = is_own_course(db_course, user)
     access = is_available_course(db_course, user, db)
 
@@ -257,12 +257,12 @@ def get_course(
     )
 
 
-@courses_router.get("/{course_id}/drafts", response_model=List[schemes.ArticleInCourse])
-def get_course_drafts(
-        db_course = Depends(get_own_course),
-        db: Session = Depends(get_db)
+@courses_router.get("/{course_id}", response_model=schemes.CourseGet)
+def get_course(
+        course_id: int, user = Depends(get_current_user), db: Session = Depends(get_db)
     ):
-    return crud.get_drafts(db, db_course.id)
+    db_course = crud.get_course(db, course_id)
+    return toCourseGet(db_course, user, db)
 
 
 @courses_router.patch("/{course_id}", response_model=schemes.CourseForAuthor)
@@ -275,7 +275,8 @@ def change_course(
                             else update_data.course_data.dict(exclude_unset=True)
     
     if db_course.access_code and update_data.change_access_code\
-        or not db_course.access_code and update_data.course_data.is_public is False:
+        or not db_course.access_code and update_data.course_data is not None\
+            and update_data.course_data.is_public is False:
         course_update_data['access_code'] = generate_access_code()
     
     if update_data.articles_order is not None:
@@ -292,6 +293,14 @@ def change_course(
     )
 
     return crud.update_course(db, db_course.id, updated_course)
+
+
+@courses_router.get("/{course_id}/drafts", response_model=List[schemes.ArticleInCourse])
+def get_course_drafts(
+        db_course = Depends(get_own_course),
+        db: Session = Depends(get_db)
+    ):
+    return crud.get_drafts(db, db_course.id)
 
 
 @courses_router.post("/{course_id}/access")
@@ -322,8 +331,13 @@ def get_access_to_course(
         ))
     
 
-@courses_router.post("/{course_id}/files", response_model=schemes.UploadFilesResponse)
-def upload_files(files: list[UploadFile], course = Depends(get_own_course), db: Session = Depends(get_db)):
+@courses_router.post("/{course_id}/files", response_model=schemes.CourseGet)
+def upload_files(
+    files: list[UploadFile],
+    user = Depends(get_current_user),
+    course = Depends(get_own_course),
+    db: Session = Depends(get_db)
+):
     
     uploaded_files = []
     existing_files = crud.get_course_files(db, course.id)
@@ -353,4 +367,4 @@ def upload_files(files: list[UploadFile], course = Depends(get_own_course), db: 
 
     course_data = schemes.CourseUpdate(updated_at=datetime.utcnow())
     db_course = crud.update_course(db, course.id, course_data)
-    return {'course': db_course, 'uploaded_files': uploaded_files}
+    return toCourseGet(db_course, user, db)

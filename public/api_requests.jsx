@@ -603,3 +603,37 @@ export async function fetch_clear_history(context) {
     });
     return response.ok
 }
+
+
+export async function fetch_upload_files(context, course_id, files) {
+    await refresh_if_exp(context);
+
+    let formdata = new FormData();
+    for (let i = 0; i < files.length; i++) {
+        formdata.append('files', files[i])
+    }
+
+    let response = await fetch(`/api/courses/${course_id}/files`, {
+        method: "POST",
+        headers: get_auth_header(context.token),
+        body: formdata
+    });
+    if (response.ok) {
+        let course = await response.json();
+        return course;
+    }
+}
+
+
+export async function fetch_delete_file(context, file_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/files/${file_id}`, {
+        method: "DELETE",
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let course = await response.json();
+        return course;
+    }
+}

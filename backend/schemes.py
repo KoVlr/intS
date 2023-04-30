@@ -71,7 +71,7 @@ class Course(BaseModel):
         orm_mode = True
 
 class CourseForAuthor(Course):
-    access_code: str
+    access_code: str | None
 
 
 class CourseInList(BaseModel):
@@ -137,11 +137,6 @@ class FileGet(BaseModel):
     original_name: str
     class Config:
         orm_mode = True
-
-
-class UploadFilesResponse(BaseModel):
-    course: Course
-    uploaded_files: list[FileGet]
 
 
 class CourseGet(BaseModel):

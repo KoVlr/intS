@@ -416,7 +416,8 @@ def create_file(db: Session, file: schemes.FileCreate):
 
 
 def get_course_files(db: Session, course_id: int):
-    return get_course(db, course_id).files
+    return db.query(db_models.Files).filter(db_models.Files.course_id==course_id)\
+        .order_by(db_models.Files.original_name).all()
 
 
 def get_file(db: Session, id: int):

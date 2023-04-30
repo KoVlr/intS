@@ -4,13 +4,14 @@ import { fetch_change_course, fetch_course, fetch_course_drafts} from "../../api
 import { TokenContext } from "../app.jsx";
 import EditPublished from "./edit_published.jsx";
 import EditDrafts from "./edit_drafts.jsx";
+import CourseFiles from "./course_files.jsx";
 
 export default function CourseEditor() {
     const context = useContext(TokenContext);
 
     const [course, setCourse] = useState(null);
     const [drafts, setDrafts] = useState([]);
-    const [articles_type, setArticlesType] = useState('published');
+    const [edit_mode, setArticlesType] = useState('published');
 
     const {course_id} = useParams();
 
@@ -103,15 +104,20 @@ export default function CourseEditor() {
                         <ul>
                             <li><button onClick={() => setArticlesType('published')}>Опубликованное</button></li>
                             <li><button onClick={() => setArticlesType('drafts')}>Черновики</button></li>
+                            <li><button onClick={() => setArticlesType('files')}>Файлы</button></li>
                         </ul>
                     </nav>
 
-                    {articles_type == 'published' &&
+                    {edit_mode == 'published' &&
                         <EditPublished articles={course.articles} setArticles={(articles)=>setCourse(course=>({...course, articles: articles}))} />
                     }
 
-                    {articles_type == 'drafts' &&
+                    {edit_mode == 'drafts' &&
                         <EditDrafts drafts={drafts} />
+                    }
+
+                    {edit_mode == 'files' &&
+                        <CourseFiles files={course.files} setCourse={setCourse} edit_mode={true}/>
                     }
                 </>
             }
