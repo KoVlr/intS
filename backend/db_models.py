@@ -61,6 +61,7 @@ class Courses(Base):
     articles = relationship('Articles', back_populates='course')
     collections = relationship('Collections')
     access = relationship('Access')
+    files = relationship('Files', back_populates='course')
 
     __table_args__ = (
         UniqueConstraint('name', 'author_id'),
@@ -126,6 +127,21 @@ class Images(Base):
 
     __table_args__ = (
         UniqueConstraint('original_name', 'article_id'),
+    )
+
+class Files(Base):
+    __tablename__ = 'files'
+
+    id = Column(Integer, primary_key=True)
+    course_id = Column(Integer, ForeignKey('courses.id'))
+    path = Column(String, nullable=False, unique=True)
+    original_name = Column(String, nullable=False)
+    uploaded_at = Column(TIMESTAMP, nullable=False)
+
+    course = relationship('Courses', back_populates='files')
+
+    __table_args__ = (
+        UniqueConstraint('original_name', 'course_id'),
     )
 
 class Comments(Base):

@@ -1,9 +1,12 @@
 from typing import List, Annotated
-from fastapi import APIRouter, Depends, HTTPException, Security, Query
+from fastapi import APIRouter, Depends, HTTPException, Security, Query, UploadFile
 from sqlalchemy.orm import Session
 from datetime import datetime
 from random import choices
 import string
+from os import makedirs
+import uuid
+import shutil
 
 
 from .auth import get_authenticated_user, get_current_user
@@ -11,6 +14,7 @@ from ..database import get_db
 from .. import schemes
 from .. import crud
 from .. import db_models
+
 
 courses_router = APIRouter(
     prefix="/api/courses",
@@ -201,6 +205,26 @@ def search_in_courses(
     return search_result
 
 
+@courses_router.post("/collection/{course_id}")
+def add_course_to_collection(
+        course_id: int,
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    crud.create_collection_entry(db, schemes.CollectionCreate(
+        user_id=user.id, course_id=course_id, added_at=datetime.utcnow()
+    ))
+
+
+@courses_router.delete("/collection/{course_id}")
+def delete_course_from_collection(
+        course_id: int,
+        user = Depends(get_authenticated_user),
+        db: Session = Depends(get_db)
+    ):
+    crud.delete_collection_entry(db, user.id, course_id)
+
+
 @courses_router.get("/{course_id}", response_model=schemes.CourseGet)
 def get_course(
         course_id: int, user = Depends(get_current_user), db: Session = Depends(get_db)
@@ -208,6 +232,7 @@ def get_course(
     db_course = crud.get_course(db, course_id)
     author = db_course.author.user.username
     articles = crud.get_published_articles(db, course_id)
+    files = crud.get_course_files(db, course_id)
     access_code = None
 
     if user is None:
@@ -244,7 +269,8 @@ def get_course(
         in_collection=in_collection,
         access=access,
         access_code=access_code,
-        articles=articles
+        articles=articles,
+        files=files
     )
 
 
@@ -313,21 +339,35 @@ def get_access_to_course(
         ))
     
 
-@courses_router.post("/collection/{course_id}")
-def add_course_to_collection(
-        course_id: int,
-        user = Depends(get_authenticated_user),
-        db: Session = Depends(get_db)
-    ):
-    crud.create_collection_entry(db, schemes.CollectionCreate(
-        user_id=user.id, course_id=course_id, added_at=datetime.utcnow()
-    ))
+@courses_router.post("/{course_id}/files", response_model=schemes.UploadFilesResponse)
+def upload_files(files: list[UploadFile], course = Depends(get_own_course), db: Session = Depends(get_db)):
+    
+    uploaded_files = []
+    existing_files = crud.get_course_files(db, course.id)
 
+    for file in files:
+        for e_file in existing_files:
+            if e_file.original_name == file.filename:
+                raise HTTPException(status_code=400, detail="File with the same name already exists in this course")
 
-@courses_router.delete("/collection/{course_id}")
-def delete_course_from_collection(
-        course_id: int,
-        user = Depends(get_authenticated_user),
-        db: Session = Depends(get_db)
-    ):
-    crud.delete_collection_entry(db, user.id, course_id)
+        filename = str(uuid.uuid4()) + '.' + file.filename.split('.')[-1]
+        dirpath = 'storage/files/' + filename[:2] + '/' + filename[2:4] + '/'
+        filepath = dirpath + filename
+
+        file_data = schemes.FileCreate(
+            course_id = course.id,
+            path = filepath,
+            original_name = file.filename,
+            uploaded_at=datetime.utcnow()
+        )
+        
+        makedirs(dirpath, exist_ok=True)
+        with open(filepath, 'wb') as fdst:
+            shutil.copyfileobj(file.file, fdst)
+
+        db_file = crud.create_file(db, file_data)
+        uploaded_files += [db_file]
+
+    course_data = schemes.CourseUpdate(updated_at=datetime.utcnow())
+    db_course = crud.update_course(db, course.id, course_data)
+    return {'course': db_course, 'uploaded_files': uploaded_files}

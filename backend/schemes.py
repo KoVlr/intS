@@ -125,6 +125,25 @@ class ArticleInCourse(BaseModel):
         orm_mode = True
 
 
+class FileCreate(BaseModel):
+    course_id: int
+    path: str
+    original_name: str
+    uploaded_at: datetime
+
+
+class FileGet(BaseModel):
+    id: int
+    original_name: str
+    class Config:
+        orm_mode = True
+
+
+class UploadFilesResponse(BaseModel):
+    course: Course
+    uploaded_files: list[FileGet]
+
+
 class CourseGet(BaseModel):
     course_data: Course
     author: str
@@ -133,6 +152,7 @@ class CourseGet(BaseModel):
     access: bool
     access_code: str | None
     articles: List[ArticleInCourse]
+    files: List[FileGet]
 
 
 class CourseChangeData(BaseModel):

@@ -405,3 +405,29 @@ def delete_all_history(db: Session, user_id: int):
         db.delete(db_history[1])
     db.commit()
     return True
+
+
+def create_file(db: Session, file: schemes.FileCreate):
+    db_file = db_models.Files(**file.dict())
+    db.add(db_file)
+    db.commit()
+    db.refresh(db_file)
+    return db_file
+
+
+def get_course_files(db: Session, course_id: int):
+    return get_course(db, course_id).files
+
+
+def get_file(db: Session, id: int):
+    return db.get(db_models.Files, id)
+
+
+def delete_file(db: Session, id: int):
+    db_file = db.get(db_models.Files, id)
+    if db_file:
+        db.delete(db_file)
+        db.commit()
+        return True
+    else:
+        return False
