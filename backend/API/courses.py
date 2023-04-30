@@ -28,10 +28,10 @@ def generate_access_code():
 
 
 def is_own_course(db_course: db_models.Courses, user: db_models.Users):
-    if db_course.author_id != user.author.id:
-        return False
-    else:
+    if user.author is not None and db_course.author_id == user.author.id:
         return True
+    else:
+        return False
 
 
 def is_available_course(
@@ -233,34 +233,17 @@ def get_course(
     author = db_course.author.user.username
     articles = crud.get_published_articles(db, course_id)
     files = crud.get_course_files(db, course_id)
-    access_code = None
+    ownership = is_own_course(db_course, user)
+    access = is_available_course(db_course, user, db)
 
-    if user is None:
-        ownership = False
-        in_collection = False
-        access = True if db_course.is_public else False
+    if ownership:
+        access_code = db_course.access_code
+        in_collection = None
     else:
-        if user.author is not None and db_course.author_id == user.author.id:
-            ownership = (db_course.author_id == user.author.id)
-        else:
-            ownership = False
-
-        if ownership:
-            in_collection = None
-            access = True
-            access_code = db_course.access_code
-        else:
-            in_collection = False
-            for collection in db_course.collections:
-                if collection.user_id == user.id:
-                    in_collection = True
-                    break
-
-            access = False
-            for access_entry in db_course.access:
-                if access_entry.user_id == user.id:
-                    access = True
-                    break
+        access_code = None
+        in_collection = user.id in [
+            collection_entry.user_id for collection_entry in db_course.collections
+        ]
     
     return schemes.CourseGet(
         course_data=db_course,
