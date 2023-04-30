@@ -10,7 +10,7 @@ export default function Root() {
     return (
         <>
             <header>
-                <h1>intSpread</h1>
+                <Link to={"/"}><h1>intS</h1></Link>
             </header>
             
             {context.token
