@@ -651,3 +651,14 @@ export async function fetch_delete_article(context, article_id) {
         return course;
     }
 }
+
+
+export async function fetch_delete_course(context, course_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/courses/${course_id}`, {
+        method: "DELETE",
+        headers: get_auth_header(context.token)
+    });
+    return response.ok;
+}

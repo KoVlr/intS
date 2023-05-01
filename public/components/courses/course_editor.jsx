@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams } from "react-router-dom";
-import { fetch_change_course, fetch_course, fetch_course_drafts} from "../../api_requests.jsx";
+import { useParams, useNavigate } from "react-router-dom";
+import { fetch_change_course, fetch_course, fetch_course_drafts, fetch_delete_course} from "../../api_requests.jsx";
 import { TokenContext } from "../app.jsx";
 import EditPublished from "./edit_published.jsx";
 import EditDrafts from "./edit_drafts.jsx";
@@ -12,6 +12,8 @@ export default function CourseEditor() {
     const [course, setCourse] = useState(null);
     const [drafts, setDrafts] = useState([]);
     const [edit_mode, setArticlesType] = useState('published');
+
+    const navigate = useNavigate();
 
     const {course_id} = useParams();
 
@@ -59,6 +61,14 @@ export default function CourseEditor() {
     }
 
 
+    const deleteHandle = async function() {
+        let res = await fetch_delete_course(context, course_id);
+        if (res) {
+            navigate('/home/mycourses');
+        }
+    }
+
+
     return (
         <div>
             {course &&
@@ -99,6 +109,8 @@ export default function CourseEditor() {
                             <button onClick={update_access_code}>Удалить и сгенерировать новый</button>
                         </div>
                     }
+
+                    <div><button onClick={deleteHandle}>Удалить курс</button></div>
 
                     <nav>
                         <ul>

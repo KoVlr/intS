@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from random import choices
 import string
-from os import makedirs
+from os import makedirs, remove, removedirs
 import uuid
 import shutil
 
@@ -293,6 +293,29 @@ def change_course(
     )
 
     return crud.update_course(db, db_course.id, updated_course)
+
+
+@courses_router.delete("/{course_id}")
+def delete_article(
+    course_id: int,
+    user = Depends(get_current_user),
+    db_course = Depends(get_own_course),
+    db: Session = Depends(get_db)
+):
+    for db_article in db_course.articles:
+        for db_image in db_article.images:
+            filepath = str(db_image.file)
+            dirpath = filepath[:filepath.rfind('/')]
+            remove(filepath)
+            removedirs(dirpath)
+
+    for db_file in db_course.files:
+        filepath = str(db_file.path)
+        dirpath = filepath[:filepath.rfind('/')]
+        remove(filepath)
+        removedirs(dirpath)
+
+    crud.delete_course(db, course_id)
 
 
 @courses_router.get("/{course_id}/drafts", response_model=List[schemes.ArticleInCourse])
