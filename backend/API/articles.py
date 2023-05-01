@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Security, UploadFile, Body, Query
+from fastapi import APIRouter, Depends, HTTPException,\
+    Security, UploadFile, Body, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
-from os import makedirs
+from os import makedirs, remove, removedirs
 from markdown import markdown
 from typing import List, Annotated
 import uuid
@@ -10,7 +11,8 @@ import re
 
 
 from .auth import get_current_user, get_authenticated_user
-from .courses import check_own_course, check_available_course, is_own_course, courses_router
+from .courses import check_own_course, check_available_course,\
+    is_own_course, courses_router, toCourseGet
 from ..database import get_db
 from .. import schemes
 from .. import crud
@@ -145,6 +147,29 @@ def change_article(
     crud.update_course(db, article.course_id, schemes.CourseUpdate(updated_at=datetime.utcnow()))
 
     return crud.update_article(db, article.id, updated_article)
+
+
+@articles_router.delete("/{article_id}", response_model=schemes.CourseGet)
+def delete_article(
+    article_id: int,
+    user = Depends(get_current_user),
+    db_article = Depends(get_own_article),
+    db: Session = Depends(get_db)
+):
+    for db_image in db_article.images:
+        filepath = str(db_image.file)
+        dirpath = filepath[:filepath.rfind('/')]
+        remove(filepath)
+        removedirs(dirpath)
+
+    course_id = db_article.course_id
+    crud.delete_article(db, article_id)
+    db_course = crud.update_course(
+        db,
+        course_id,
+        schemes.CourseUpdate(updated_at=datetime.utcnow())
+    )
+    return toCourseGet(db_course, user, db)
 
 
 @articles_router.get("/{article_id}/content")

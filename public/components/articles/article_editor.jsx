@@ -1,16 +1,18 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     fetch_article,
     fetch_change_article_name,
     fetch_publish_article,
     fetch_article_content,
-    fetch_article_images
+    fetch_article_images,
+    fetch_delete_article
 } from '../../api_requests.jsx';
 import { TokenContext } from '../app.jsx';
 import EditContent from './edit_content.jsx'
 import EditImages from './edit_images.jsx'
 import { get_str_local_date } from '../../local_date.js';
+
 
 export default function ArticleEditor() {
     const context = useContext(TokenContext);
@@ -20,6 +22,8 @@ export default function ArticleEditor() {
     const [editor_type, setEditorType] = useState('content');
     const [content, setContent] = useState("");
     const [images, setImages] = useState([]);
+
+    const navigate = useNavigate();
 
     const {article_id} = useParams();
 
@@ -64,6 +68,14 @@ export default function ArticleEditor() {
         }
     }
 
+    const deleteHandle = async function() {
+        let course = await fetch_delete_article(context, article_id);
+        if (course) {
+            navigate(`/courses/${course.course_data.id}`);
+        }
+    }
+
+
     return (
         <div>
             {article_data &&
@@ -89,6 +101,8 @@ export default function ArticleEditor() {
                     }
                 </>
             }
+
+            <div><button onClick={deleteHandle}>Удалить статью</button></div>
 
             <nav>
                 <ul>

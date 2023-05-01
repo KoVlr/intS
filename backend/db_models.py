@@ -5,15 +5,8 @@ from sqlalchemy import Column, Integer, String, UUID, Boolean, TIMESTAMP,\
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import TSVECTOR
 
-def base_repr(self):
-    """Representation method for every sqlalchemy Base instance"""
-    columns = [k for k, v in self.__class__.__dict__.items() if isinstance(v, InstrumentedAttribute)]
-    values = map(lambda k: f"{k}={self.__dict__.get(k, 'None')}", columns)
-    return f"<{self.__class__.__name__}({', '.join(list(values))})>"
 
 Base = declarative_base()
-setattr(Base, "__repr__", base_repr)
-
 
 class TSVector(types.TypeDecorator):
     impl = TSVECTOR
@@ -58,10 +51,18 @@ class Courses(Base):
     ))
 
     author = relationship('Authors', back_populates='courses')
-    articles = relationship('Articles', back_populates='course')
-    collections = relationship('Collections')
-    access = relationship('Access')
-    files = relationship('Files', back_populates='course')
+    articles = relationship(
+        'Articles',
+        back_populates='course',
+        cascade="all, delete-orphan"
+    )
+    collections = relationship('Collections', cascade="all, delete-orphan")
+    access = relationship('Access', cascade="all, delete-orphan")
+    files = relationship(
+        'Files',
+        back_populates='course',
+        cascade="all, delete-orphan"
+    )
 
     __table_args__ = (
         UniqueConstraint('name', 'author_id'),
@@ -106,8 +107,9 @@ class Articles(Base):
     ))
     
     course = relationship('Courses', back_populates='articles')
-    images = relationship('Images', back_populates='article')
-    comments = relationship('Comments', back_populates='article')
+    images = relationship('Images', back_populates='article', cascade="all, delete-orphan")
+    comments = relationship('Comments', back_populates='article', cascade="all, delete-orphan")
+    history = relationship('History', cascade="all, delete-orphan")
     
     __table_args__ = (
         UniqueConstraint('name', 'course_id'),

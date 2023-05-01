@@ -637,3 +637,17 @@ export async function fetch_delete_file(context, file_id) {
         return course;
     }
 }
+
+
+export async function fetch_delete_article(context, article_id) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/articles/${article_id}`, {
+        method: "DELETE",
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let course = await response.json();
+        return course;
+    }
+}

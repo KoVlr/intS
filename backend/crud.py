@@ -75,6 +75,16 @@ def create_course(db: Session, course: schemes.CourseCreate):
     return db_course
 
 
+def delete_course(db: Session, id: int):
+    db_course = db.get(db_models.Courses, id)
+    if db_course:
+        db.delete(db_course)
+        db.commit()
+        return True
+    else:
+        return False
+
+
 def get_courses_list(db: Session, offset: int, limit: int):
     return db.query(db_models.Courses)\
         .order_by(
@@ -188,6 +198,16 @@ def create_article(db: Session, article: schemes.ArticleCreate):
     db.commit()
     db.refresh(db_article)
     return db_article
+
+
+def delete_article(db: Session, id: int):
+    db_article = db.get(db_models.Articles, id)
+    if db_article:
+        db.delete(db_article)
+        db.commit()
+        return True
+    else:
+        return False
 
 
 def create_image(db: Session, image: schemes.ImageCreate):

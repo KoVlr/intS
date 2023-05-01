@@ -116,7 +116,6 @@ def delete_file(
     db_file = Depends(get_own_file),
     db: Session = Depends(get_db)
 ):
-
     filepath = str(db_file.path)
     dirpath = filepath[:filepath.rfind('/')]
     remove(filepath)
