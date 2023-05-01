@@ -18,7 +18,10 @@ export default function Root() {
                     <Notifications/>
                     <UserMenu/>
                 </>
-                : <><Link to="/login">Войти</Link> <Link to="/signup">Зарегистрироваться</Link></>
+                : <>
+                    <Link to="/login">Войти</Link>
+                    <Link to="/signup">Зарегистрироваться</Link>
+                </>
             }
 
             <Outlet/>

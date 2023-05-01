@@ -41,6 +41,10 @@ export default function CourseFiles(props) {
 
     return (
         <div>
+            {props.files.length != 0 &&
+                "Файлы:"
+            }
+
             {props.edit_mode &&
                 <form onSubmit={handleSubmit}>
                     <label>

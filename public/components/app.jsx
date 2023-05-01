@@ -23,6 +23,7 @@ import MyCourses from "./courses/my_courses.jsx";
 import AllCourses from "./courses/all_courses.jsx";
 import Collection from "./courses/collection.jsx";
 import ArticleHistory from "./articles/article_history.jsx";
+import RenderIfAuth from "./auth/render_if_auth.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
@@ -51,8 +52,8 @@ export default function App() {
                         <Route index element={<Navigate to="/home"/>} />
                         <Route path="/home" element={<Home/>}>
                             <Route index element={<Navigate to="/home/collection"/>} />
-                            <Route path="/home/collection" element={<Collection/>} />
-                            <Route path="/home/history" element={<ArticleHistory/>} />
+                            <Route path="/home/collection" element={<RenderIfAuth component={Collection}/>} />
+                            <Route path="/home/history" element={<RenderIfAuth component={ArticleHistory}/>} />
                             <Route path="/home/allcourses" element={<AllCourses/>} />
                             <Route path="/home/mycourses" element={<MyCourses/>} />
                         </Route>

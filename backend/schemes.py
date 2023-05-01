@@ -213,6 +213,9 @@ class ArticleUpdate(ArticlePatch):
     published_at: datetime | None
     content: str | None
 
+class ArticleContent(BaseModel):
+    content: str
+
 
 class ImageCreate(BaseModel):
     article_id: int

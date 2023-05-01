@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException,\
-    Security, UploadFile, Body, Query
+    Security, UploadFile, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
 from os import makedirs, remove, removedirs
@@ -178,8 +178,12 @@ def get_article_content(article = Depends(get_own_article)):
 
 
 @articles_router.post("/{article_id}/content", response_model=schemes.ArticleGet)
-def change_article_content(article = Depends(get_own_article), content: str = Body(embed=True), db: Session = Depends(get_db)):
-    article_data = schemes.ArticleUpdate(content=content, updated_at=datetime.utcnow())
+def change_article_content(
+    article_data: schemes.ArticleContent,
+    article = Depends(get_own_article),
+    db: Session = Depends(get_db)
+):
+    article_data = schemes.ArticleUpdate(content=article_data.content, updated_at=datetime.utcnow())
     crud.update_course(db, article.course_id, schemes.CourseUpdate(updated_at=datetime.utcnow()))
     return crud.update_article(db, article.id, article_data)
 
