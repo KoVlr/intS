@@ -104,9 +104,9 @@ export default function CourseEditor() {
 
                     {course.access_code &&
                         <div>
-                            Код доступа:<br/>
-                            {course.access_code}
-                            <button onClick={update_access_code}>Удалить и сгенерировать новый</button>
+                            Ссылка получения доступа к курсу:<br/>
+                            {`http://localhost:8000/courses/${course_id}/access/${course.access_code}`}
+                            <button onClick={update_access_code}>Удалить и сгенерировать новую</button>
                         </div>
                     }
 

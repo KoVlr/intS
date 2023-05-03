@@ -2,8 +2,6 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Security, Query, UploadFile
 from sqlalchemy.orm import Session
 from datetime import datetime
-from random import choices
-import string
 from os import makedirs, remove, removedirs
 import uuid
 import shutil
@@ -20,11 +18,6 @@ courses_router = APIRouter(
     prefix="/api/courses",
     tags=["Courses"]
 )
-
-
-def generate_access_code():
-    return ''.join(choices(string.ascii_uppercase + string.digits, k=8))
-
 
 
 def is_own_course(db_course: db_models.Courses, user: db_models.Users):
@@ -109,7 +102,7 @@ def create_new_course(
     course = schemes.CourseCreate(
         **new_course.dict(),
         author_id=user.author.id,
-        access_code = None if new_course.is_public else generate_access_code(),
+        access_code = None if new_course.is_public else uuid.uuid4(),
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -277,7 +270,7 @@ def change_course(
     if db_course.access_code and update_data.change_access_code\
         or not db_course.access_code and update_data.course_data is not None\
             and update_data.course_data.is_public is False:
-        course_update_data['access_code'] = generate_access_code()
+        course_update_data['access_code'] = uuid.uuid4()
     
     if update_data.articles_order is not None:
         articles_list = crud.get_published_articles(db, db_course.id)

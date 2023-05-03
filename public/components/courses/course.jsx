@@ -10,8 +10,6 @@ export default function Course() {
 
     const [course, setCourse] = useState(null);
 
-    const [access_code, setAccessCode] = useState('');
-
     const {course_id} = useParams();
 
     useEffect(() => {
@@ -37,16 +35,6 @@ export default function Course() {
         let success = await fetch_delete_from_collection(context, course_id);
         if(success) {
             setCourse(course=>({...course, in_collection: false}));
-        }
-    }
-
-    
-    const handleSubmitAccessCode = async function(event) {
-        event.preventDefault();
-
-        let success = await fetch_get_access(context, course_id, access_code);
-        if(success) {
-            setCourse(course=>({...course, access: true}));
         }
     }
 
@@ -83,15 +71,8 @@ export default function Course() {
                     {!course.course_data.is_public &&
                         <>
                             <p>Закрытый курс</p>
-                            {course.access
-                                ?<p>Доступ получен</p>
-                                :<form onSubmit={handleSubmitAccessCode}>
-                                    Введите код доступа: 
-                                    <input type="text" value={access_code} onChange={(event)=>{
-                                            setAccessCode(event.target.value);
-                                        }}/>
-                                    <input type="submit" value="Отправить"/>
-                                </form>
+                            {course.access &&
+                                <p>Доступ получен</p>
                             }
                         </>
                     }

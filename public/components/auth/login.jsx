@@ -15,7 +15,7 @@ export default function LoginForm() {
         let token = await fetch_tokens(context, email, password);
         if (token) {
             context.setToken(token);
-            navigate("/");
+            navigate(-1);
         }
     };
 

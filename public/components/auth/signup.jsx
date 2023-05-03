@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { fetch_create_user, fetch_tokens } from '../../api_requests.jsx';
 import { TokenContext } from '../app.jsx';
 
@@ -10,6 +10,9 @@ export default function SignupForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const navigate = useNavigate();
+
+
     const handleSubmit = async function(event) {
         event.preventDefault();
 
@@ -18,13 +21,10 @@ export default function SignupForm() {
             let token = await fetch_tokens(context, email, password);
             if (token) {
                 context.setToken(token);
+                navigate(-1);
             }
         }
     };
-
-    if (context.token !== null) {
-        return <Navigate to="/"/>
-    }
 
     return (
         <form onSubmit={handleSubmit}>

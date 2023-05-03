@@ -53,7 +53,7 @@ class CourseNew(BaseModel):
 class CourseCreate(CourseNew):
     author_id: int
     views_count: int = 0
-    access_code: str | None
+    access_code: uuid.UUID | None
     created_at: datetime
     updated_at: datetime
 
@@ -71,7 +71,7 @@ class Course(BaseModel):
         orm_mode = True
 
 class CourseForAuthor(Course):
-    access_code: str | None
+    access_code: uuid.UUID | None
 
 
 class CourseInList(BaseModel):
@@ -145,7 +145,7 @@ class CourseGet(BaseModel):
     ownership: bool
     in_collection: bool | None
     access: bool
-    access_code: str | None
+    access_code: uuid.UUID | None
     articles: List[ArticleInCourse]
     files: List[FileGet]
 
@@ -157,7 +157,7 @@ class CourseChangeData(BaseModel):
 
 
 class CourseUpdate(CourseChangeData):
-    access_code: str | None
+    access_code: uuid.UUID | None
     views_count: int | None
     updated_at: datetime | None
 
@@ -169,7 +169,7 @@ class CoursePatch(BaseModel):
 
 
 class AccessPost(BaseModel):
-    access_code: str
+    access_code: uuid.UUID
 
 
 class AccessCreate(BaseModel):
