@@ -5,7 +5,7 @@ export default function CourseElem(props) {
 
     return (
         <li>
-            <div style={{height: 100}}>
+            <div>
                 <Link to={`/courses/${props.course.id}`}>{props.course.name}</Link><br/>
                 Автор: {props.course.author}<br/>
                 <p>{props.course.description}</p>

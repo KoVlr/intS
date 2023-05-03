@@ -11,7 +11,7 @@ export default function CourseEditor() {
 
     const [course, setCourse] = useState(null);
     const [drafts, setDrafts] = useState([]);
-    const [edit_mode, setArticlesType] = useState('published');
+    const [edit_mode, setEditMode] = useState('published');
 
     const navigate = useNavigate();
 
@@ -114,9 +114,32 @@ export default function CourseEditor() {
 
                     <nav>
                         <ul>
-                            <li><button onClick={() => setArticlesType('published')}>Опубликованное</button></li>
-                            <li><button onClick={() => setArticlesType('drafts')}>Черновики</button></li>
-                            <li><button onClick={() => setArticlesType('files')}>Файлы</button></li>
+                            <li>
+                                <a
+                                    className={edit_mode=='published' ? 'active' : 'inactive'}
+                                    onClick={() => setEditMode('published')}
+                                >
+                                    Опубликованное
+                                </a>
+                            </li>
+
+                            <li>
+                                <a
+                                    className={edit_mode=='drafts' ? 'active' : 'inactive'}
+                                    onClick={() => setEditMode('drafts')}
+                                >
+                                    Черновики
+                                </a>
+                            </li>
+
+                            <li>
+                                <a
+                                    className={edit_mode=='files' ? 'active' : 'inactive'}
+                                    onClick={() => setEditMode('files')}
+                                >
+                                    Файлы
+                                </a>
+                            </li>
                         </ul>
                     </nav>
 

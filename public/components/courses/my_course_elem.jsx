@@ -5,7 +5,7 @@ export default function MyCourseElem(props) {
 
     return (
         <li>
-            <div style={{height: 100}}>
+            <div>
                 <Link to={`/courses/${props.course.id}`}>{props.course.name}</Link>
             </div>
         </li>

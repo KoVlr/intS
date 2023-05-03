@@ -106,8 +106,19 @@ export default function ArticleEditor() {
 
             <nav>
                 <ul>
-                    <li><button onClick={() => setEditorType('content')}>Редактор</button></li>
-                    <li><button onClick={() => setEditorType('images')}>Загрузка изображений</button></li>
+                    <li><a
+                        className={editor_type=='content' ? 'active' : 'inactive'}
+                        onClick={() => setEditorType('content')}
+                    >
+                        Редактор
+                    </a></li>
+                    
+                    <li><a
+                        className={editor_type=='images' ? 'active' : 'inactive'}
+                        onClick={() => setEditorType('images')}
+                    >
+                        Загрузка изображений
+                    </a></li>
                 </ul>
             </nav>
 
