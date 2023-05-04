@@ -19,6 +19,8 @@ class Users(Base):
     username = Column(String, unique=True, nullable=False)
     email = Column(String, nullable=False, unique=True)
     hashed_password = Column(String, nullable=False)
+    activated = Column(Boolean, nullable=False)
+    confirmation_code = Column(UUID)
 
     author = relationship('Authors', uselist=False, back_populates='user')
     comments = relationship('Comments', back_populates='user')

@@ -25,6 +25,7 @@ import Collection from "./courses/collection.jsx";
 import ArticleHistory from "./articles/article_history.jsx";
 import RenderIfAuth from "./auth/render_if_auth.jsx";
 import CourseAccess from "./courses/course_access.jsx";
+import UserActivation from "./auth/user_activation.jsx";
 
 export const TokenContext = React.createContext({token: null, setToken: () => {}});
 
@@ -75,6 +76,7 @@ export default function App() {
 
                     <Route path="/login" element={<LoginForm/>} />
                     <Route path="/signup" element={<SignupForm/>} />
+                    <Route path="/users/:user_id/activation/:confirmation_code" element={<UserActivation/>} />
                 </Routes>
             </BrowserRouter>
         </TokenContext.Provider>

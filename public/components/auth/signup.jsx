@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetch_create_user, fetch_tokens } from '../../api_requests.jsx';
 import { TokenContext } from '../app.jsx';
@@ -9,8 +9,16 @@ export default function SignupForm() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmation_page, setConf] = useState(false);
 
     const navigate = useNavigate();
+
+
+    useEffect(() => {
+        if (context.token != null) {
+            navigate(-1);
+        }
+    }, []);
 
 
     const handleSubmit = async function(event) {
@@ -18,13 +26,18 @@ export default function SignupForm() {
 
         let user = await fetch_create_user(username, email, password);
         if (user) {
-            let token = await fetch_tokens(context, email, password);
-            if (token) {
-                context.setToken(token);
-                navigate(-1);
-            }
+            setConf(true);
         }
     };
+
+
+    if (confirmation_page) {
+        return (
+            <div>
+                На вашу почту было отправлено письмо с ссылкой для подтверждения
+            </div>
+        )
+    }
 
     return (
         <form onSubmit={handleSubmit}>

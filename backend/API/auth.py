@@ -6,6 +6,11 @@ from passlib.context import CryptContext
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 import uuid
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
+from ..config import EMAIL, PASSWORD, SMTP_HOST, HOST
+
 
 from ..database import get_db
 from .. import schemes
@@ -36,7 +41,7 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 def authenticate_user(email: str, password: str, db: Session):
-    user = crud.get_user(db, email)
+    user = crud.get_user_by_email(db, email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -85,6 +90,9 @@ def login_for_access_token(
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     
+    if not user.activated:
+        raise HTTPException(status_code=400, detail="Email not confirmed")
+    
     new_refresh_token = update_refresh_token(user.id, refresh_token, db)
     access_token = create_access_token(user.email, db)
     
@@ -130,15 +138,76 @@ def refresh_tokens(
     return access_token
 
 
+
+def send_email_confirmation(user):
+    msg = MIMEMultipart()
+    message = f'Была создана учётная запись с именем пользователя {user.username}. Для подтверждения электронной почты перейдите по ссылке {HOST}/users/{user.id}/activation/{user.confirmation_code}'
+    msg['From'] = EMAIL
+    msg['To'] = user.email
+    msg['Subject'] = 'Подтверждение электронной почты'
+    msg.attach(MIMEText(message, 'plain'))
+    server = smtplib.SMTP(SMTP_HOST)
+    server.starttls()
+    server.login(msg['From'], PASSWORD)
+    server.sendmail(msg['From'], msg['To'], msg.as_string())
+    server.quit()
+
+
 @auth_router.post("/signup", response_model=schemes.User)
-def sign_up(user: schemes.UserCreate, db: Session = Depends(get_db)):
-    existing_user = crud.get_user(db, user.email)
-    if existing_user:
+def sign_up(user: schemes.UserNew, db: Session = Depends(get_db)):
+    existing_user = crud.get_user_by_email(db, user.email)
+    if existing_user is not None and existing_user.activated:
         raise HTTPException(status_code=400, detail="User already registered")
     
     user.password = get_hash(user.password)
 
-    return crud.create_user(db, user)
+    user_create = schemes.UserCreate(
+        **user.dict(),
+        activated=False,
+        confirmation_code=uuid.uuid4()
+    )
+
+    if existing_user is not None:
+        db_user = crud.update_user(db, existing_user.id, user_create)
+    else:
+        db_user = crud.create_user(db, schemes.UserUpdate(**user_create.dict()))
+
+    send_email_confirmation(db_user)
+    return db_user
+
+
+@auth_router.put("/users/{user_id}/activation/{confirmation_code}", response_model=schemes.Token)
+def user_activation(
+    response: Response,
+    user_id: int,
+    confirmation_code: uuid.UUID,
+    db: Session = Depends(get_db)
+):
+    db_user = crud.get_user(db, user_id)
+
+    if db_user.activated:
+        raise HTTPException(status_code=400, detail="Email already confirmed")
+
+    if db_user is None:
+        raise HTTPException(status_code=400, detail="User does not exist")
+    
+    if db_user.confirmation_code != confirmation_code:
+        raise HTTPException(status_code=400, detail="Incorrect confirmation code")
+    
+    crud.update_user(db, user_id, schemes.UserUpdate(activated=True))
+    
+    new_refresh_token = update_refresh_token(user_id, None, db)
+    access_token = create_access_token(db_user.email, db)
+    
+    response.set_cookie(
+            key="refresh_token",
+            value=new_refresh_token.uuid,
+            max_age=new_refresh_token.expires_in,
+            httponly=True,
+            path='/api/auth',
+            samesite='strict'
+        )
+    return access_token
 
 
 
@@ -170,7 +239,7 @@ def get_current_user(
     except (JWTError, ValidationError):
         raise credentials_exception
     
-    user = crud.get_user(db, token_data.email)
+    user = crud.get_user_by_email(db, token_data.email)
     if user is None:
         raise credentials_exception
     

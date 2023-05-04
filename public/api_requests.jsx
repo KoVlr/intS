@@ -662,3 +662,17 @@ export async function fetch_delete_course(context, course_id) {
     });
     return response.ok;
 }
+
+
+export async function fetch_user_activation(context, user_id, confirmation_code) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/auth/users/${user_id}/activation/${confirmation_code}`, {
+        method: 'PUT',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let token = await response.json();
+        return token;
+    }
+}

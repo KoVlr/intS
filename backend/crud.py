@@ -4,7 +4,12 @@ import uuid
 from . import schemes
 from . import db_models
 
-def get_user(db: Session, email: str):
+
+def get_user(db: Session, id: int):
+    return db.get(db_models.Users, id)
+
+
+def get_user_by_email(db: Session, email: str):
     return db.query(db_models.Users).filter(db_models.Users.email == email).first()
 
 
@@ -20,13 +25,28 @@ def create_user(db: Session, user: schemes.UserCreate):
     db_user = db_models.Users(
         username=user.username,
         email=user.email,
-        hashed_password=user.password
+        hashed_password=user.password,
+        activated=user.activated,
+        confirmation_code=user.confirmation_code
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
+
+def update_user(
+    db: Session,
+    id: int,
+    user_data: schemes.UserUpdate
+):    
+    db_user = db.get(db_models.Users, id)
+    
+    for attr in user_data.dict(exclude_unset=True):
+        setattr(db_user, attr, getattr(user_data, attr))
+
+    db.commit()
+    return db_user
 
 
 def create_refresh_token(db: Session, refresh_token: schemes.RefreshToken):
