@@ -157,8 +157,8 @@ class CourseGet(BaseModel):
     in_collection: bool | None
     access: bool
     access_code: uuid.UUID | None
-    articles: List[ArticleInCourse]
-    files: List[FileGet]
+    articles: List[ArticleInCourse] | None
+    files: List[FileGet] | None
 
 
 class CourseChangeData(BaseModel):

@@ -77,9 +77,12 @@ export default function Course() {
                         </>
                     }
 
-                    <ul>{article_list}</ul>
-                    
-                    <CourseFiles files={course.files} setCourse={setCourse} edit_mode={false}/>
+                    {course.access &&
+                        <>
+                            <ul>{article_list}</ul>
+                            <CourseFiles files={course.files} setCourse={setCourse} edit_mode={false}/>
+                        </>
+                    }
                 </>
             }
         </div>

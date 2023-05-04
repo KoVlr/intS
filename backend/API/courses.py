@@ -224,8 +224,6 @@ def toCourseGet(
     db: Session
 ):
     author = db_course.author.user.username
-    articles = crud.get_published_articles(db, db_course.id)
-    files = crud.get_course_files(db, db_course.id)
     ownership = is_own_course(db_course, user)
     access = is_available_course(db_course, user, db)
 
@@ -237,6 +235,14 @@ def toCourseGet(
         in_collection = user.id in [
             collection_entry.user_id for collection_entry in db_course.collections
         ]
+
+    if access:
+        articles = crud.get_published_articles(db, db_course.id)
+        files = crud.get_course_files(db, db_course.id)
+    else:
+        articles = None
+        files = None
+
     
     return schemes.CourseGet(
         course_data=db_course,
