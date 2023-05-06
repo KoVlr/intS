@@ -230,6 +230,21 @@ def upload_article_images(files: list[UploadFile], article = Depends(get_own_art
     return {'article': db_article, 'uploaded_images': uploaded_images}
 
 
+def get_html_from_content(content, db_images):
+    html = markdown(content, extensions=['extra'])
+
+    def img_repl(match):
+        img_name = match.group(1)
+        for image in db_images:
+            if image.original_name == img_name:
+                return match.group(0).replace(img_name, f'/api/images/{image.id}')
+        return match.group(0)
+
+    html = re.sub(r'<img[^>]+?src\s*=\s*"(.+?)"', img_repl, html)
+
+    return {'html': html}
+
+
 @articles_router.get("/{article_id}/view")
 def get_article_view(
     db_article = Depends(get_available_article), 
@@ -247,15 +262,13 @@ def get_article_view(
             read_at=datetime.utcnow())
         )
 
-    html = markdown(db_article.content, extensions=['extra'])
+    return get_html_from_content(db_article.content, db_article.images)
 
-    def img_repl(match):
-        img_name = match.group(1)
-        for image in db_article.images:
-            if image.original_name == img_name:
-                return match.group(0).replace(img_name, f'/api/images/{image.id}')
-        return match.group(0)
 
-    html = re.sub(r'<img[^>]+?src\s*=\s*"(.+?)"', img_repl, html)
-
-    return {'html': html}
+@articles_router.post("/{article_id}/editor/view")
+def get_article_view(
+    input_data: schemes.ArticleContent,
+    db_article = Depends(get_own_article),
+    user = Security(get_authenticated_user, scopes=['author'])
+):
+    return get_html_from_content(input_data.content, db_article.images)

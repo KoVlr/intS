@@ -435,6 +435,24 @@ export async function fetch_article_view(context, article_id) {
 }
 
 
+export async function fetch_editor_view(context, article_id, content) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(`/api/articles/${article_id}/editor/view`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            ...get_auth_header(context.token)
+        },
+        body: JSON.stringify({"content": content})
+    });
+    if (response.ok) {
+        let view = await response.json();
+        return view;
+    }
+}
+
+
 
 export async function fetch_create_comment(context, article_id, content, reply_to) {
     await refresh_if_exp(context);
