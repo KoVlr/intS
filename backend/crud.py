@@ -125,7 +125,7 @@ def get_courses_by_author(db: Session, author_id: int, offset: int, limit: int):
 def get_courses_in_collection(db: Session, user_id: int, offset: int, limit: int):
     return db.query(db_models.Courses).join(db_models.Collections)\
         .filter(db_models.Collections.user_id == user_id)\
-        .order_by(db_models.Courses.updated_at.desc())\
+        .order_by(db_models.Collections.added_at.desc())\
         .offset(offset).limit(limit).all()
 
 

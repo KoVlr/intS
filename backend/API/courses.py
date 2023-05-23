@@ -96,7 +96,7 @@ def create_new_course(
         db: Session = Depends(get_db)
     ):
     existing_course = crud.get_course_by_name(db, new_course.name, user.author.id)
-    if existing_course:
+    if existing_course is not None:
         raise HTTPException(status_code=400, detail="Сourse with the same name already exists for this author")
     
     course = schemes.CourseCreate(
@@ -295,7 +295,7 @@ def change_course(
 
 
 @courses_router.delete("/{course_id}")
-def delete_article(
+def delete_course(
     course_id: int,
     user = Depends(get_current_user),
     db_course = Depends(get_own_course),
@@ -350,7 +350,8 @@ def get_access_to_course(
             user_id=user.id,
             course_id=course_id,
             received_at=datetime.utcnow()
-        ))
+        )
+    )
     
 
 @courses_router.post("/{course_id}/files", response_model=schemes.CourseGet)

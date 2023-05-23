@@ -266,7 +266,7 @@ def get_article_view(
 
 
 @articles_router.post("/{article_id}/editor/view")
-def get_article_view(
+def get_editor_view(
     input_data: schemes.ArticleContent,
     db_article = Depends(get_own_article),
     user = Security(get_authenticated_user, scopes=['author'])

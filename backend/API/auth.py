@@ -27,7 +27,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 30
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="api/auth/login",
+    tokenUrl="api/auth/token",
     scopes={"author": "The right to create and edit courses"},
     auto_error=False
 )
@@ -58,7 +58,12 @@ def create_access_token(email: str, db: Session):
     data={"sub": email, "scopes": scopes, "exp": expires}
     encoded_jwt = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
 
-    access_token = schemes.Token(access_token=encoded_jwt, token_type="Bearer", expires=expires.timestamp(), rights=scopes)
+    access_token = schemes.Token(
+        access_token=encoded_jwt,
+        token_type="Bearer",
+        expires=expires.timestamp(),
+        rights=scopes
+    )
     return access_token
 
 
@@ -76,7 +81,7 @@ def update_refresh_token(user_id: int, refresh_token: uuid.UUID | None, db: Sess
     return db_refresh_token
 
 
-@auth_router.post("/login", response_model=schemes.Token)
+@auth_router.post("/token", response_model=schemes.Token)
 def login_for_access_token(
         response: Response,
         form_data: OAuth2PasswordRequestForm = Depends(),
@@ -107,7 +112,7 @@ def login_for_access_token(
     return access_token
 
 
-@auth_router.post("/tokens", response_model=schemes.Token)
+@auth_router.post("/refresh-tokens", response_model=schemes.Token)
 def refresh_tokens(
         response: Response,
         refresh_token: uuid.UUID | None = Cookie(None),
@@ -153,7 +158,7 @@ def send_email_confirmation(user):
     server.quit()
 
 
-@auth_router.post("/signup", response_model=schemes.User)
+@auth_router.post("/users", response_model=schemes.User)
 def sign_up(user: schemes.UserNew, db: Session = Depends(get_db)):
     existing_user = crud.get_user_by_email(db, user.email)
     if existing_user is not None and existing_user.activated:
@@ -176,7 +181,7 @@ def sign_up(user: schemes.UserNew, db: Session = Depends(get_db)):
     return db_user
 
 
-@auth_router.put("/users/{user_id}/activation/{confirmation_code}", response_model=schemes.Token)
+@auth_router.post("/users/{user_id}/activation/{confirmation_code}", response_model=schemes.Token)
 def user_activation(
     response: Response,
     user_id: int,
@@ -262,7 +267,7 @@ def get_authenticated_user(
 
 
 
-@auth_router.post("/logout")
+@auth_router.delete("/token")
 def logout(
         response: Response,
         refresh_token: uuid.UUID | None = Cookie(None),

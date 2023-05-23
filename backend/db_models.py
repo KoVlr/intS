@@ -1,4 +1,3 @@
-from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy import Column, Integer, String, UUID, Boolean, TIMESTAMP,\
     ForeignKey, UniqueConstraint, Text, PrimaryKeyConstraint, types, Computed, Index
@@ -30,7 +29,7 @@ class Authors(Base):
     __tablename__ = 'authors'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id'), unique=True)
 
     user = relationship('Users', back_populates='author')
     courses = relationship('Courses', back_populates='author')
@@ -181,7 +180,7 @@ class RefreshTokens(Base):
 
     uuid = Column(UUID, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    created_at = Column(TIMESTAMP)
-    expires_in = Column(Integer)
+    created_at = Column(TIMESTAMP, nullable=False)
+    expires_in = Column(Integer, nullable=False)
 
     user = relationship('Users', back_populates='refresh_tokens')

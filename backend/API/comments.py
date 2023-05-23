@@ -122,22 +122,6 @@ def delete_all_direct_entry(
             crud.update_comment(db, db_comment.id, schemes.CommentUpdate(**update_data))
 
 
-@comments_router.delete("/direct")
-def delete_all_direct_entry(
-    user = Depends(get_authenticated_user),
-    db: Session = Depends(get_db)
-):
-    db_comments = crud.get_direct_comments(db, user.id, 0, None)
-    for db_comment in db_comments:
-        update_data = {}
-        if db_comment.parent is not None and db_comment.parent.user_id == user.id:
-            update_data['reply_viewed'] = True
-        if db_comment.article.course.author.user.id == user.id:
-            update_data['viewed_by_author'] = True
-        if len(update_data)!=0:
-            crud.update_comment(db, db_comment.id, schemes.CommentUpdate(**update_data))
-
-
 @comments_router.get("/direct/count")
 def get_direct_count(
     user = Depends(get_authenticated_user),

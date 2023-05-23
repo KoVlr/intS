@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { TokenContext } from "../app.jsx";
 
 
-export default function useInfiniteScroll(fetch_items, get_scroll_limit) {
+export default function useInfiniteScroll(fetch_items, get_scroll_limit, chunk_size = 20) {
     const context = useContext(TokenContext);
 
     const [items, setItems] = useState([]);
@@ -13,7 +13,6 @@ export default function useInfiniteScroll(fetch_items, get_scroll_limit) {
     useEffect(() => {
         if (!listenScroll) {
             const get_items = async function() {
-                let chunk_size = 5;
                 let new_items = [];
 
                 //Loading data until there are chunk_size new unique elements or until all data is loaded.

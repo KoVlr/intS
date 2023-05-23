@@ -3,7 +3,7 @@ export async function fetch_tokens(context, username, password) {
     formdata.set('username', username);
     formdata.set('password', password);
 
-    let response = await fetch('/api/auth/login', {
+    let response = await fetch('/api/auth/token', {
         method: 'POST',
         body: formdata
     });
@@ -15,7 +15,7 @@ export async function fetch_tokens(context, username, password) {
 
 
 export async function fetch_refresh_tokens() {
-    let response = await fetch('/api/auth/tokens', {
+    let response = await fetch('/api/auth/refresh-tokens', {
         method: 'POST'
     });
     if (response.ok) {
@@ -56,7 +56,7 @@ async function refresh_if_exp(context) {
 
 
 export async function fetch_create_user(username, email, password) {
-    let response = await fetch('/api/auth/signup', {
+    let response = await fetch('/api/auth/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
@@ -91,8 +91,8 @@ export async function fetch_user(context) {
 export async function fetch_logout(context) {
     await refresh_if_exp(context);
 
-    let response = await fetch('/api/auth/logout', {
-        method: 'POST',
+    let response = await fetch('/api/auth/token', {
+        method: 'DELETE',
         headers: get_auth_header(context.token)
     });
     if (response.ok) {
@@ -686,7 +686,7 @@ export async function fetch_user_activation(context, user_id, confirmation_code)
     await refresh_if_exp(context);
 
     let response = await fetch(`/api/auth/users/${user_id}/activation/${confirmation_code}`, {
-        method: 'PUT',
+        method: 'POST',
         headers: get_auth_header(context.token)
     });
     if (response.ok) {
