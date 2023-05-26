@@ -71,7 +71,7 @@ def get_comments(
     
     comments = [{
         **schemes.Comment.from_orm(db_comment).dict(),
-        'user': db_article.course.author.user.username,
+        'user': db_comment.user.username,
         'replies_count': len(db_comment.replies),
         'ownership': db_comment.user_id == user.id
     } for db_comment in db_comments]
