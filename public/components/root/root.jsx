@@ -10,21 +10,27 @@ export default function Root() {
     return (
         <>
             <header>
-                <Link to={"/"}><h1>intS</h1></Link>
+                <Link to={"/"}><h1>На главную</h1></Link>
+                
+                <div id="usermenu">
+                    {context.token
+                        ? <>
+                            <Notifications/>
+                            <UserMenu/>
+                        </>
+                        : <>
+                            <Link to="/login"><button>Войти</button></Link>
+                            <Link to="/signup"><button>Зарегистрироваться</button></Link>
+                        </>
+                    }
+                </div>
             </header>
             
-            {context.token
-                ? <>
-                    <Notifications/>
-                    <UserMenu/>
-                </>
-                : <>
-                    <Link to="/login">Войти</Link>
-                    <Link to="/signup">Зарегистрироваться</Link>
-                </>
-            }
-
-            <Outlet/>
+            <hr/>
+            
+            <main>
+                <Outlet/>
+            </main>
         </>
     );
 }

@@ -39,14 +39,14 @@ export default function Article() {
 
 
     return (
-        <div>
+        <div id="article_page">
             {course?.ownership &&
-                <div>
+                <div id="edit_link">
                     <Link to={`/courses/${course_id}/articles/${article_id}/edit`}>Редактировать</Link>
                 </div>
             }
             
-            <div dangerouslySetInnerHTML={{__html: view}}/>
+            <div id="article" dangerouslySetInnerHTML={{__html: view}}/>
 
 
             <button onClick={() => setEditComment(true)}>Написать комментарий</button>
@@ -61,7 +61,7 @@ export default function Article() {
                 />
             }
 
-            <Comments parent={null} display={true} new_comment={new_comment} parent_sequence={state?.parent_sequence}/>
+            <Comments key={article_id} parent={null} display={true} new_comment={new_comment} parent_sequence={state?.parent_sequence}/>
         </div>
     )
 }

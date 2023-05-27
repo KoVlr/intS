@@ -15,7 +15,7 @@ export default function SearchInCourses(props) {
 
     return (
         <div>
-            <ul style={{height: 310, overflow: 'auto'}} onScroll={scrollHandler}>{result_list}</ul>
+            <ul className="course_list" onScroll={scrollHandler}>{result_list}</ul>
         </div>
     );
 }

@@ -26,9 +26,9 @@ export default function ArticleHistory() {
     );
 
     return (
-        <div>
-            <button onClick={handleClear}>Очистить все</button>
-            <ul style={{height: 310, overflow: 'auto'}} onScroll={scrollHandler}>{article_list}</ul>
-        </div>
+        <>
+            <button onClick={handleClear}>Очистить всё</button>
+            <ul className="course_list" onScroll={scrollHandler}>{article_list}</ul>
+        </>
     );
 }

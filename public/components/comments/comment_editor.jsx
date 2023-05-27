@@ -30,10 +30,12 @@ export default function CommentEditor(props) {
 
     return (
         <div>
-            <form onSubmit={handleSubmit}>
+            <form className='comment_editor' onSubmit={handleSubmit}>
                 <textarea value={content} onChange={(event)=>{setContent(event.target.value)}}/>
-                <input type="submit" value="Отправить"/>
-                <button onClick={props.cancelHandler}>Отмена</button>
+                <span>
+                    <input type="submit" value="Отправить"/>
+                    <button onClick={props.cancelHandler}>Отмена</button>
+                </span>
             </form>
         </div>
     );

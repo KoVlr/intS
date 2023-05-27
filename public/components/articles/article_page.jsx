@@ -29,15 +29,15 @@ export default function ArticlePage() {
     );
 
     return (
-        <div>
+        <>
             {course &&
-                <nav>
-                    <ul>
+                <nav id="article_nav">
+                    <ol>
                         {article_list}
-                    </ul>
+                    </ol>
                 </nav>
             }
             <Outlet context={course}/>
-        </div>
+        </>
     )
 }

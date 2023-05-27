@@ -30,8 +30,8 @@ export default function CourseFiles(props) {
     }
 
 
-    const article_list = props.files.map((file) =>
-        <li key={file.id}>
+    const file_list = props.files.map((file) =>
+        <li className='ol_elem' key={file.id}>
             <a href={`/api/files/${file.id}`} download>{file.original_name}</a>
             {props.edit_mode &&
                 <button onClick={getDeleteHandler(file.id)}>Удалить</button>
@@ -41,9 +41,11 @@ export default function CourseFiles(props) {
 
     return (
         <div>
-            {props.files.length != 0 &&
-                "Файлы:"
-            }
+            <span className='course_label'>
+                {props.files.length != 0 &&
+                    "Файлы:"
+                }
+            </span>
 
             {props.edit_mode &&
                 <form onSubmit={handleSubmit}>
@@ -55,7 +57,7 @@ export default function CourseFiles(props) {
                 </form>
             }
 
-            <ul>{article_list}</ul>
+            <ol>{file_list}</ol>
         </div>
     )
 }

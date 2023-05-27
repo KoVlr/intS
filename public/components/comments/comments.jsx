@@ -68,8 +68,6 @@ export default function Comments(props) {
     );
 
     return (
-        <div id={'comments' + (props.parent!=null ? `${props.parent.id}` : '')}>
-            <ul>{comment_list}</ul>
-        </div>
+        <ul className="comments" id={'comments' + (props.parent!=null ? `${props.parent.id}` : '')}>{comment_list}</ul>
     );
 }

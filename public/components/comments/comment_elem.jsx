@@ -41,65 +41,67 @@ export default function CommentElem(props) {
     }
 
     return (
-        <div>
-            <div id={`comment${props.comment.id}`}>
-                {props.comment.content !== null
-                    ? <>
-                        {!edit_mode &&
-                            <>
-                                <p>{props.comment.user}</p>
-                                <p>{props.comment.content}</p>
-                                <p>{get_str_local_date(props.comment.created_at)}</p>
-                            </>
-                        }
-                        
-                        {!reply_mode && !edit_mode &&
-                            <p>
-                                <button onClick={() => setReplyMode(true)}>Ответить</button>
+        <li>
+            {!edit_mode &&
+                <div className="comment" id={`comment${props.comment.id}`}>
+                    {props.comment.content !== null
+                        ? <>
+                                <span>{props.comment.user}</span>
+                                <hr/>
+                                <span>{props.comment.content}</span>
+                                <span className='elem_label'>{get_str_local_date(props.comment.created_at)}</span>
 
-                                {props.comment.ownership &&
-                                    <>
-                                        <button onClick={() => setEditMode(true)}>Редактировать</button>
-                                        <button onClick={deleteHandler}>Удалить</button>
-                                    </>
+                                {!reply_mode && !edit_mode &&
+                                    <span className="comment_buttons">
+                                        <button onClick={() => setReplyMode(true)}>Ответить</button>
+
+                                        {props.comment.ownership &&
+                                            <>
+                                                <button onClick={() => setEditMode(true)}>Редактировать</button>
+                                                <button onClick={deleteHandler}>Удалить</button>
+                                            </>
+                                        }
+                                    </span>
                                 }
-                            </p>
-                        }
+                        </>
+                        : <span>Комментарий был удалён</span>
+                    }
+                </div>
+            }
 
-                        {edit_mode &&
-                            <CommentEditor
-                                cancelHandler = {() => setEditMode(false)}
-                                comment = {props.comment}
-                                setComment = {(comment) => {
-                                    setEditMode(false);
-                                    props.setComment((prev_comment) => comment);
-                                }}
-                            />
-                        }
+            {props.comment.content !== null &&
+                <>
+                    {edit_mode &&
+                        <CommentEditor
+                            cancelHandler = {() => setEditMode(false)}
+                            comment = {props.comment}
+                            setComment = {(comment) => {
+                                setEditMode(false);
+                                props.setComment((prev_comment) => comment);
+                            }}
+                        />
+                    }
 
-                        {reply_mode &&
-                            <CommentEditor
-                                cancelHandler = {() => setReplyMode(false)}
-                                reply_to = {props.comment.id}
-                                setComment = {(comment) => {
-                                    setReplyMode(false);
-                                    props.setComment((prev_comment) => ({...prev_comment, replies_count: prev_comment.replies_count+1}));
-                                    setNewReply(comment);
-                                }}
-                            />
-                        }
-                    </>
-                    : <p>{'Комментарий был удалён'}</p>
-                }
-            </div>
+                    {reply_mode &&
+                        <CommentEditor
+                            cancelHandler = {() => setReplyMode(false)}
+                            reply_to = {props.comment.id}
+                            setComment = {(comment) => {
+                                setReplyMode(false);
+                                props.setComment((prev_comment) => ({...prev_comment, replies_count: prev_comment.replies_count+1}));
+                                setNewReply(comment);
+                            }}
+                        />
+                    }
+                </>
+            }
             
-
             {props.comment.replies_count!=0 &&
                 <details open={display}>
                     <summary onClick={detailsHandler}>{`ответов: ${props.comment.replies_count}`}</summary>
                     <Comments parent={props.comment} new_comment={new_reply} display={display} parent_sequence={parent_sequence}/>
                 </details>
             }
-        </div>
+        </li>
     );
 }

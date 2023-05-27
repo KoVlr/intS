@@ -7,6 +7,7 @@ export default function UserMenu() {
     const context = useContext(TokenContext);
     
     const [username, setUsername] = useState("loading...");
+    const [display, setDisplay] = useState(false);
 
     const navigate = useNavigate();
 
@@ -28,11 +29,17 @@ export default function UserMenu() {
 
     return (
         <div>
-            {username}<br/>
-            {!context.token.rights.includes("author") &&
-                <><Link to="/become_author">Стать автором</Link><br/></>
+            <button onClick={()=>setDisplay((display)=>!display)}>{username}</button>
+            {display &&
+                <div className="menu">
+                    {!context.token.rights.includes("author") &&
+                        <>
+                            <Link to="/become_author">Стать автором</Link>
+                        </>
+                    }
+                    <button onClick={logout_click_handle}>Выход</button>
+                </div>
             }
-            <button onClick={logout_click_handle}>Выход</button>
         </div>
     );
 }

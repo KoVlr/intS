@@ -94,7 +94,8 @@ def get_history(
         'name': history_entry[0].name,
         'read_at': history_entry[1].read_at,
         'course_name': history_entry[0].course.name,
-        'course_id': history_entry[0].course.id
+        'course_id': history_entry[0].course.id,
+        'author': history_entry[0].course.author.user.username
     } for history_entry in history]
 
 

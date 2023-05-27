@@ -40,7 +40,7 @@ export default function Course() {
 
 
     const article_list = course?.articles.map((article) =>
-        <li key={article.id}>
+        <li className="ol_elem" key={article.id}>
             <Link to={`/courses/${course.course_data.id}/articles/${article.id}`}>
                 {article.name}
             </Link>
@@ -48,38 +48,51 @@ export default function Course() {
     );
 
     return (
-        <div>
+        <div id="course">
             {course &&
                 <>
-                    <h2>{course.course_data.name}</h2>
+                    <span className="course_head">
+                        <div>{course.course_data.name}</div>
+                        {course.ownership
+                            ?<Link to={`/courses/${course_id}/edit`}>Редактировать курс</Link>
+                            : (course.in_collection
+                                ?<button onClick={delete_from_collection}>Удалить из коллекции</button>
+                                :<button onClick={add_to_collection}>Добавить курс в коллекцию</button>
+                            )
+                        }
+                    </span>
 
-                    {course.ownership
-                        ?<Link to={`/courses/${course_id}/edit`}>Редактировать курс</Link>
-                        : (course.in_collection
-                            ?<>
-                                <p>Курс добавлен в коллекцию</p>
-                                <button onClick={delete_from_collection}>Удалить из коллекции</button>
-                            </>
-                            :<button onClick={add_to_collection}>Добавить курс в коллекцию</button>
-                        )
-                    }
+                    <span>
+                        <span className="course_label">Автор: </span>
+                        <span>{course.author}</span>
+                    </span>
 
-                    <p>Автор: {course.author}</p>
-                    <p>Последнее обновление: {get_str_local_date(course.course_data.updated_at)}</p>
-                    <p>{course.course_data.description}</p>
+                    <span className="course_label">Описание:</span>
+                    <div className="course_descr">{course.course_data.description}</div>
 
-                    {!course.course_data.is_public &&
-                        <>
-                            <p>Закрытый курс</p>
-                            {course.access &&
-                                <p>Доступ получен</p>
-                            }
-                        </>
-                    }
+                    <span>
+                        <span className="course_label">Последнее обновление: </span>
+                        <span>{get_str_local_date(course.course_data.updated_at)}</span>
+                    </span>
 
+                    <span>
+                        <span className="course_label">Доступ: </span>
+                        {course.course_data.is_public
+                            ?<span>Общедоступный курс</span>
+                            :<span>
+                                <span>Закрытый курс - </span>
+                                {course.access
+                                    ?<span>Есть доступ</span>
+                                    :<span>Нет доступ</span>
+                                }
+                            </span>
+                        }
+                    </span>
+                    
+                    <span className="course_label">Материалы: </span>
                     {course.access &&
                         <>
-                            <ul>{article_list}</ul>
+                            <ol>{article_list}</ol>
                             <CourseFiles files={course.files} setCourse={setCourse} edit_mode={false}/>
                         </>
                     }

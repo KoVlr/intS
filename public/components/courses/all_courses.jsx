@@ -34,7 +34,7 @@ export default function AllCourses() {
 
     return (
         <div>
-            <form onSubmit={submit_handle}>
+            <form className="search" onSubmit={submit_handle}>
                 <input type="search" value={input_value} onChange={(event)=>setInputValue(event.target.value)} placeholder="Поиск в курсах" />
                 <input type="submit" value="Найти" />
                 {search_mode &&
@@ -44,7 +44,7 @@ export default function AllCourses() {
 
             {!search_mode
                 ?<div>
-                    <ul style={{height: 310, overflow: 'auto'}} onScroll={scrollHandler}>{course_list}</ul>
+                    <ul className="course_list" onScroll={scrollHandler}>{course_list}</ul>
                 </div>
 
                 : <SearchInCourses key={query} query={query} mine={false} collection={false}/>

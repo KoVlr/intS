@@ -20,7 +20,9 @@ export default function DirectElem(props) {
         }
     }
 
-    const clearHandler = async function() {
+    const clearHandler = async function(event) {
+        event.stopPropagation();
+        
         let res = await fetch_delete_direct_entry(context, props.comment.id);
         if (res) {
             props.handleClick(false);
@@ -28,14 +30,19 @@ export default function DirectElem(props) {
     }
 
     return (
-        <li>
-            <div onClick={clickHandler}>
-                <p>{props.comment.user}</p>
-                <p>{props.comment.content}</p>
-                <p>{get_str_local_date(props.comment.created_at)}</p>
-                <p>{props.comment.course}</p>
-                <p>{props.comment.article}</p>
-            </div>
+        <li className="list_elem" onClick={clickHandler}>
+            <span>{props.comment.user}</span>
+            <hr/>
+            <span>{props.comment.content}</span>
+            <span className='elem_label'>{get_str_local_date(props.comment.created_at)}</span>
+            <span>
+                <span className='elem_label'>Курс: </span>
+                <span>{props.comment.course}</span>
+            </span>
+            <span>
+                <span className='elem_label'>Материал :</span>
+                <span>{props.comment.article}</span>
+            </span>
             <button onClick={clearHandler}>Прочитано</button>
         </li>
     );

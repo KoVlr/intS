@@ -313,3 +313,4 @@ class HistoryGet(BaseModel):
     read_at: datetime
     course_name: str
     course_id: int
+    author: str

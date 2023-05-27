@@ -16,19 +16,28 @@ export default function HistoryElem(props) {
     }
 
     return (
-        <li>
-            <div>
-                <p><Link to={`/courses/${props.article.course_id}/articles/${props.article.id}`}>
+        <li className="list_elem">
+            <Link className="elem_head" to={`/courses/${props.article.course_id}/articles/${props.article.id}`}>
                     {props.article.name}
-                </Link></p>
+            </Link>
 
-                <p>Курс: <Link to={`/courses/${props.article.course_id}`}>
-                    {props.article.course_name}
-                </Link></p>
+            <hr/>
 
-                <p> {get_str_local_date(props.article.read_at)}</p>
+            <span>
+                <span className="elem_label">Курс: </span>
+                <Link to={`/courses/${props.article.course_id}`}>{props.article.course_name}</Link>
+            </span>
 
-            </div>
+            <span>
+                <span className="elem_label">Автор: </span>
+                <span className="author">{props.article.author}</span>
+            </span>
+
+            <span>
+                <span className="elem_label">Последнее обращение: </span>
+                <span>{get_str_local_date(props.article.read_at)}</span>
+            </span>
+
             <button onClick={deleteHandler}>Очистить</button>
         </li>
     );

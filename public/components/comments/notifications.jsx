@@ -46,13 +46,13 @@ export default function Notifications() {
         <div>
             <button onClick={()=>setDisplay((display)=>!display)}>{`Уведомления | ${count}`}</button>
             {display &&
-                <>
-                    <button onClick={handleClear}>Очистить все</button>
+                <div id="notifications_menu" className="menu">
+                    <button onClick={handleClear}>Очистить всё</button>
                     {comments.length!=0
-                        ? <ul style={{height: 310, overflow: 'auto'}} onScroll={scrollHandler}>{comment_list}</ul>
+                        ? <ul onScroll={scrollHandler}>{comment_list}</ul>
                         : "Уведомлений нет"
                     }
-                </>
+                </div>
             }
         </div>
     );

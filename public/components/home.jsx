@@ -7,7 +7,7 @@ export default function Home() {
 
     return (
         <>
-            <nav>
+            <nav id="home_nav">
                 <ul>
                     <li><NavLink to="/home/collection">Коллекция</NavLink></li>
                     <li><NavLink to="/home/history">История</NavLink></li>
@@ -17,13 +17,13 @@ export default function Home() {
                         <li><NavLink to="/home/mycourses">Мои курсы</NavLink></li>
                     }
                 </ul>
+
+                <hr/>
             </nav>
 
-            <main>
-                <article>
-                    <Outlet/>
-                </article>
-            </main>
+            <article>
+                <Outlet/>
+            </article>
         </>
     );
 }
