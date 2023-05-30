@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useOutletContext, useParams, Link, useLocation } from "react-router-dom";
-import { fetch_article_view } from "../../api_requests.jsx";
+import { fetch_article_view, fetch_image } from "../../api_requests.jsx";
 import { TokenContext } from "../app.jsx";
 import hljs from 'highlight.js';
 import DOMPurify from "dompurify";
@@ -34,8 +34,23 @@ export default function Article() {
     }, [article_id]);
 
     useEffect(() => {
-        MathJax.typeset();
-        hljs.highlightAll();
+        if (view.length != 0) {
+            MathJax.typeset();
+            hljs.highlightAll();
+        }
+    }, [view]);
+
+    useEffect(() => {
+        const get_images = async function() {
+            let images = document.querySelectorAll("#article img");
+            images.forEach(async (image) => {
+                let image_blob = await fetch_image(context, image.dataset.src);
+                image.src = URL.createObjectURL(image_blob);
+            });
+        }
+        if (view.length != 0) {
+            get_images();
+        }
     }, [view]);
 
 

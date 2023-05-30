@@ -242,7 +242,10 @@ def get_html_from_content(content, db_images):
         return match.group(0)
 
     html = re.sub(r'<img[^>]+?src\s*=\s*"(.+?)"', img_repl, html)
-
+    html = re.sub(
+        r'(<img[^>]+?)src(\s*=\s*".+?")',
+        lambda match: match.group(1) + "data-src" + match.group(2),
+        html)
     return {'html': html}
 
 

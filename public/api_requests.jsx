@@ -694,3 +694,17 @@ export async function fetch_user_activation(context, user_id, confirmation_code)
         return token;
     }
 }
+
+
+export async function fetch_image(context, src) {
+    await refresh_if_exp(context);
+
+    let response = await fetch(src, {
+        method: 'GET',
+        headers: get_auth_header(context.token)
+    });
+    if (response.ok) {
+        let image_blob = await response.blob();
+        return image_blob;
+    }
+}
