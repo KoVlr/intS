@@ -140,7 +140,7 @@ export default function EditPublished(props) {
 
     const article_list = props.articles.map((article) =>
         <li key={article.id} data-article_id={article.id} style={getStyle(article.id)} >
-            <Link to={`/courses/${course_id}/articles/${article.id}`}>
+            <Link  className='first_word' to={`/courses/${course_id}/articles/${article.id}`}>
                 {article.name}
             </Link>
             <Link to={`/courses/${course_id}/articles/${article.id}/edit`}>

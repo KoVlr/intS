@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { fetch_change_course, fetch_course, fetch_course_drafts, fetch_delete_course} from "../../api_requests.jsx";
 import { TokenContext } from "../app.jsx";
 import EditPublished from "./edit_published.jsx";
@@ -70,47 +70,54 @@ export default function CourseEditor() {
 
 
     return (
-        <div>
+        <div id="course_editor">
             {course &&
                 <>
-                    <form onSubmit={change_name}>
-                        Название курса: 
+                    <span id="course_top">
+                        <Link to={`/courses/${course.course_data.id}`}>Перейти на страницу курса</Link>
+                        <button onClick={deleteHandle}>Удалить курс</button>
+                    </span>
+
+                    <form id="edit_course_name" onSubmit={change_name}>
+                        <span className="course_label">Название курса: </span>
                         <input type="text" value={course.course_data.name} onChange={(event)=>{
                                 setCourse(course=>({...course, course_data: {...course.course_data, name: event.target.value}}));
                             }}/>
                         <input type="submit" value="Сохранить"/>
                     </form>
 
-                    <form onSubmit={change_description}>
-                        Описание:<br/>
+                    <form id="edit_course_descr" onSubmit={change_description}>
+                        <span className="course_label">Описание: </span>
                         <textarea value={course.course_data.description} onChange={(event)=>{
                                 setCourse(course=>({...course, course_data: {...course.course_data, description: event.target.value}}));
                             }}/>
                         <input type="submit" value="Сохранить"/>
                     </form>
 
-                    <form onSubmit={change_access_type}>
-                        Доступность: 
-                        <input name="public" type="radio" value="public" checked={course.course_data.is_public} onChange={
-                                (event)=>setCourse(course=>({...course, course_data: {...course.course_data, is_public: !course.course_data.is_public}}))
-                            }/>
-                        Публичный курс
-                        <input name="private" type="radio" value="private" checked={!course.course_data.is_public} onChange={
-                                (event)=>setCourse(course=>({...course, course_data: {...course.course_data, is_public: !course.course_data.is_public}}))
-                            }/>
-                        Закрытый курс
+                    <form id="edit_course_access" onSubmit={change_access_type}>
+                        <span className="course_label">Доступ: </span>
+                        <div>
+                            <input name="public" type="radio" value="public" checked={course.course_data.is_public} onChange={
+                                    (event)=>setCourse(course=>({...course, course_data: {...course.course_data, is_public: !course.course_data.is_public}}))
+                                }/>
+                            Общедоступный курс
+                            <input name="private" type="radio" value="private" checked={!course.course_data.is_public} onChange={
+                                    (event)=>setCourse(course=>({...course, course_data: {...course.course_data, is_public: !course.course_data.is_public}}))
+                                }/>
+                            Закрытый курс
+                        </div>
                         <input type="submit" value="Сохранить"/>
                     </form>
 
                     {course.access_code &&
-                        <div>
-                            Ссылка получения доступа к курсу:<br/>
+                        <div id="access_link">
+                            <span className="course_label">Ссылка получения доступа к курсу: </span>
+                            <br />
                             {`http://localhost:8000/courses/${course_id}/access/${course.access_code}`}
+                            <br />
                             <button onClick={update_access_code}>Удалить и сгенерировать новую</button>
                         </div>
                     }
-
-                    <div><button onClick={deleteHandle}>Удалить курс</button></div>
 
                     <nav>
                         <ul>

@@ -38,7 +38,7 @@ export default function EditContent(props) {
 
     return (
         <div>
-            <form onSubmit={handleSubmit}>
+            <form id='article_form' onSubmit={handleSubmit}>
                 <textarea value={props.content} onChange={(event)=>{props.setContent(event.target.value)}}/>
                 <br/>
                 <button onClick={get_view}>Посмотреть результат</button>

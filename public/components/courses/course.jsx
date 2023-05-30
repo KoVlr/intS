@@ -39,7 +39,7 @@ export default function Course() {
     }
 
 
-    const article_list = course?.articles.map((article) =>
+    const article_list = course?.articles?.map((article) =>
         <li className="ol_elem" key={article.id}>
             <Link to={`/courses/${course.course_data.id}/articles/${article.id}`}>
                 {article.name}
@@ -83,11 +83,13 @@ export default function Course() {
                                 <span>Закрытый курс - </span>
                                 {course.access
                                     ?<span>Есть доступ</span>
-                                    :<span>Нет доступ</span>
+                                    :<span>Нет доступа</span>
                                 }
                             </span>
                         }
                     </span>
+
+                    <hr/>
                     
                     <span className="course_label">Материалы: </span>
                     {course.access &&

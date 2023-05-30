@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams, NavLink, Outlet } from "react-router-dom";
+import { useParams, NavLink, Outlet, Link } from "react-router-dom";
 import { fetch_course } from "../../api_requests.jsx";
 import { TokenContext } from "../app.jsx";
 
@@ -32,6 +32,10 @@ export default function ArticlePage() {
         <>
             {course &&
                 <nav id="article_nav">
+                    <div>
+                        <span className="course_label">Курс: </span>
+                        <Link to={`/courses/${course.course_data.id}`}>{course.course_data.name}</Link>
+                    </div>
                     <ol>
                         {article_list}
                     </ol>

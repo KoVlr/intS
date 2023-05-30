@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
     fetch_article,
     fetch_change_article_name,
@@ -18,7 +18,6 @@ export default function ArticleEditor() {
     const context = useContext(TokenContext);
 
     const [article_data, setArticleData] = useState(null);
-    const [name_edit_mode, setNameEditMode] = useState(false);
     const [editor_type, setEditorType] = useState('content');
     const [content, setContent] = useState("");
     const [images, setImages] = useState([]);
@@ -47,17 +46,12 @@ export default function ArticleEditor() {
         get_data();
     }, [])
 
-    const handleNameChange = function() {
-        setNameEditMode(true);
-    }
-
     const handleSubmitName = async function(event) {
         event.preventDefault();
         
         let article = await fetch_change_article_name(context, article_id, article_data.name);
         if (article) {
             setArticleData(article);
-            setNameEditMode(false);
         }
     }
 
@@ -77,32 +71,34 @@ export default function ArticleEditor() {
 
 
     return (
-        <div>
+        <div id='article_editor'>
             {article_data &&
                 <>
-                    {name_edit_mode
-                        ?<form onSubmit={handleSubmitName}>
-                            <input type="text" value={article_data.name} onChange={(event)=>{
-                                    setArticleData(article_data=>({...article_data, name: event.target.value}));
-                                }}/>
-                            <input type="submit" value="Сохранить"/>
-                        </form>
-        
-                        :<div>
-                            <h2>{article_data.name}</h2>
-                            <button onClick={handleNameChange}>Редактировать</button>
-                        </div>
-                    }
-                    
-                    <div>{get_str_local_date(article_data.updated_at)}</div>
+                    <span id='article_top'>
+                        {article_data.is_published &&
+                            <Link to={`/courses/${article_data.course_id}/articles/${article_data.id}`}>Перейти на страницу статьи</Link>
+                        }
+                        <button onClick={deleteHandle}>Удалить статью</button>
+                    </span>
 
+                    <span>
+                        <span className="course_label">Последнее изменение: </span>
+                        <span>{get_str_local_date(article_data.updated_at)}</span>
+                    </span>
+
+                    <form onSubmit={handleSubmitName}>
+                        <span className='course_label'>Название: </span>
+                        <input type="text" value={article_data.name} onChange={(event)=>{
+                                setArticleData(article_data=>({...article_data, name: event.target.value}));
+                            }}/>
+                        <input type="submit" value="Сохранить"/>
+                    </form>
+                    
                     {!article_data.is_published &&
                         <button onClick={handlePublish}>Опубликовать</button>
                     }
                 </>
             }
-
-            <div><button onClick={deleteHandle}>Удалить статью</button></div>
 
             <nav>
                 <ul>

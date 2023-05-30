@@ -20,9 +20,11 @@ export default function EditImages(props) {
     }
 
     const image_list = props.images.map((image) =>
-        <li key={image.id}>
-            {image.original_name}
-            <img src={`/api/images/${image.id}`} alt={image.original_name} width="100" height="100" />
+        <li className='img_elem' key={image.id}>
+            <span>{image.original_name}</span>
+
+            <img src={`/api/images/${image.id}`} alt={image.original_name} width="200" height="200" />
+
             <button onClick={async () => {
                 let article = await fetch_delete_image(context, image.id);
                 if (article) {
@@ -38,19 +40,27 @@ export default function EditImages(props) {
     return (
         <div>
             <div>
-                {image_list
-                    ? <ul>{image_list}</ul>
-                    : "loading..."
-                }
-            </div>
-            <div>
                 <form onSubmit={handleSubmit}>
                     <label>
-                        Загрузить изображения
+                        <span className='course_label'>Загрузить изображения:</span>
+                        <br/>
+                        <br/>
                         <input type="file" ref={file_input} multiple/>
                     </label>
                     <input type="submit" value="Отправить"/>
                 </form>
+            </div>
+
+            <br />
+            <br />
+
+            <div className='course_label'>Загруженные изображения:</div>
+
+            <div>
+                {image_list
+                    ? <ul>{image_list}</ul>
+                    : "loading..."
+                }
             </div>
         </div>
     )

@@ -168,6 +168,7 @@ nav li {
 .course_head {
     display: flex;
     justify-content: space-between;
+    border-bottom: 1px black solid;
 }
 
 .course_head > div:nth-of-type(1) {
@@ -183,7 +184,13 @@ nav li {
 
 .course_descr {
     border: 1px rgb(60, 60, 60) solid;
+    padding: 10px;
     width: 80%;
+}
+
+#course > hr {
+    margin-left: 0px;
+    border-color: black;
 }
 
 .ol_elem {
@@ -201,15 +208,26 @@ nav li {
     z-index: 100;
 }
 
-#edit_link {
+#article_nav > div {
+    margin-top: 20px;
+    margin-left: 30px;
+}
+
+#article_page > div:nth-of-type(1) {
     position: absolute;
     top: 62px;
     left: 210px;
-    border: 1px black solid;
+    display: flex;
+    flex-direction: column;
+}
+
+#article_page > div:nth-of-type(1) > * {
+    margin-bottom: 10px;
 }
 
 #article_page {
     align-self: flex-start;
+    margin-top: 40px;
     margin-left: 350px;
     width: calc(100vw - 600px);
 }
@@ -255,4 +273,128 @@ nav li {
 
 .comment_editor > span > * {
     margin-right: 10px;
+}
+
+#article_editor {
+    display: flex;
+    flex-direction: column;
+    width: 70vw;
+    margin-top: 30px;
+    border: 2px black solid;
+    padding: 10px;
+}
+
+#article_editor > nav {
+    font-size: 18px;
+    text-decoration: underline;
+}
+
+#course_editor > nav {
+    font-size: 18px;
+    text-decoration: underline;
+}
+
+#article_editor > * {
+    margin-bottom: 15px;
+}
+
+#article_top {
+    display: flex;
+    justify-content: space-between;
+}
+
+#article_editor > button {
+    width: max-content;
+}
+
+#article_editor > form > input[type=text] {
+    width: 300px;
+    margin-right: 10px;
+}
+
+#article_form > textarea {
+    width: calc(100% - 8px);
+    height: 700px;
+    margin-bottom: 10px;
+}
+
+#article_form > button {
+    margin-right: 10px;
+}
+
+.img_elem {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 8px);
+    border: 1px black solid;
+    margin-bottom: 10px;
+}
+
+.img_elem > * {
+    margin: 10px;
+}
+
+.img_elem > button {
+    width: max-content;
+}
+
+#course_editor {
+    display: flex;
+    flex-direction: column;
+    width: 70vw;
+    margin-top: 30px;
+    border: 2px black solid;
+    padding: 10px;
+}
+
+#course_editor > * {
+    margin-bottom: 15px;
+}
+
+#course_top {
+    display: flex;
+    justify-content: space-between;
+}
+
+#course_editor input[type=submit] {
+    margin-left: 10px;
+}
+
+#edit_course_name > input[type=text] {
+    width: 300px;
+}
+
+#edit_course_descr {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#edit_course_descr > input[type=submit] {
+    margin-top: 5px;
+    margin-left: 0px;
+}
+
+#edit_course_descr > textarea {
+    width: 500px;
+    height: 150px;
+}
+
+#edit_course_access > input[type=submit] {
+    margin-top: 5px;
+    margin-left: 0px;
+}
+
+#access_link > * {
+    margin-bottom: 5px;
+}
+
+.first_word {
+    margin-right: 20px;
+}
+
+#course_editor ol li {
+    margin-bottom: 20px;
+    border: 1px black solid;
+    padding: 5px;
 }

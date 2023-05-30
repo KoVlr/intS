@@ -6,6 +6,7 @@ import hljs from 'highlight.js';
 import DOMPurify from "dompurify";
 import Comments from "../comments/comments.jsx";
 import CommentEditor from "../comments/comment_editor.jsx";
+import { get_str_local_date } from "../../local_date.js";
 
 
 export default function Article() {
@@ -40,11 +41,18 @@ export default function Article() {
 
     return (
         <div id="article_page">
-            {course?.ownership &&
-                <div id="edit_link">
+            <div>
+                <span>
+                    <span className="elem_label">Последнее изменение: </span>
+                    <span>
+                        {course ? get_str_local_date(course.articles.find((article)=>article.id==article_id).updated_at) : "Loading..."}
+                    </span>
+                </span>
+
+                {course?.ownership &&
                     <Link to={`/courses/${course_id}/articles/${article_id}/edit`}>Редактировать</Link>
-                </div>
-            }
+                }
+            </div>
             
             <div id="article" dangerouslySetInnerHTML={{__html: view}}/>
 

@@ -26,7 +26,7 @@ export default function EditDrafts(props) {
 
     const article_list = props.drafts.map((article) =>
         <li key={article.id}>
-            <Link to={`/courses/${course_id}/articles/${article.id}`}>
+            <Link className='first_word' to={`/courses/${course_id}/articles/${article.id}`}>
                 {article.name}
             </Link>
             <Link to={`/courses/${course_id}/articles/${article.id}/edit`}>
@@ -48,7 +48,7 @@ export default function EditDrafts(props) {
 
                 :<button onClick={()=>setNewArticleMode(true)}>Создать новую статью</button>
             }
-            <ul>{article_list}</ul>
+            <ol>{article_list}</ol>
         </div>
     )
 }
