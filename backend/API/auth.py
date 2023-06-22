@@ -9,7 +9,7 @@ import uuid
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
-from ..config import EMAIL, PASSWORD, SMTP_HOST, HOST
+from ..config import EMAIL, PASSWORD, SMTP_HOST, HOST, SECRET_KEY
 
 
 from ..database import get_db
@@ -21,7 +21,7 @@ auth_router = APIRouter(
     tags=["Auth"]
 )
 
-SECRET_KEY = "dc2055582fbc7a9624f25f09ddfc757be3d43868d25a7b1390971e84fc99c1f9"
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 30
