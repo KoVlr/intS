@@ -234,8 +234,8 @@ nav li {
 
 #article {
     border-bottom: 2px black solid;
-    padding-bottom: 50px;
-    margin-bottom: 50px;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
     width: inherit;
 }
 
@@ -397,4 +397,24 @@ nav li {
     margin-bottom: 20px;
     border: 1px black solid;
     padding: 5px;
+}
+
+
+table {
+	width: 100%;
+	margin-bottom: 20px;
+	border: 1px solid #dddddd;
+	border-collapse: collapse; 
+}
+
+table th {
+	font-weight: bold;
+	padding: 5px;
+	background: #efefef;
+	border: 1px solid #dddddd;
+}
+
+table td {
+	border: 1px solid #dddddd;
+	padding: 5px;
 }
