@@ -5,6 +5,7 @@ from datetime import datetime
 from os import makedirs, remove, removedirs
 import uuid
 import shutil
+from fastapi.responses import FileResponse
 
 
 from .auth import get_authenticated_user, get_current_user
@@ -86,6 +87,32 @@ def get_available_course(
     
     check_available_course(db_course, user, db)
     return db_course
+
+
+def get_own_file(
+        file_id: int,
+        user = Security(get_authenticated_user, scopes=['author']),
+        db: Session = Depends(get_db)
+    ):
+    db_file = crud.get_file(db, file_id)
+    if db_file is None:
+        raise HTTPException(status_code=400, detail="This file does not exist")
+    
+    check_own_course(db_file.course, user)
+    return db_file
+
+
+def get_available_file(
+        file_id: int,
+        user = Depends(get_current_user),
+        db: Session = Depends(get_db)
+    ):
+    db_file = crud.get_file(db, file_id)
+    if db_file is None:
+        raise HTTPException(status_code=400, detail="This file does not exist")
+    
+    check_available_course(db_file.course, user, db)
+    return db_file
 
 
 
@@ -390,4 +417,29 @@ def upload_files(
 
     course_data = schemes.CourseUpdate(updated_at=datetime.utcnow())
     db_course = crud.update_course(db, course.id, course_data)
+    return toCourseGet(db_course, user, db)
+
+
+@courses_router.get("/files/{file_id}")
+def get_file(
+        db_file = Depends(get_available_file),  db: Session = Depends(get_db)
+    ):    
+    return FileResponse(db_file.path, filename=db_file.original_name)
+
+
+@courses_router.delete("/files/{file_id}", response_model=schemes.CourseGet)
+def delete_file(
+    file_id: int,
+    user = Depends(get_current_user),
+    db_file = Depends(get_own_file),
+    db: Session = Depends(get_db)
+):
+    filepath = str(db_file.path)
+    dirpath = filepath[:filepath.rfind('/')]
+    remove(filepath)
+    removedirs(dirpath)
+    crud.delete_file(db, file_id)
+
+    course_data = schemes.CourseUpdate(updated_at=datetime.utcnow())
+    db_course = crud.update_course(db, db_file.course_id, course_data)
     return toCourseGet(db_course, user, db)

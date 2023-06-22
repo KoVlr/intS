@@ -1,7 +1,7 @@
 from uvicorn import run
 from fastapi import FastAPI
 from backend.API.auth import auth_router
-from backend.API.main_api import main_api_router
+from backend.API.users import users_router
 from backend.API.files_providing import files_providing_router
 from backend.API.articles import articles_router
 from backend.API.comments import comments_router
@@ -14,7 +14,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app.include_router(main_api_router)
+app.include_router(users_router)
 app.include_router(auth_router)
 app.include_router(articles_router)
 app.include_router(courses_router)
