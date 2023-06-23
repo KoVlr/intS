@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session, aliased
 import uuid
-
-import schemes
+import schemes.users
+import schemes.auth
+import schemes.articles
+import schemes.courses
+import schemes.comments
 from database import db_models
-
 
 def get_user(db: Session, id: int):
     return db.get(db_models.Users, id)
@@ -21,7 +23,7 @@ def get_scopes(db: Session, email: str):
     return scopes
 
 
-def create_user(db: Session, user: schemes.UserCreate):
+def create_user(db: Session, user: schemes.users.UserCreate):
     db_user = db_models.Users(
         username=user.username,
         email=user.email,
@@ -38,7 +40,7 @@ def create_user(db: Session, user: schemes.UserCreate):
 def update_user(
     db: Session,
     id: int,
-    user_data: schemes.UserUpdate
+    user_data: schemes.users.UserUpdate
 ):    
     db_user = db.get(db_models.Users, id)
     
@@ -49,7 +51,7 @@ def update_user(
     return db_user
 
 
-def create_refresh_token(db: Session, refresh_token: schemes.RefreshToken):
+def create_refresh_token(db: Session, refresh_token: schemes.auth.RefreshToken):
     db_refresh_token = db_models.RefreshTokens(**refresh_token.dict())
     db.add(db_refresh_token)
     db.commit()
@@ -69,7 +71,7 @@ def delete_refresh_token(db: Session, refresh_token: uuid.UUID):
 
 
 
-def create_author(db: Session, author: schemes.AuthorCreate):
+def create_author(db: Session, author: schemes.users.AuthorCreate):
     db_author = db_models.Authors(user_id=author.user_id)
     db.add(db_author)
     db.commit()
@@ -87,7 +89,7 @@ def get_course_by_name(db: Session, name: str, author_id: int):
         .filter(db_models.Courses.name == name, db_models.Courses.author_id == author_id).first()
 
 
-def create_course(db: Session, course: schemes.CourseCreate):
+def create_course(db: Session, course: schemes.courses.CourseCreate):
     db_course = db_models.Courses(**course.dict())
     db.add(db_course)
     db.commit()
@@ -149,7 +151,7 @@ def get_drafts(db: Session, course_id: int):
                     .order_by(db_models.Articles.updated_at.desc()).all()
 
 
-def create_access(db: Session, access_entry: schemes.AccessCreate):
+def create_access(db: Session, access_entry: schemes.courses.AccessCreate):
     db_access = db_models.Access(**access_entry.dict())
     db.add(db_access)
     db.commit()
@@ -157,7 +159,7 @@ def create_access(db: Session, access_entry: schemes.AccessCreate):
     return db_access
 
 
-def create_collection_entry(db: Session, collection_entry: schemes.CollectionCreate):
+def create_collection_entry(db: Session, collection_entry: schemes.courses.CollectionCreate):
     db_collection = db_models.Collections(**collection_entry.dict())
     db.add(db_collection)
     db.commit()
@@ -182,7 +184,7 @@ def get_article(db: Session, id: int):
 def update_article(
     db: Session,
     id: int,
-    article_data: schemes.ArticleUpdate
+    article_data: schemes.articles.ArticleUpdate
 ):    
     db_article = db.get(db_models.Articles, id)
     
@@ -196,7 +198,7 @@ def update_article(
 def update_course(
     db: Session,
     id: int,
-    course_data: schemes.CourseUpdate
+    course_data: schemes.courses.CourseUpdate
 ):    
     db_course = db.get(db_models.Courses, id)
     
@@ -212,7 +214,7 @@ def get_article_by_name(db: Session, name: str, course_id: int):
         .filter(db_models.Articles.name == name, db_models.Articles.course_id == course_id).first()
 
 
-def create_article(db: Session, article: schemes.ArticleCreate):
+def create_article(db: Session, article: schemes.articles.ArticleCreate):
     db_article = db_models.Articles(**article.dict())
     db.add(db_article)
     db.commit()
@@ -230,7 +232,7 @@ def delete_article(db: Session, id: int):
         return False
 
 
-def create_image(db: Session, image: schemes.ImageCreate):
+def create_image(db: Session, image: schemes.articles.ImageCreate):
     db_image = db_models.Images(**image.dict())
     db.add(db_image)
     db.commit()
@@ -261,7 +263,7 @@ def get_access_entry(db: Session, course_id: int, user_id: int):
 
 
 
-def create_comment(db: Session, comment: schemes.CommentCreate):
+def create_comment(db: Session, comment: schemes.comments.CommentCreate):
     db_comment = db_models.Comments(**comment.dict())
     db.add(db_comment)
     db.commit()
@@ -287,7 +289,7 @@ def get_comments(db: Session, article_id: int, reply_to: int | None, offset: int
 def update_comment(
     db: Session,
     id: int,
-    comment_data: schemes.CommentUpdate
+    comment_data: schemes.comments.CommentUpdate
 ):
     db_comment = db.get(db_models.Comments, id)
     
@@ -414,7 +416,7 @@ def get_history(db: Session, user_id: int, offset: int, limit: int | None):
 
 def update_history_entry(
     db: Session,
-    history_entry: schemes.History
+    history_entry: schemes.articles.History
 ):
     db_history = db.get(db_models.History, (history_entry.article_id, history_entry.user_id))
     if db_history is None:
@@ -447,7 +449,7 @@ def delete_all_history(db: Session, user_id: int):
     return True
 
 
-def create_file(db: Session, file: schemes.FileCreate):
+def create_file(db: Session, file: schemes.courses.FileCreate):
     db_file = db_models.Files(**file.dict())
     db.add(db_file)
     db.commit()

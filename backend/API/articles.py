@@ -15,7 +15,8 @@ from .auth import get_current_user, get_authenticated_user
 from .courses import check_own_course, check_available_course,\
     is_own_course, courses_router, toCourseGet
 from database.db_connection import get_db
-import schemes
+import schemes.courses
+import schemes.articles
 import crud
 
 articles_router = APIRouter(
@@ -81,10 +82,10 @@ def get_available_image(
 
 
 
-@courses_router.post("/{course_id}/articles", response_model=schemes.ArticleGet)
+@courses_router.post("/{course_id}/articles", response_model=schemes.articles.ArticleGet)
 def create_new_article(
     course_id: int,
-    new_article: schemes.ArticleNew,
+    new_article: schemes.articles.ArticleNew,
     user = Security(get_authenticated_user, scopes=['author']),
     db: Session = Depends(get_db)
 ):
@@ -96,7 +97,7 @@ def create_new_article(
     if course.author_id != user.author.id:
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
-    article = schemes.ArticleCreate(
+    article = schemes.articles.ArticleCreate(
         **new_article.dict(),
         course_id=course_id,
         content = '',
@@ -104,12 +105,12 @@ def create_new_article(
         updated_at=datetime.utcnow()
     )
 
-    crud.update_course(db, course_id, schemes.CourseUpdate(updated_at=datetime.utcnow()))
+    crud.update_course(db, course_id, schemes.courses.CourseUpdate(updated_at=datetime.utcnow()))
 
     return crud.create_article(db, article)
 
 
-@articles_router.get("/history", response_model=List[schemes.HistoryGet])
+@articles_router.get("/history", response_model=List[schemes.articles.HistoryGet])
 def get_history(
     user = Depends(get_authenticated_user),
     offset: Annotated[int, Query(ge=0)] = 0,
@@ -144,21 +145,21 @@ def delete_history_entry(
     crud.delete_history_entry(db, article_id, user.id)
 
 
-@articles_router.get("/{article_id}", response_model=schemes.ArticleGet)
+@articles_router.get("/{article_id}", response_model=schemes.articles.ArticleGet)
 def get_article(article = Depends(get_own_article)):
     return article
 
 
-@articles_router.patch("/{article_id}", response_model=schemes.ArticleGet)
+@articles_router.patch("/{article_id}", response_model=schemes.articles.ArticleGet)
 def change_article(
-        update_data: schemes.ArticlePatch,
+        update_data: schemes.articles.ArticlePatch,
         article = Depends(get_own_article),
         db: Session = Depends(get_db)
     ):
 
     actual_update_data = update_data.dict(exclude_unset=True)
 
-    updated_article = schemes.ArticleUpdate(**actual_update_data, updated_at=datetime.utcnow())
+    updated_article = schemes.articles.ArticleUpdate(**actual_update_data, updated_at=datetime.utcnow())
 
     if 'name' in actual_update_data and article.name != updated_article.name:
         existing_article = crud.get_article_by_name(db, updated_article.name, article.course_id)
@@ -173,12 +174,12 @@ def change_article(
         updated_article.published_at = updated_article.updated_at
         updated_article.position_in_course = crud.get_published_articles_count(db, article.course_id)
 
-    crud.update_course(db, article.course_id, schemes.CourseUpdate(updated_at=datetime.utcnow()))
+    crud.update_course(db, article.course_id, schemes.courses.CourseUpdate(updated_at=datetime.utcnow()))
 
     return crud.update_article(db, article.id, updated_article)
 
 
-@articles_router.delete("/{article_id}", response_model=schemes.CourseGet)
+@articles_router.delete("/{article_id}", response_model=schemes.courses.CourseGet)
 def delete_article(
     article_id: int,
     user = Depends(get_current_user),
@@ -196,7 +197,7 @@ def delete_article(
     db_course = crud.update_course(
         db,
         course_id,
-        schemes.CourseUpdate(updated_at=datetime.utcnow())
+        schemes.courses.CourseUpdate(updated_at=datetime.utcnow())
     )
     return toCourseGet(db_course, user, db)
 
@@ -206,24 +207,24 @@ def get_article_content(article = Depends(get_own_article)):
     return article.content
 
 
-@articles_router.post("/{article_id}/content", response_model=schemes.ArticleGet)
+@articles_router.post("/{article_id}/content", response_model=schemes.articles.ArticleGet)
 def change_article_content(
-    article_data: schemes.ArticleContent,
+    article_data: schemes.articles.ArticleContent,
     article = Depends(get_own_article),
     db: Session = Depends(get_db)
 ):
-    article_data = schemes.ArticleUpdate(content=article_data.content, updated_at=datetime.utcnow())
-    crud.update_course(db, article.course_id, schemes.CourseUpdate(updated_at=datetime.utcnow()))
+    article_data = schemes.articles.ArticleUpdate(content=article_data.content, updated_at=datetime.utcnow())
+    crud.update_course(db, article.course_id, schemes.courses.CourseUpdate(updated_at=datetime.utcnow()))
     return crud.update_article(db, article.id, article_data)
 
 
-@articles_router.get("/{article_id}/images", response_model=list[schemes.ImageGet])
+@articles_router.get("/{article_id}/images", response_model=list[schemes.articles.ImageGet])
 def get_article_images(article = Depends(get_own_article), db: Session = Depends(get_db)):
 
     return crud.get_article_images(db, article.id)
 
 
-@articles_router.post("/{article_id}/images", response_model=schemes.UploadImagesResponse)
+@articles_router.post("/{article_id}/images", response_model=schemes.articles.UploadImagesResponse)
 def upload_article_images(files: list[UploadFile], article = Depends(get_own_article), db: Session = Depends(get_db)):
     
     uploaded_images = []
@@ -241,7 +242,7 @@ def upload_article_images(files: list[UploadFile], article = Depends(get_own_art
         dirpath = 'storage/images/' + filename[:2] + '/' + filename[2:4] + '/'
         filepath = dirpath + filename
 
-        image_data = schemes.ImageCreate(
+        image_data = schemes.articles.ImageCreate(
             article_id = article.id,
             file = filepath,
             original_name = file.filename
@@ -254,7 +255,7 @@ def upload_article_images(files: list[UploadFile], article = Depends(get_own_art
         db_image = crud.create_image(db, image_data)
         uploaded_images += [db_image]
 
-    article_data = schemes.ArticleUpdate(updated_at=datetime.utcnow())
+    article_data = schemes.articles.ArticleUpdate(updated_at=datetime.utcnow())
     db_article = crud.update_article(db, article.id, article_data)
     return {'article': db_article, 'uploaded_images': uploaded_images}
 
@@ -283,12 +284,12 @@ def get_article_view(
     user = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    crud.update_course(db, db_article.course_id, schemes.CourseUpdate(
+    crud.update_course(db, db_article.course_id, schemes.courses.CourseUpdate(
         views_count=db_article.course.views_count+1
     ))
 
     if user is not None:
-        crud.update_history_entry(db, schemes.History(
+        crud.update_history_entry(db, schemes.articles.History(
             article_id=db_article.id,
             user_id=user.id,
             read_at=datetime.utcnow())
@@ -299,7 +300,7 @@ def get_article_view(
 
 @articles_router.post("/{article_id}/editor/view")
 def get_editor_view(
-    input_data: schemes.ArticleContent,
+    input_data: schemes.articles.ArticleContent,
     db_article = Depends(get_own_article),
     user = Security(get_authenticated_user, scopes=['author'])
 ):
@@ -313,7 +314,7 @@ def get_image(
     return FileResponse(db_image.file)
 
 
-@articles_router.delete("/images/{image_id}", response_model=schemes.ArticleGet)
+@articles_router.delete("/images/{image_id}", response_model=schemes.articles.ArticleGet)
 def delete_image(image_id: int, db_image = Depends(get_own_image), db: Session = Depends(get_db)):
 
     filepath = str(db_image.file)
@@ -322,5 +323,5 @@ def delete_image(image_id: int, db_image = Depends(get_own_image), db: Session =
     removedirs(dirpath)
     crud.delete_image(db, image_id)
 
-    article_data = schemes.ArticleUpdate(updated_at=datetime.utcnow())
+    article_data = schemes.articles.ArticleUpdate(updated_at=datetime.utcnow())
     return crud.update_article(db, db_image.article_id, article_data)

@@ -11,7 +11,8 @@ from fastapi.responses import FileResponse
 from .auth import get_authenticated_user, get_current_user
 from database.db_connection import get_db
 from database import db_models
-import schemes
+import schemes.courses
+import schemes.articles
 import crud
 
 
@@ -116,9 +117,9 @@ def get_available_file(
 
 
 
-@courses_router.post("", response_model=schemes.Course)
+@courses_router.post("", response_model=schemes.courses.Course)
 def create_new_course(
-        new_course: schemes.CourseNew,
+        new_course: schemes.courses.CourseNew,
         user = Security(get_authenticated_user, scopes=['author']),
         db: Session = Depends(get_db)
     ):
@@ -126,7 +127,7 @@ def create_new_course(
     if existing_course is not None:
         raise HTTPException(status_code=400, detail="Сourse with the same name already exists for this author")
     
-    course = schemes.CourseCreate(
+    course = schemes.courses.CourseCreate(
         **new_course.dict(),
         author_id=user.author.id,
         access_code = None if new_course.is_public else uuid.uuid4(),
@@ -136,23 +137,23 @@ def create_new_course(
     return crud.create_course(db, course)
 
 
-@courses_router.get("", response_model = List[schemes.CourseInList])
+@courses_router.get("", response_model = List[schemes.courses.CourseInList])
 def get_courses(
         offset: Annotated[int, Query(ge=0)] = 0,
         limit: Annotated[int, Query(ge=1, le=100)] = 20,
         db: Session = Depends(get_db)
     ):
     db_courses = crud.get_courses_list(db, offset, limit)
-    courses = [schemes.Course.from_orm(db_course) for db_course in db_courses]
+    courses = [schemes.courses.Course.from_orm(db_course) for db_course in db_courses]
 
     for i, db_course in enumerate(db_courses):
         author = db_course.author.user.username
-        courses[i] = schemes.CourseInList(**courses[i].dict(), author=author)
+        courses[i] = schemes.courses.CourseInList(**courses[i].dict(), author=author)
 
     return courses
 
 
-@courses_router.get("/mine", response_model = List[schemes.CourseInAuthorList])
+@courses_router.get("/mine", response_model = List[schemes.courses.CourseInAuthorList])
 def get_my_courses(
         offset: Annotated[int, Query(ge=0)] = 0,
         limit: Annotated[int, Query(ge=1, le=100)] = 20,
@@ -162,7 +163,7 @@ def get_my_courses(
     return crud.get_courses_by_author(db, user.author.id, offset, limit)
 
 
-@courses_router.get("/collection", response_model = List[schemes.CourseInList])
+@courses_router.get("/collection", response_model = List[schemes.courses.CourseInList])
 def get_collection(
         offset: Annotated[int, Query(ge=0)] = 0,
         limit: Annotated[int, Query(ge=1, le=100)] = 20,
@@ -170,16 +171,16 @@ def get_collection(
         db: Session = Depends(get_db)
     ):
     db_courses = crud.get_courses_in_collection(db, user.id,offset, limit)
-    courses = [schemes.Course.from_orm(db_course) for db_course in db_courses]
+    courses = [schemes.courses.Course.from_orm(db_course) for db_course in db_courses]
 
     for i, db_course in enumerate(db_courses):
         author = db_course.author.user.username
-        courses[i] = schemes.CourseInList(**courses[i].dict(), author=author)
+        courses[i] = schemes.courses.CourseInList(**courses[i].dict(), author=author)
 
     return courses
 
 
-@courses_router.get("/search", response_model = List[schemes.CourseSearch])
+@courses_router.get("/search", response_model = List[schemes.courses.CourseSearch])
 def search_in_courses(
     query: str,
     mine: bool = False,
@@ -212,7 +213,7 @@ def search_in_courses(
     search_result = []
     for db_course in db_courses:
         search_result += [{
-            **schemes.CourseSearchBase.from_orm(db_course).dict(),
+            **schemes.courses.CourseSearchBase.from_orm(db_course).dict(),
             'author': db_course.author.user.username
         }]
     for db_article in db_articles:
@@ -220,7 +221,7 @@ def search_in_courses(
             'id': db_article.course.id,
             'name': db_article.course.name,
             'author': db_article.course.author.user.username,
-            'article': schemes.ArticleSearch.from_orm(db_article)
+            'article': schemes.courses.ArticleSearch.from_orm(db_article)
         }]
     return search_result
 
@@ -231,7 +232,7 @@ def add_course_to_collection(
         user = Depends(get_authenticated_user),
         db: Session = Depends(get_db)
     ):
-    crud.create_collection_entry(db, schemes.CollectionCreate(
+    crud.create_collection_entry(db, schemes.courses.CollectionCreate(
         user_id=user.id, course_id=course_id, added_at=datetime.utcnow()
     ))
 
@@ -271,7 +272,7 @@ def toCourseGet(
         files = None
 
     
-    return schemes.CourseGet(
+    return schemes.courses.CourseGet(
         course_data=db_course,
         author=author,
         ownership=ownership,
@@ -283,7 +284,7 @@ def toCourseGet(
     )
 
 
-@courses_router.get("/{course_id}", response_model=schemes.CourseGet)
+@courses_router.get("/{course_id}", response_model=schemes.courses.CourseGet)
 def get_course(
         course_id: int, user = Depends(get_current_user), db: Session = Depends(get_db)
     ):
@@ -291,9 +292,9 @@ def get_course(
     return toCourseGet(db_course, user, db)
 
 
-@courses_router.patch("/{course_id}", response_model=schemes.CourseForAuthor)
+@courses_router.patch("/{course_id}", response_model=schemes.courses.CourseForAuthor)
 def change_course(
-        update_data: schemes.CoursePatch,
+        update_data: schemes.courses.CoursePatch,
         db_course = Depends(get_own_course),
         db: Session = Depends(get_db)
     ):
@@ -308,12 +309,12 @@ def change_course(
     if update_data.articles_order is not None:
         articles_list = crud.get_published_articles(db, db_course.id)
         for article in articles_list:
-            crud.update_article(db, article.id, schemes.ArticleUpdate(position_in_course=None))
+            crud.update_article(db, article.id, schemes.articles.ArticleUpdate(position_in_course=None))
 
         for (pos, article_id) in enumerate(update_data.articles_order):
-            crud.update_article(db, article_id, schemes.ArticleUpdate(position_in_course=pos))
+            crud.update_article(db, article_id, schemes.articles.ArticleUpdate(position_in_course=pos))
 
-    updated_course = schemes.CourseUpdate(
+    updated_course = schemes.courses.CourseUpdate(
         **course_update_data,
         updated_at=datetime.utcnow()
     )
@@ -344,7 +345,7 @@ def delete_course(
     crud.delete_course(db, course_id)
 
 
-@courses_router.get("/{course_id}/drafts", response_model=List[schemes.ArticleInCourse])
+@courses_router.get("/{course_id}/drafts", response_model=List[schemes.courses.ArticleInCourse])
 def get_course_drafts(
         db_course = Depends(get_own_course),
         db: Session = Depends(get_db)
@@ -355,7 +356,7 @@ def get_course_drafts(
 @courses_router.post("/{course_id}/access")
 def get_access_to_course(
         course_id: int,
-        access_data: schemes.AccessPost,
+        access_data: schemes.courses.AccessPost,
         user = Depends(get_authenticated_user),
         db: Session = Depends(get_db)
     ):
@@ -373,7 +374,7 @@ def get_access_to_course(
     if access_data.access_code != db_course.access_code:
         raise HTTPException(status_code=400, detail="Invalid access code")
     
-    crud.create_access(db, schemes.AccessCreate(
+    crud.create_access(db, schemes.courses.AccessCreate(
             user_id=user.id,
             course_id=course_id,
             received_at=datetime.utcnow()
@@ -381,7 +382,7 @@ def get_access_to_course(
     )
     
 
-@courses_router.post("/{course_id}/files", response_model=schemes.CourseGet)
+@courses_router.post("/{course_id}/files", response_model=schemes.courses.CourseGet)
 def upload_files(
     files: list[UploadFile],
     user = Depends(get_current_user),
@@ -401,7 +402,7 @@ def upload_files(
         dirpath = 'storage/files/' + filename[:2] + '/' + filename[2:4] + '/'
         filepath = dirpath + filename
 
-        file_data = schemes.FileCreate(
+        file_data = schemes.courses.FileCreate(
             course_id = course.id,
             path = filepath,
             original_name = file.filename,
@@ -415,7 +416,7 @@ def upload_files(
         db_file = crud.create_file(db, file_data)
         uploaded_files += [db_file]
 
-    course_data = schemes.CourseUpdate(updated_at=datetime.utcnow())
+    course_data = schemes.courses.CourseUpdate(updated_at=datetime.utcnow())
     db_course = crud.update_course(db, course.id, course_data)
     return toCourseGet(db_course, user, db)
 
@@ -427,7 +428,7 @@ def get_file(
     return FileResponse(db_file.path, filename=db_file.original_name)
 
 
-@courses_router.delete("/files/{file_id}", response_model=schemes.CourseGet)
+@courses_router.delete("/files/{file_id}", response_model=schemes.courses.CourseGet)
 def delete_file(
     file_id: int,
     user = Depends(get_current_user),
@@ -440,6 +441,6 @@ def delete_file(
     removedirs(dirpath)
     crud.delete_file(db, file_id)
 
-    course_data = schemes.CourseUpdate(updated_at=datetime.utcnow())
+    course_data = schemes.courses.CourseUpdate(updated_at=datetime.utcnow())
     db_course = crud.update_course(db, db_file.course_id, course_data)
     return toCourseGet(db_course, user, db)

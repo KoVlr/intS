@@ -10,9 +10,11 @@ class Token(BaseModel):
     expires: float
     rights: List[str] = []
 
+
 class TokenData(BaseModel):
     email: str | None = None
     scopes: List[str] = []
+
 
 class RefreshToken(BaseModel):
     uuid: uuid.UUID
