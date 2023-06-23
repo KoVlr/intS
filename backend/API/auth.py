@@ -9,12 +9,12 @@ import uuid
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
-from ..config import EMAIL, PASSWORD, SMTP_HOST, HOST, SECRET_KEY
+from config import EMAIL, PASSWORD, SMTP_HOST, HOST, SECRET_KEY
 
 
-from ..database import get_db
-from .. import schemes
-from .. import crud
+from database.db_connection import get_db
+import schemes
+import crud
 
 auth_router = APIRouter(
     prefix="/api/auth",

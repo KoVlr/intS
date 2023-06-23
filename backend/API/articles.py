@@ -14,9 +14,9 @@ from fastapi.responses import FileResponse
 from .auth import get_current_user, get_authenticated_user
 from .courses import check_own_course, check_available_course,\
     is_own_course, courses_router, toCourseGet
-from ..database import get_db
-from .. import schemes
-from .. import crud
+from database.db_connection import get_db
+import schemes
+import crud
 
 articles_router = APIRouter(
     prefix="/api/articles",

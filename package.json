@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "webpack && python main.py"
+    "start": "webpack && python ./backend/main.py"
   },
   "dependencies": {
     "dompurify": "^3.0.1",

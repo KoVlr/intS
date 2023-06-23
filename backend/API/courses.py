@@ -9,10 +9,10 @@ from fastapi.responses import FileResponse
 
 
 from .auth import get_authenticated_user, get_current_user
-from ..database import get_db
-from .. import schemes
-from .. import crud
-from .. import db_models
+from database.db_connection import get_db
+from database import db_models
+import schemes
+import crud
 
 
 courses_router = APIRouter(

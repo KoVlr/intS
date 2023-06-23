@@ -3,11 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from .auth import get_current_user, get_authenticated_user
+from .auth import get_authenticated_user
 from .articles import articles_router, get_available_article
-from ..database import get_db
-from .. import schemes
-from .. import crud
+from database.db_connection import get_db
+import schemes
+import crud
 
 
 comments_router = APIRouter(

@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session, aliased
 import uuid
 
-from . import schemes
-from . import db_models
+import schemes
+from database import db_models
 
 
 def get_user(db: Session, id: int):

@@ -1,14 +1,14 @@
 from uvicorn import run
 from fastapi import FastAPI
-from backend.API.auth import auth_router
-from backend.API.users import users_router
-from backend.API.files_providing import files_providing_router
-from backend.API.articles import articles_router
-from backend.API.comments import comments_router
-from backend.API.courses import courses_router
+from API.auth import auth_router
+from API.users import users_router
+from API.files_providing import files_providing_router
+from API.articles import articles_router
+from API.comments import comments_router
+from API.courses import courses_router
 from fastapi.staticfiles import StaticFiles
-from backend.db_models import Base
-from backend.database import engine
+from database.db_models import Base
+from database.db_connection import engine
 
 Base.metadata.create_all(bind=engine)
 
