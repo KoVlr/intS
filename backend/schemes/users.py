@@ -16,18 +16,18 @@ class UserCreate(UserNew):
     confirmation_code: uuid.UUID
 
 
+class User(UserBase):
+    id: int
+    class Config:
+        orm_mode = True
+
+
 class UserUpdate(BaseModel):
     username: str | None = None
     email: str | None = None
     password: str | None = None
     activated: bool | None = None
     confirmation_code: uuid.UUID | None = None
-
-
-class User(UserBase):
-    id: int
-    class Config:
-        orm_mode = True
 
 
 class AuthorCreate(BaseModel):

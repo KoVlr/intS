@@ -174,9 +174,9 @@ def sign_up(user: schemes.users.UserNew, db: Session = Depends(get_db)):
     )
 
     if existing_user is not None:
-        db_user = crud.update_user(db, existing_user.id, user_create)
+        db_user = crud.update_user(db, existing_user.id, schemes.users.UserUpdate(**user_create.dict()))
     else:
-        db_user = crud.create_user(db, schemes.users.UserUpdate(**user_create.dict()))
+        db_user = crud.create_user(db, user_create)
 
     send_email_confirmation(db_user)
     return db_user
