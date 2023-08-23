@@ -10,7 +10,7 @@ export default function Root() {
     return (
         <>
             <header>
-                <Link to={"/"}><h1>На главную</h1></Link>
+                <Link to={"/"}><h1>intS</h1></Link>
                 
                 <div id="usermenu">
                     {context.token

@@ -21,7 +21,7 @@ courses_router = APIRouter(
 
 
 def is_own_course(db_course: db_models.Courses, user: db_models.Users):
-    if user.author is not None and db_course.author_id == user.author.id:
+    if user is not None and user.author is not None and db_course.author_id == user.author.id:
         return True
     else:
         return False
