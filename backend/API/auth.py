@@ -9,19 +9,20 @@ import uuid
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
-from ..config import EMAIL, PASSWORD, SMTP_HOST, HOST
+from config import EMAIL, PASSWORD, SMTP_HOST, HOST, SECRET_KEY
 
 
-from ..database import get_db
-from .. import schemes
-from .. import crud
+from database.db_connection import get_db
+import schemes.users
+import schemes.auth
+import crud
 
 auth_router = APIRouter(
     prefix="/api/auth",
     tags=["Auth"]
 )
 
-SECRET_KEY = "dc2055582fbc7a9624f25f09ddfc757be3d43868d25a7b1390971e84fc99c1f9"
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 30
@@ -58,7 +59,7 @@ def create_access_token(email: str, db: Session):
     data={"sub": email, "scopes": scopes, "exp": expires}
     encoded_jwt = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
 
-    access_token = schemes.Token(
+    access_token = schemes.auth.Token(
         access_token=encoded_jwt,
         token_type="Bearer",
         expires=expires.timestamp(),
@@ -71,7 +72,7 @@ def update_refresh_token(user_id: int, refresh_token: uuid.UUID | None, db: Sess
     if refresh_token is not None:
         crud.delete_refresh_token(db, refresh_token)
 
-    new_refresh_token = schemes.RefreshToken(
+    new_refresh_token = schemes.auth.RefreshToken(
         uuid = uuid.uuid4(),
         user_id = user_id,
         created_at = datetime.utcnow(),
@@ -81,7 +82,7 @@ def update_refresh_token(user_id: int, refresh_token: uuid.UUID | None, db: Sess
     return db_refresh_token
 
 
-@auth_router.post("/token", response_model=schemes.Token)
+@auth_router.post("/token", response_model=schemes.auth.Token)
 def login_for_access_token(
         response: Response,
         form_data: OAuth2PasswordRequestForm = Depends(),
@@ -112,7 +113,7 @@ def login_for_access_token(
     return access_token
 
 
-@auth_router.post("/refresh-tokens", response_model=schemes.Token)
+@auth_router.post("/refresh-tokens", response_model=schemes.auth.Token)
 def refresh_tokens(
         response: Response,
         refresh_token: uuid.UUID | None = Cookie(None),
@@ -158,30 +159,30 @@ def send_email_confirmation(user):
     server.quit()
 
 
-@auth_router.post("/users", response_model=schemes.User)
-def sign_up(user: schemes.UserNew, db: Session = Depends(get_db)):
+@auth_router.post("/users", response_model=schemes.users.User)
+def sign_up(user: schemes.users.UserNew, db: Session = Depends(get_db)):
     existing_user = crud.get_user_by_email(db, user.email)
     if existing_user is not None and existing_user.activated:
         raise HTTPException(status_code=400, detail="User already registered")
     
     user.password = get_hash(user.password)
 
-    user_create = schemes.UserCreate(
+    user_create = schemes.users.UserCreate(
         **user.dict(),
         activated=False,
         confirmation_code=uuid.uuid4()
     )
 
     if existing_user is not None:
-        db_user = crud.update_user(db, existing_user.id, user_create)
+        db_user = crud.update_user(db, existing_user.id, schemes.users.UserUpdate(**user_create.dict()))
     else:
-        db_user = crud.create_user(db, schemes.UserUpdate(**user_create.dict()))
+        db_user = crud.create_user(db, user_create)
 
     send_email_confirmation(db_user)
     return db_user
 
 
-@auth_router.post("/users/{user_id}/activation/{confirmation_code}", response_model=schemes.Token)
+@auth_router.post("/users/{user_id}/activation/{confirmation_code}", response_model=schemes.auth.Token)
 def user_activation(
     response: Response,
     user_id: int,
@@ -199,7 +200,7 @@ def user_activation(
     if db_user.confirmation_code != confirmation_code:
         raise HTTPException(status_code=400, detail="Incorrect confirmation code")
     
-    crud.update_user(db, user_id, schemes.UserUpdate(activated=True))
+    crud.update_user(db, user_id, schemes.users.UserUpdate(activated=True))
     
     new_refresh_token = update_refresh_token(user_id, None, db)
     access_token = create_access_token(db_user.email, db)
@@ -240,7 +241,7 @@ def get_current_user(
         if email is None:
             raise credentials_exception
         token_scopes = payload.get("scopes", [])
-        token_data = schemes.TokenData(scopes=token_scopes, email=email)
+        token_data = schemes.auth.TokenData(scopes=token_scopes, email=email)
     except (JWTError, ValidationError):
         raise credentials_exception
     

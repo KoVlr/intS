@@ -3,11 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from .auth import get_current_user, get_authenticated_user
+from .auth import get_authenticated_user
 from .articles import articles_router, get_available_article
-from ..database import get_db
-from .. import schemes
-from .. import crud
+from database.db_connection import get_db
+import schemes.comments
+import crud
 
 
 comments_router = APIRouter(
@@ -31,14 +31,14 @@ def get_own_comment(
     return db_comment
 
 
-@articles_router.post("/{article_id}/comments", response_model=schemes.CommentGet)
+@articles_router.post("/{article_id}/comments", response_model=schemes.comments.CommentGet)
 def create_comment(
-    new_comment: schemes.CommentNew,
+    new_comment: schemes.comments.CommentNew,
     user = Depends(get_authenticated_user),
     db_article = Depends(get_available_article),
     db: Session = Depends(get_db)
 ):
-    comment = schemes.CommentCreate(
+    comment = schemes.comments.CommentCreate(
         **new_comment.dict(),
         user_id = user.id,
         created_at=datetime.utcnow()
@@ -50,14 +50,14 @@ def create_comment(
     db_comment = crud.create_comment(db, comment)
 
     return {
-        **schemes.Comment.from_orm(db_comment).dict(),
+        **schemes.comments.Comment.from_orm(db_comment).dict(),
         'user': db_article.course.author.user.username,
         'replies_count': len(db_comment.replies),
         'ownership': True
     }
 
 
-@articles_router.get("/{article_id}/comments", response_model=List[schemes.CommentGet])
+@articles_router.get("/{article_id}/comments", response_model=List[schemes.comments.CommentGet])
 def get_comments(
     article_id: int,
     reply_to: int | None = None,
@@ -70,7 +70,7 @@ def get_comments(
     db_comments = crud.get_comments(db, article_id, reply_to, offset, limit)
     
     comments = [{
-        **schemes.Comment.from_orm(db_comment).dict(),
+        **schemes.comments.Comment.from_orm(db_comment).dict(),
         'user': db_comment.user.username,
         'replies_count': len(db_comment.replies),
         'ownership': db_comment.user_id == user.id
@@ -79,7 +79,7 @@ def get_comments(
     return comments
 
 
-@comments_router.get("/direct", response_model=List[schemes.CommentNotification])
+@comments_router.get("/direct", response_model=List[schemes.comments.CommentNotification])
 def get_direct_comments(
     limit: int = 20,
     offset: int = 0,
@@ -97,7 +97,7 @@ def get_direct_comments(
         return parent_sequence
 
     return [{
-        **schemes.CommentNotificationBase.from_orm(db_comment).dict(),
+        **schemes.comments.CommentNotificationBase.from_orm(db_comment).dict(),
         'user': db_comment.user.username,
         'course': db_comment.article.course.name,
         'article': db_comment.article.name,
@@ -119,7 +119,7 @@ def delete_all_direct_entry(
         if db_comment.article.course.author.user.id == user.id:
             update_data['viewed_by_author'] = True
         if len(update_data)!=0:
-            crud.update_comment(db, db_comment.id, schemes.CommentUpdate(**update_data))
+            crud.update_comment(db, db_comment.id, schemes.comments.CommentUpdate(**update_data))
 
 
 @comments_router.get("/direct/count")
@@ -144,24 +144,24 @@ def delete_direct_entry(
     if db_comment.article.course.author.user.id == user.id:
         update_data['viewed_by_author'] = True
     if len(update_data)!=0:
-        crud.update_comment(db, comment_id, schemes.CommentUpdate(**update_data))
+        crud.update_comment(db, comment_id, schemes.comments.CommentUpdate(**update_data))
 
 
-@comments_router.patch("/{comment_id}", response_model=schemes.CommentGet)
+@comments_router.patch("/{comment_id}", response_model=schemes.comments.CommentGet)
 def update_comment(
     comment_id: int,
-    new_comment: schemes.CommentPatch,
+    new_comment: schemes.comments.CommentPatch,
     db_comment = Depends(get_own_comment),
     db: Session = Depends(get_db)
 ):
-    comment_data = schemes.CommentUpdate(
+    comment_data = schemes.comments.CommentUpdate(
         **new_comment.dict(),
         created_at=datetime.utcnow()
     )
 
     new_db_comment = crud.update_comment(db, comment_id, comment_data)
     return {
-        **schemes.Comment.from_orm(new_db_comment).dict(),
+        **schemes.comments.Comment.from_orm(new_db_comment).dict(),
         'user': new_db_comment.user.username,
         'replies_count': len(new_db_comment.replies),
         'ownership': True
@@ -175,7 +175,7 @@ def delete_comment(
     db: Session = Depends(get_db)
 ):
     if db_comment.replies != []:
-        crud.update_comment(db, comment_id, schemes.CommentUpdate(content=None))
+        crud.update_comment(db, comment_id, schemes.comments.CommentUpdate(content=None))
     else:
         parent_id = db_comment.reply_to
         crud.delete_comment(db, comment_id)
