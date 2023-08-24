@@ -267,7 +267,7 @@ def get_html_from_content(content, db_images):
         img_name = match.group(1)
         for image in db_images:
             if image.original_name == img_name:
-                return match.group(0).replace(img_name, f'/api/images/{image.id}')
+                return match.group(0).replace(img_name, f'/api/articles/images/{image.id}')
         return match.group(0)
 
     html = re.sub(r'<img[^>]+?src\s*=\s*"(.+?)"', img_repl, html)

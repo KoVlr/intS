@@ -410,7 +410,7 @@ export async function fetch_upload_images(context, article_id, files) {
 export async function fetch_delete_image(context, image_id) {
     await refresh_if_exp(context);
 
-    let response = await fetch(`/api/images/${image_id}`, {
+    let response = await fetch(`/api/articles/images/${image_id}`, {
         method: "DELETE",
         headers: get_auth_header(context.token)
     });

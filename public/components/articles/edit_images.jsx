@@ -23,7 +23,7 @@ export default function EditImages(props) {
         <li className='img_elem' key={image.id}>
             <span>{image.original_name}</span>
 
-            <img src={`/api/images/${image.id}`} alt={image.original_name} width="200" height="200" />
+            <img src={`/api/articles/images/${image.id}`} alt={image.original_name} width="200" height="200" />
 
             <button onClick={async () => {
                 let article = await fetch_delete_image(context, image.id);
